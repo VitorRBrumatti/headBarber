@@ -1,26 +1,81 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #f8fafc; /* slate-50 */
+  --foreground: #0f172a; /* slate-900 */
+  --primary: #d97706; /* amber-600 */
+  --primary-foreground: #ffffff;
+  --secondary: #1e293b; /* slate-800 */
+  --secondary-foreground: #f8fafc;
+  --muted: #e2e8f0; /* slate-200 */
+  --muted-foreground: #64748b; /* slate-500 */
+  --accent: #f59e0b; /* amber-500 */
+  --accent-foreground: #ffffff;
+  --destructive: #ef4444; /* red-500 */
+  --destructive-foreground: #ffffff;
+  --border: #e2e8f0; /* slate-200 */
+  --input: #e2e8f0;
+  --ring: #d97706; /* amber-600 */
+  --radius: 0.5rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #09090b; /* zinc-950 */
+    --foreground: #fafafa; /* zinc-50 */
+    --primary: #fbbf24; /* amber-400 */
+    --primary-foreground: #09090b;
+    --secondary: #27272a; /* zinc-800 */
+    --secondary-foreground: #fafafa;
+    --muted: #27272a;
+    --muted-foreground: #a1a1aa; /* zinc-400 */
+    --accent: #f59e0b; /* amber-500 */
+    --accent-foreground: #09090b;
+    --destructive: #7f1d1d; /* red-900 */
+    --destructive-foreground: #fef2f2;
+    --border: #27272a;
+    --input: #27272a;
+    --ring: #fbbf24;
+  }
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+  @apply antialiased;
+}
+
+/* Glassmorphism utils */
+@layer utilities {
+  .glass {
+    @apply bg-white/10 backdrop-blur-md border border-white/20 shadow-lg;
+  }
+  .glass-dark {
+    @apply bg-black/40 backdrop-blur-md border border-white/10 shadow-lg;
+  }
 }
