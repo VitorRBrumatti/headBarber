@@ -1,9 +1,30 @@
-import { PageHeader } from '@/components/ui/page-header';
+import { createClient } from '@/utils/supabase/server'
+import { PageHeader } from '@/components/ui/page-header'
+import { BarbeirosClient } from './barbeiros-client'
 
-export default function Page() {
+export default async function BarbeirosPage() {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('barbershop_id')
+    .eq('id', user!.id)
+    .single()
+
+  const { data: barbers } = await supabase
+    .from('barbers')
+    .select('*')
+    .eq('barbershop_id', profile!.barbershop_id)
+    .order('created_at', { ascending: false })
+
   return (
-    <div>
-      <PageHeader title="barbeiros" description="Página de barbeiros" />
+    <div className="space-y-6">
+      <PageHeader
+        title="Barbeiros"
+        description="Gerencie a equipe de profissionais da sua barbearia."
+      />
+      <BarbeirosClient barbers={barbers ?? []} />
     </div>
   )
 }

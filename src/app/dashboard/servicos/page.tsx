@@ -1,9 +1,30 @@
-import { PageHeader } from '@/components/ui/page-header';
+import { createClient } from '@/utils/supabase/server'
+import { PageHeader } from '@/components/ui/page-header'
+import { ServicesClient } from './services-client'
 
-export default function Page() {
+export default async function ServicosPage() {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('barbershop_id')
+    .eq('id', user!.id)
+    .single()
+
+  const { data: services } = await supabase
+    .from('services')
+    .select('*')
+    .eq('barbershop_id', profile!.barbershop_id)
+    .order('created_at', { ascending: false })
+
   return (
-    <div>
-      <PageHeader title="servicos" description="Página de servicos" />
+    <div className="space-y-6">
+      <PageHeader
+        title="Serviços"
+        description="Gerencie os serviços oferecidos pela sua barbearia."
+      />
+      <ServicesClient services={services ?? []} />
     </div>
   )
 }

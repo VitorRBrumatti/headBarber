@@ -1,0 +1,63 @@
+'use server'
+
+import { revalidatePath } from 'next/cache'
+import { createClient } from '@/utils/supabase/server'
+
+async function getBarbershopId() {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('Não autenticado')
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('barbershop_id')
+    .eq('id', user.id)
+    .single()
+  if (!profile?.barbershop_id) throw new Error('Sem barbearia associada')
+  return { supabase, barbershopId: profile.barbershop_id }
+}
+
+export async function createService(formData: FormData) {
+  const { supabase, barbershopId } = await getBarbershopId()
+  const { error } = await supabase.from('services').insert({
+    barbershop_id: barbershopId,
+    name: formData.get('name') as string,
+    description: formData.get('description') as string,
+    price: parseFloat(formData.get('price') as string),
+    duration_minutes: parseInt(formData.get('duration_minutes') as string),
+    is_active: true,
+  })
+  if (error) throw new Error(error.message)
+  revalidatePath('/dashboard/servicos')
+  revalidatePath('/dashboard')
+}
+
+export async function updateService(id: string, formData: FormData) {
+  const { supabase, barbershopId } = await getBarbershopId()
+  const { error } = await supabase.from('services').update({
+    name: formData.get('name') as string,
+    description: formData.get('description') as string,
+    price: parseFloat(formData.get('price') as string),
+    duration_minutes: parseInt(formData.get('duration_minutes') as string),
+  }).eq('id', id).eq('barbershop_id', barbershopId)
+  if (error) throw new Error(error.message)
+  revalidatePath('/dashboard/servicos')
+}
+
+export async function toggleServiceStatus(id: string, isActive: boolean) {
+  const { supabase, barbershopId } = await getBarbershopId()
+  const { error } = await supabase.from('services')
+    .update({ is_active: !isActive })
+    .eq('id', id).eq('barbershop_id', barbershopId)
+  if (error) throw new Error(error.message)
+  revalidatePath('/dashboard/servicos')
+}
+
+export async function deleteService(id: string) {
+  const { supabase, barbershopId } = await getBarbershopId()
+  const { error } = await supabase.from('services')
+    .delete()
+    .eq('id', id).eq('barbershop_id', barbershopId)
+  if (error) throw new Error(error.message)
+  revalidatePath('/dashboard/servicos')
+  revalidatePath('/dashboard')
+}

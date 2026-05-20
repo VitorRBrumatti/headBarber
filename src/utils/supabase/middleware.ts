@@ -32,18 +32,50 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser()
 
+  const path = request.nextUrl.pathname
+
   // Proteger rotas que comecem com /dashboard
-  if (request.nextUrl.pathname.startsWith('/dashboard') && !user) {
+  if (path.startsWith('/dashboard') && !user) {
     const url = request.nextUrl.clone()
     url.pathname = '/login'
     return NextResponse.redirect(url)
   }
 
-  // Se o usuário está logado e tenta ir pra página de login, redireciona pro dashboard
-  if (request.nextUrl.pathname.startsWith('/login') && user) {
+  // Usuário logado tentando acessar /login → redireciona para dashboard
+  if (path.startsWith('/login') && user) {
     const url = request.nextUrl.clone()
     url.pathname = '/dashboard'
     return NextResponse.redirect(url)
+  }
+
+  // Usuário logado no dashboard, verificar se tem barbershop_id
+  if (user && path.startsWith('/dashboard')) {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('barbershop_id')
+      .eq('id', user.id)
+      .single()
+
+    if (!profile?.barbershop_id) {
+      const url = request.nextUrl.clone()
+      url.pathname = '/onboarding'
+      return NextResponse.redirect(url)
+    }
+  }
+
+  // Usuário logado com barbearia tentando acessar /onboarding → dashboard
+  if (user && path.startsWith('/onboarding')) {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('barbershop_id')
+      .eq('id', user.id)
+      .single()
+
+    if (profile?.barbershop_id) {
+      const url = request.nextUrl.clone()
+      url.pathname = '/dashboard'
+      return NextResponse.redirect(url)
+    }
   }
 
   return supabaseResponse
