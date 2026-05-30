@@ -1,20 +1,7 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
-import { createClient as createSupabaseClient } from '@/utils/supabase/server'
-
-async function getBarbershopId() {
-  const supabase = await createSupabaseClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) throw new Error('Não autenticado')
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('barbershop_id')
-    .eq('id', user.id)
-    .single()
-  if (!profile?.barbershop_id) throw new Error('Sem barbearia associada')
-  return { supabase, barbershopId: profile.barbershop_id }
-}
+import { getBarbershopId } from '@/utils/get-barbershop'
 
 export async function createClient(formData: FormData) {
   const { supabase, barbershopId } = await getBarbershopId()

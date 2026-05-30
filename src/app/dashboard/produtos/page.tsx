@@ -1,9 +1,30 @@
-import { PageHeader } from '@/components/ui/page-header';
+import { createClient } from '@/utils/supabase/server'
+import { PageHeader } from '@/components/ui/page-header'
+import { ProdutosClient } from './produtos-client'
 
-export default function Page() {
+export default async function ProdutosPage() {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('barbershop_id')
+    .eq('id', user!.id)
+    .single()
+
+  const { data: products } = await supabase
+    .from('products')
+    .select('*')
+    .eq('barbershop_id', profile!.barbershop_id)
+    .order('created_at', { ascending: false })
+
   return (
-    <div>
-      <PageHeader title="produtos" description="Página de produtos" />
+    <div className="space-y-6">
+      <PageHeader
+        title="Produtos"
+        description="Gerencie os produtos vendidos na sua barbearia."
+      />
+      <ProdutosClient products={products ?? []} />
     </div>
   )
 }

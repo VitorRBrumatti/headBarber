@@ -1,7 +1,7 @@
 import { createClient } from '@/utils/supabase/server'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { PageHeader } from '@/components/ui/page-header'
-import { Users, Scissors, Briefcase, Calendar } from 'lucide-react'
+import { Users, Scissors, Briefcase, Calendar, PlusCircle, ShoppingBag } from 'lucide-react'
 
 export default async function DashboardPage() {
   const supabase = await createClient()
@@ -21,10 +21,14 @@ export default async function DashboardPage() {
     { count: servicesCount },
     { count: barbersCount },
     { count: clientsCount },
+    { count: addOnsCount },
+    { count: productsCount },
   ] = await Promise.all([
     supabase.from('services').select('*', { count: 'exact', head: true }).eq('barbershop_id', barbershopId!).eq('is_active', true),
     supabase.from('barbers').select('*', { count: 'exact', head: true }).eq('barbershop_id', barbershopId!).eq('is_active', true),
     supabase.from('clients').select('*', { count: 'exact', head: true }).eq('barbershop_id', barbershopId!),
+    supabase.from('add_ons').select('*', { count: 'exact', head: true }).eq('barbershop_id', barbershopId!).eq('is_active', true),
+    supabase.from('products').select('*', { count: 'exact', head: true }).eq('barbershop_id', barbershopId!).eq('is_active', true),
   ])
 
   // @ts-ignore
@@ -56,6 +60,22 @@ export default async function DashboardPage() {
       href: '/dashboard/clientes',
     },
     {
+      title: 'Adicionais Ativos',
+      value: addOnsCount ?? 0,
+      icon: PlusCircle,
+      color: 'text-violet-500',
+      bg: 'bg-violet-500/10',
+      href: '/dashboard/adicionais',
+    },
+    {
+      title: 'Produtos Ativos',
+      value: productsCount ?? 0,
+      icon: ShoppingBag,
+      color: 'text-orange-500',
+      bg: 'bg-orange-500/10',
+      href: '/dashboard/produtos',
+    },
+    {
       title: 'Agendamentos Hoje',
       value: 0,
       icon: Calendar,
@@ -73,7 +93,7 @@ export default async function DashboardPage() {
       />
 
       {/* Stats Grid */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {stats.map((stat) => (
           <a key={stat.title} href={stat.href} className="block transition-transform hover:-translate-y-0.5">
             <Card className="hover:shadow-md transition-shadow dark:bg-zinc-900/50">
