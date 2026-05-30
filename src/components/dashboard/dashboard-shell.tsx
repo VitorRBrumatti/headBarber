@@ -63,11 +63,17 @@ export function DashboardShell({ children, userEmail, barbershopName }: Dashboar
       {/* Sidebar (Desktop) */}
       <aside className="hidden w-64 flex-col border-r bg-white dark:bg-zinc-900/50 dark:border-zinc-800 md:flex">
         <div className="flex h-16 items-center border-b px-6 dark:border-zinc-800">
-          <Link href="/dashboard" className="flex items-center gap-2 font-bold text-lg">
-            <div className="bg-primary p-1.5 rounded-md">
-              <Scissors className="w-4 h-4 text-primary-foreground" />
-            </div>
-            HeadBarber
+          <Link href="/dashboard" className="flex items-center gap-2 hover:opacity-95 transition-opacity">
+            <img 
+              src="/brand/logo-white.png" 
+              alt="HeadBarber Logo" 
+              className="h-7 w-auto object-contain dark:block hidden"
+            />
+            <img 
+              src="/brand/logo-horizontal.png" 
+              alt="HeadBarber Logo" 
+              className="h-7 w-auto object-contain dark:hidden block"
+            />
           </Link>
         </div>
         <div className="flex-1 overflow-auto py-4">
@@ -80,7 +86,7 @@ export function DashboardShell({ children, userEmail, barbershopName }: Dashboar
             <div className="h-8 w-8 rounded-full bg-zinc-200 dark:bg-zinc-800 flex items-center justify-center">
               <UserCircle className="w-5 h-5 text-zinc-500" />
             </div>
-            <div className="flex flex-col overflow-hidden">
+            <div className="flex flex-col overflow-hidden font-sans">
               <span className="text-sm font-medium truncate w-32">{userEmail}</span>
               <span className="text-xs text-zinc-500 truncate">{barbershopName}</span>
             </div>
@@ -108,11 +114,17 @@ export function DashboardShell({ children, userEmail, barbershopName }: Dashboar
         }`}
       >
         <div className="flex h-16 items-center justify-between border-b px-6 dark:border-zinc-800">
-          <Link href="/dashboard" className="flex items-center gap-2 font-bold text-lg" onClick={() => setMobileMenuOpen(false)}>
-            <div className="bg-primary p-1.5 rounded-md">
-              <Scissors className="w-4 h-4 text-primary-foreground" />
-            </div>
-            HeadBarber
+          <Link href="/dashboard" className="flex items-center gap-2 hover:opacity-95 transition-opacity" onClick={() => setMobileMenuOpen(false)}>
+            <img 
+              src="/brand/logo-white.png" 
+              alt="HeadBarber Logo" 
+              className="h-7 w-auto object-contain dark:block hidden"
+            />
+            <img 
+              src="/brand/logo-horizontal.png" 
+              alt="HeadBarber Logo" 
+              className="h-7 w-auto object-contain dark:hidden block"
+            />
           </Link>
           <button onClick={() => setMobileMenuOpen(false)} className="text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-50">
             <X className="h-5 w-5" />
@@ -153,7 +165,14 @@ export function DashboardShell({ children, userEmail, barbershopName }: Dashboar
             >
               <Menu className="h-6 w-6" />
             </button>
-            <span className="font-bold">HeadBarber</span>
+            <Link href="/dashboard" className="flex items-center gap-1.5 hover:opacity-90">
+              <img 
+                src="/brand/logo-symbol-gold.png" 
+                alt="HeadBarber Symbol" 
+                className="h-6 w-auto object-contain"
+              />
+              <span className="font-sans font-black tracking-tight text-zinc-900 dark:text-zinc-50 text-base">HeadBarber</span>
+            </Link>
           </div>
           <form action="/auth/signout" method="post">
             <button type="submit" className="text-zinc-500 hover:text-destructive">

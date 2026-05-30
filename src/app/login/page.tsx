@@ -72,11 +72,12 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center bg-zinc-50 dark:bg-zinc-950 p-4">
       <div className="w-full max-w-md space-y-8">
         <div className="flex flex-col items-center">
-          <Link href="/" className="flex items-center gap-2 mb-8">
-            <div className="bg-amber-500 p-2.5 rounded-xl">
-              <Scissors className="w-6 h-6 text-black" />
-            </div>
-            <span className="text-2xl font-bold tracking-tight text-white">HeadBarber</span>
+          <Link href="/" className="flex items-center justify-center mb-8 hover:opacity-95 transition-opacity">
+            <img 
+              src="/brand/logo-white.png" 
+              alt="HeadBarber Logo" 
+              className="h-12 w-auto object-contain"
+            />
           </Link>
           <Card className="w-full bg-zinc-900 border-zinc-800 text-white shadow-2xl">
             <CardHeader className="text-left space-y-1">

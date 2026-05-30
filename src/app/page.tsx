@@ -7,11 +7,12 @@ export default function Home() {
     <div className="min-h-screen bg-background text-foreground selection:bg-primary/30">
       <nav className="fixed top-0 w-full z-50 glass-dark border-b-0">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="bg-primary p-2 rounded-lg">
-              <Scissors className="w-5 h-5 text-primary-foreground" />
-            </div>
-            <span className="text-xl font-bold tracking-tight">HeadBarber</span>
+          <div className="flex items-center">
+            <img 
+              src="/brand/logo-white.png" 
+              alt="HeadBarber Logo" 
+              className="h-8 w-auto object-contain"
+            />
           </div>
           <div className="flex items-center gap-4">
             <Link href="/dashboard">

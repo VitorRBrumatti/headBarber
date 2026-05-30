@@ -60,12 +60,12 @@ export default function OnboardingPage() {
   return (
     <div className="min-h-screen bg-zinc-950 flex items-center justify-center p-4">
       <div className="w-full max-w-lg">
-        {/* Logo */}
-        <div className="flex items-center justify-center gap-2 mb-10">
-          <div className="bg-amber-500 p-2.5 rounded-xl">
-            <Scissors className="w-6 h-6 text-black" />
-          </div>
-          <span className="text-2xl font-bold text-white tracking-tight">HeadBarber</span>
+        <div className="flex items-center justify-center mb-10">
+          <img 
+            src="/brand/logo-white.png" 
+            alt="HeadBarber Logo" 
+            className="h-12 w-auto object-contain"
+          />
         </div>
 
         {/* Card */}

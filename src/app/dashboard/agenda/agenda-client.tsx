@@ -425,17 +425,26 @@ export function AgendaClient({
             {/* Quick metrics */}
             <div className="bg-zinc-100 dark:bg-zinc-950 p-4 rounded-2xl border border-zinc-200 dark:border-zinc-850/80 space-y-3">
               <div className="flex justify-between items-center text-sm">
-                <span className="text-zinc-500">✂️ Serviço</span>
+                <span className="text-zinc-500 flex items-center gap-1.5 font-medium">
+                  <Scissors className="w-3.5 h-3.5 text-zinc-450 dark:text-zinc-500" />
+                  Serviço
+                </span>
                 <span className="font-bold">{selectedAppt.services?.name}</span>
               </div>
               <div className="flex justify-between items-center text-sm">
-                <span className="text-zinc-500">💈 Barbeiro</span>
+                <span className="text-zinc-500 flex items-center gap-1.5 font-medium">
+                  <User className="w-3.5 h-3.5 text-zinc-450 dark:text-zinc-500" />
+                  Barbeiro
+                </span>
                 <span className="font-medium">
                   {initialBarbers.find(b => b.id === selectedAppt.barber_id)?.name}
                 </span>
               </div>
               <div className="flex justify-between items-center text-sm">
-                <span className="text-zinc-500">⏰ Horário</span>
+                <span className="text-zinc-500 flex items-center gap-1.5 font-medium">
+                  <Clock className="w-3.5 h-3.5 text-zinc-450 dark:text-zinc-500" />
+                  Horário
+                </span>
                 <span className="font-mono text-amber-500 font-black text-base">
                   {new Date(selectedAppt.start_at).toISOString().substring(11, 16)}
                 </span>
