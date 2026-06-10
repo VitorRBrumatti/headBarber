@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useTransition } from 'react'
-import { Plus, Edit, Trash2, Power, Package, DollarSign, Box } from 'lucide-react'
+import { Plus, Edit, Trash2, Power, Package, DollarSign, Box, ShoppingBag } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -9,7 +9,7 @@ import { Sheet } from '@/components/ui/sheet'
 import { Dialog } from '@/components/ui/dialog'
 import { EmptyState } from '@/components/ui/empty-state'
 import { ProductForm } from '@/components/dashboard/product-form'
-import { toggleProductStatus, deleteProduct } from './actions'
+import { toggleProductStatus, deleteProduct, recordProductSaleAction } from './actions'
 
 interface Product {
   id: string
@@ -23,8 +23,14 @@ interface Product {
   image_url: string | null
 }
 
+interface ClientOption {
+  id: string
+  name: string
+}
+
 interface ProdutosClientProps {
   products: Product[]
+  clients: ClientOption[]
 }
 
 const CATEGORY_LABELS: Record<string, string> = {
@@ -40,11 +46,18 @@ const CATEGORY_LABELS: Record<string, string> = {
   outro: 'Outro',
 }
 
-export function ProdutosClient({ products }: ProdutosClientProps) {
+export function ProdutosClient({ products, clients }: ProdutosClientProps) {
   const [sheetOpen, setSheetOpen] = useState(false)
   const [editingProduct, setEditingProduct] = useState<Product | undefined>(undefined)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [deletingId, setDeletingId] = useState<string | null>(null)
+
+  // Sell product states
+  const [sellSheetOpen, setSellSheetOpen] = useState(false)
+  const [sellingProduct, setSellingProduct] = useState<Product | undefined>(undefined)
+  const [sellQuantity, setSellQuantity] = useState(1)
+  const [sellPaymentMethod, setSellPaymentMethod] = useState('pix')
+  const [sellClientId, setSellClientId] = useState('')
 
   const [isPending, startTransition] = useTransition()
   const [error, setError] = useState('')
@@ -88,6 +101,35 @@ export function ProdutosClient({ products }: ProdutosClientProps) {
       }
     })
   }
+
+  const handleSellClick = (product: Product) => {
+    setSellingProduct(product)
+    setSellQuantity(1)
+    setSellPaymentMethod('pix')
+    setSellClientId('')
+    setSellSheetOpen(true)
+  }
+
+  const handleSellSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!sellingProduct) return
+    setError('')
+    startTransition(async () => {
+      try {
+        await recordProductSaleAction(
+          sellingProduct.id,
+          sellQuantity,
+          sellPaymentMethod,
+          sellClientId || undefined
+        )
+        setSellSheetOpen(false)
+        setSellingProduct(undefined)
+      } catch (err: any) {
+        setError(err.message)
+      }
+    })
+  }
+
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('pt-BR', {
@@ -186,6 +228,16 @@ export function ProdutosClient({ products }: ProdutosClientProps) {
               {/* Action Buttons */}
               <div className="mt-6 pt-4 border-t border-zinc-100 dark:border-zinc-800/60 flex items-center justify-end gap-2">
                 <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleSellClick(product)}
+                  disabled={isPending || !product.is_active || product.stock_quantity <= 0}
+                  className="mr-auto gap-1 text-xs font-semibold border-amber-500/20 hover:border-amber-500/50 text-amber-500 hover:bg-amber-500/10 disabled:opacity-50"
+                >
+                  <ShoppingBag className="h-3 w-3" />
+                  Vender
+                </Button>
+                <Button
                   variant="ghost"
                   size="icon"
                   onClick={() => handleToggleStatus(product.id, product.is_active)}
@@ -236,6 +288,136 @@ export function ProdutosClient({ products }: ProdutosClientProps) {
           product={editingProduct}
           onSuccess={() => setSheetOpen(false)}
         />
+      </Sheet>
+
+      {/* Slide-over Sheet for Quick Sell */}
+      <Sheet
+        open={sellSheetOpen}
+        onClose={() => {
+          setSellSheetOpen(false)
+          setSellingProduct(undefined)
+        }}
+        title="Registrar Venda"
+        description={`Venda rápida do produto: ${sellingProduct?.name || ''}`}
+      >
+        {sellingProduct && (
+          <form onSubmit={handleSellSubmit} className="space-y-6">
+            <div className="space-y-4">
+              <div>
+                <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-2">
+                  Produto
+                </label>
+                <div className="p-3 bg-zinc-900 border border-zinc-800 rounded-lg text-zinc-250">
+                  {sellingProduct.name}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-2">
+                    Preço Unitário
+                  </label>
+                  <div className="p-3 bg-zinc-900 border border-zinc-800 rounded-lg text-zinc-250">
+                    {formatPrice(sellingProduct.sale_price)}
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-2">
+                    Em Estoque
+                  </label>
+                  <div className="p-3 bg-zinc-900 border border-zinc-800 rounded-lg text-zinc-255">
+                    {sellingProduct.stock_quantity} un
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <label htmlFor="sell-quantity" className="block text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-2">
+                  Quantidade *
+                </label>
+                <input
+                  id="sell-quantity"
+                  type="number"
+                  required
+                  min={1}
+                  max={sellingProduct.stock_quantity}
+                  value={sellQuantity}
+                  onChange={(e) => setSellQuantity(Math.max(1, Math.min(sellingProduct.stock_quantity, parseInt(e.target.value) || 1)))}
+                  className="w-full bg-zinc-950 border border-zinc-800 focus:border-amber-500 rounded-lg p-3 text-zinc-200 focus:outline-none transition-colors"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="sell-payment" className="block text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-2">
+                  Forma de Pagamento *
+                </label>
+                <select
+                  id="sell-payment"
+                  required
+                  value={sellPaymentMethod}
+                  onChange={(e) => setSellPaymentMethod(e.target.value)}
+                  className="w-full bg-zinc-950 border border-zinc-800 focus:border-amber-500 rounded-lg p-3 text-zinc-200 focus:outline-none transition-colors"
+                >
+                  <option value="pix">Pix</option>
+                  <option value="money">Dinheiro</option>
+                  <option value="credit_card">Cartão de Crédito</option>
+                  <option value="debit_card">Cartão de Débito</option>
+                  <option value="other">Outro</option>
+                </select>
+              </div>
+
+              <div>
+                <label htmlFor="sell-client" className="block text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-2">
+                  Cliente (Opcional)
+                </label>
+                <select
+                  id="sell-client"
+                  value={sellClientId}
+                  onChange={(e) => setSellClientId(e.target.value)}
+                  className="w-full bg-zinc-950 border border-zinc-800 focus:border-amber-500 rounded-lg p-3 text-zinc-200 focus:outline-none transition-colors"
+                >
+                  <option value="">Cliente Avulso (Não identificado)</option>
+                  {clients.map((client) => (
+                    <option key={client.id} value={client.id}>
+                      {client.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="pt-4 border-t border-zinc-800/60">
+                <div className="flex justify-between items-center text-sm font-semibold">
+                  <span className="text-zinc-400">VALOR TOTAL:</span>
+                  <span className="text-xl font-bold text-amber-500">
+                    {formatPrice(sellingProduct.sale_price * sellQuantity)}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex gap-3 justify-end pt-4">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => {
+                  setSellSheetOpen(false)
+                  setSellingProduct(undefined)
+                }}
+                disabled={isPending}
+              >
+                Cancelar
+              </Button>
+              <Button
+                type="submit"
+                disabled={isPending || sellingProduct.stock_quantity <= 0}
+                className="bg-amber-500 hover:bg-amber-600 text-zinc-950 font-bold px-6 shadow-md shadow-amber-500/10"
+              >
+                {isPending ? 'Gravando...' : 'Confirmar Venda'}
+              </Button>
+            </div>
+          </form>
+        )}
       </Sheet>
 
       {/* Confirmation Dialog for Delete */}

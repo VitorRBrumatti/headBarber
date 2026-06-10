@@ -18,6 +18,7 @@ export async function createBarber(formData: FormData) {
       name: formData.get('name') as string,
       bio: formData.get('bio') as string,
       avatar_url: formData.get('avatar_url') as string || null,
+      commission_percentage: parseFloat(formData.get('commission_percentage') as string) || 0.00,
       is_active: true,
     })
     .select('id')
@@ -70,6 +71,7 @@ export async function updateBarber(id: string, formData: FormData) {
     name: formData.get('name') as string,
     bio: formData.get('bio') as string,
     avatar_url: formData.get('avatar_url') as string || null,
+    commission_percentage: parseFloat(formData.get('commission_percentage') as string) || 0.00,
   }).eq('id', id).eq('barbershop_id', barbershopId)
   if (error) throw new Error(error.message)
   revalidatePath('/dashboard/barbeiros')

@@ -18,13 +18,19 @@ export default async function ProdutosPage() {
     .eq('barbershop_id', profile!.barbershop_id)
     .order('created_at', { ascending: false })
 
+  const { data: clients } = await supabase
+    .from('clients')
+    .select('id, name')
+    .eq('barbershop_id', profile!.barbershop_id)
+    .order('name', { ascending: true })
+
   return (
     <div className="space-y-6">
       <PageHeader
         title="Produtos"
         description="Gerencie os produtos vendidos na sua barbearia."
       />
-      <ProdutosClient products={products ?? []} />
+      <ProdutosClient products={products ?? []} clients={clients ?? []} />
     </div>
   )
 }

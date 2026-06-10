@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useTransition } from 'react'
-import { Plus, Edit, Trash2, Power, Calendar, Clock, Check, AlertTriangle } from 'lucide-react'
+import { Plus, Edit, Trash2, Power, Calendar, Clock, Check, AlertTriangle, Percent } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -17,7 +17,9 @@ interface Barber {
   bio: string | null
   avatar_url: string | null
   is_active: boolean
+  commission_percentage: number
 }
+
 
 interface BarbeirosClientProps {
   barbers: Barber[]
@@ -199,6 +201,12 @@ export function BarbeirosClient({ barbers }: BarbeirosClientProps) {
                 <p className="mt-4 text-sm text-left text-zinc-500 dark:text-zinc-400 line-clamp-3 min-h-[3.75rem]">
                   {barber.bio || 'Sem descrição ou biografia cadastrada para este profissional.'}
                 </p>
+
+                {/* Commission Rate */}
+                <div className="mt-4 flex items-center gap-1.5 text-xs text-zinc-500">
+                  <Percent className="h-3.5 w-3.5 text-amber-500" />
+                  <span>Comissão: <strong className="text-zinc-350">{barber.commission_percentage || 0}%</strong></span>
+                </div>
               </div>
 
               {/* Action Buttons */}

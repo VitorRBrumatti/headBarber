@@ -12,6 +12,7 @@ interface Barber {
   bio: string | null
   avatar_url: string | null
   is_active: boolean
+  commission_percentage: number
 }
 
 interface BarberFormProps {
@@ -65,6 +66,24 @@ export function BarberForm({ barber, onSuccess }: BarberFormProps) {
           Insira uma URL direta para a foto do profissional.
         </p>
       </div>
+
+      <div className="space-y-1.5">
+        <label className="text-sm font-medium">Porcentagem de Comissão (%) *</label>
+        <Input
+          name="commission_percentage"
+          type="number"
+          step="0.1"
+          min="0"
+          max="100"
+          defaultValue={barber?.commission_percentage ?? 0}
+          placeholder="Ex: 30"
+          required
+        />
+        <p className="text-xs text-zinc-500">
+          Taxa de comissão do barbeiro sobre os atendimentos concluídos.
+        </p>
+      </div>
+
 
       <div className="space-y-1.5">
         <label className="text-sm font-medium">Biografia / Especialidade</label>
