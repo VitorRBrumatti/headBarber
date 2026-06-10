@@ -87,6 +87,7 @@ export default function OnboardingPage() {
                 Nome da barbearia
               </label>
               <Input
+                name="name"
                 type="text"
                 placeholder="Ex: Barbearia do João"
                 value={name}
