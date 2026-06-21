@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Seu link de acesso — HeadBarber</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Geist+Sans:wght@400;500;600;700&family=Geist+Mono:wght@600;700&display=swap');
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background-color: #F8F6F1;
+      font-family: 'Geist Sans', Inter, system-ui, sans-serif;
+      color: #1D1C19;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .wrapper {
+      width: 100%;
+      background-color: #F8F6F1;
+      padding: 40px 16px;
+    }
+
+    .container {
+      max-width: 580px;
+      margin: 0 auto;
+      background-color: #FEFCF8;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid #DEDAD2;
+      box-shadow: 0 4px 12px rgba(21, 20, 17, 0.04);
+    }
+
+    /* Header */
+    .header {
+      padding: 40px 48px 32px;
+      text-align: center;
+      border-bottom: 1px solid #EEEAE3;
+    }
+
+    .logo-area {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 24px;
+    }
+
+    .logo-icon {
+      width: 36px;
+      height: 36px;
+      background: transparent;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .logo-text {
+      font-size: 20px;
+      font-weight: 700;
+      color: #1D1C19;
+      letter-spacing: -0.5px;
+    }
+
+    .logo-text span {
+      color: #A87935;
+    }
+
+    .badge {
+      display: inline-block;
+      background: #F3E8D3;
+      border: 1px solid rgba(168, 121, 53, 0.2);
+      color: #896128;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      padding: 4px 12px;
+      border-radius: 100px;
+      margin-bottom: 16px;
+    }
+
+    .header h1 {
+      font-size: 24px;
+      font-weight: 600;
+      color: #1D1C19;
+      line-height: 1.25;
+      letter-spacing: -0.5px;
+    }
+
+    /* Body */
+    .body {
+      padding: 40px 48px;
+    }
+
+    .greeting {
+      font-size: 15px;
+      color: #4B4943;
+      line-height: 1.6;
+      margin-bottom: 24px;
+    }
+
+    .greeting strong {
+      color: #1D1C19;
+    }
+
+    /* OTP box display */
+    .otp-box {
+      background: #FEFCF8;
+      border: 1px solid #DEDAD2;
+      border-radius: 8px;
+      padding: 24px;
+      text-align: center;
+      margin-bottom: 32px;
+      box-shadow: 0 1px 2px rgba(21, 20, 17, 0.02);
+    }
+
+    .otp-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: #77736A;
+      margin-bottom: 12px;
+    }
+
+    .otp-code {
+      font-size: 36px;
+      font-weight: 700;
+      letter-spacing: 6px;
+      color: #A87935;
+      font-family: 'Geist Mono', monospace;
+    }
+
+    .otp-expiry {
+      font-size: 12px;
+      color: #77736A;
+      margin-top: 10px;
+    }
+
+    .divider-text {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin: 24px 0;
+    }
+
+    .divider-text::before,
+    .divider-text::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: #EEEAE3;
+    }
+
+    .divider-text span {
+      font-size: 11px;
+      color: #77736A;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      white-space: nowrap;
+    }
+
+    .cta-wrapper {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    .cta-button {
+      display: inline-block;
+      background: #1D1C19;
+      color: #FEFCF8;
+      font-family: 'Geist Sans', Inter, sans-serif;
+      font-size: 15px;
+      font-weight: 600;
+      text-decoration: none;
+      padding: 12px 32px;
+      border-radius: 8px;
+      transition: background-color 150ms ease;
+    }
+
+    .cta-subtext {
+      margin-top: 12px;
+      font-size: 12px;
+      color: #77736A;
+    }
+
+    .security-note {
+      background: #EEEAE3;
+      border-radius: 8px;
+      padding: 16px 20px;
+      margin-bottom: 24px;
+    }
+
+    .security-note p {
+      font-size: 13px;
+      color: #4B4943;
+      line-height: 1.6;
+    }
+
+    .security-note strong {
+      color: #1D1C19;
+    }
+
+    .divider {
+      height: 1px;
+      background: #EEEAE3;
+      margin: 32px 0;
+    }
+
+    .fallback {
+      font-size: 13px;
+      color: #77736A;
+      line-height: 1.6;
+    }
+
+    .fallback a {
+      color: #A87935;
+      text-decoration: none;
+      word-break: break-all;
+    }
+
+    /* Footer */
+    .footer {
+      background: #FEFCF8;
+      border-top: 1px solid #EEEAE3;
+      padding: 24px 48px;
+      text-align: center;
+    }
+
+    .footer p {
+      font-size: 12px;
+      color: #77736A;
+      line-height: 1.6;
+      margin-bottom: 4px;
+    }
+
+    .footer p:last-child {
+      margin-bottom: 0;
+    }
+
+    .footer-brand {
+      font-size: 13px;
+      color: #1D1C19;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .footer-brand span {
+      color: #A87935;
+    }
+
+    @media (max-width: 600px) {
+      .header, .body, .footer {
+        padding-left: 24px;
+        padding-right: 24px;
+      }
+      .header h1 { font-size: 20px; }
+      .otp-code { font-size: 28px; letter-spacing: 4px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <div class="container">
+
+      <!-- Header -->
+      <div class="header">
+        <div class="logo-area">
+          <div class="logo-icon">
+            <img src="https://iccfmppqdgisoajmqpsl.supabase.co/storage/v1/object/sign/images/logo-symbol.png?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV82OTFlNTk1MS03ZjlmLTQyMjItOTk3OS03YzJmMGRiYjM4OWYiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJpbWFnZXMvbG9nby1zeW1ib2wucG5nIiwic2NvcGUiOiJkb3dubG9hZCIsImlhdCI6MTc4MjAwNTA1NCwiZXhwIjozMzI4NjQ2OTA1NH0.6YqWXO_6f5ZvfM8xYtqazSkfN7qoy58at-6unMfwq_0" alt="HeadBarber" style="display: block; width: 32px; height: 32px; object-fit: contain;" />
+          </div>
+          <span class="logo-text">Head<span>Barber</span></span>
+        </div>
+        <div>
+          <div class="badge">Acesso Rápido</div>
+        </div>
+        <h1>Seu link de acesso</h1>
+      </div>
+
+      <!-- Body -->
+      <div class="body">
+        <p class="greeting">
+          Olá! Você solicitou um acesso sem senha para o email <strong>{{ .Email }}</strong>. Use o código abaixo ou clique no link para entrar.
+        </p>
+
+        <div class="otp-box">
+          <p class="otp-label">Código de acesso</p>
+          <p class="otp-code">{{ .Token }}</p>
+          <p class="otp-expiry">Expira em 10 minutos</p>
+        </div>
+
+        <div class="divider-text">
+          <span>ou acesse diretamente</span>
+        </div>
+
+        <div class="cta-wrapper">
+          <a href="{{ .ConfirmationURL }}" class="cta-button">Entrar no HeadBarber</a>
+          <p class="cta-subtext">Link de uso único — expira em 10 minutos</p>
+        </div>
+
+        <div class="security-note">
+          <p>
+            <strong>Importante:</strong> Nunca compartilhe este código ou link. O HeadBarber jamais pedirá esses dados por telefone ou outros meios.
+          </p>
+        </div>
+
+        <div class="divider"></div>
+
+        <p class="fallback">
+          Se o botão não funcionar, copie e cole o link abaixo no seu navegador:<br />
+          <a href="{{ .ConfirmationURL }}">{{ .ConfirmationURL }}</a>
+        </p>
+      </div>
+
+      <!-- Footer -->
+      <div class="footer">
+        <p class="footer-brand">Head<span>Barber</span></p>
+        <p>Você solicitou este link de acesso para o HeadBarber.</p>
+        <p>Se não foi você, ignore este email — sua conta está segura.</p>
+      </div>
+
+    </div>
+  </div>
+</body>
+</html>
