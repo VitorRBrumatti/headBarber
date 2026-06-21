@@ -1,37 +1,37 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f8fafc; /* slate-50 */
-  --foreground: #0f172a; /* slate-900 */
-  --primary: #d97706; /* amber-600 */
+  --background: #f8fafc;
+  --foreground: #0f172a;
+  --primary: #d97706;
   --primary-foreground: #ffffff;
-  --secondary: #1e293b; /* slate-800 */
+  --secondary: #1e293b;
   --secondary-foreground: #f8fafc;
-  --muted: #e2e8f0; /* slate-200 */
-  --muted-foreground: #64748b; /* slate-500 */
-  --accent: #f59e0b; /* amber-500 */
+  --muted: #e2e8f0;
+  --muted-foreground: #64748b;
+  --accent: #f59e0b;
   --accent-foreground: #ffffff;
-  --destructive: #ef4444; /* red-500 */
+  --destructive: #ef4444;
   --destructive-foreground: #ffffff;
-  --border: #e2e8f0; /* slate-200 */
+  --border: #e2e8f0;
   --input: #e2e8f0;
-  --ring: #d97706; /* amber-600 */
+  --ring: #d97706;
   --radius: 0.5rem;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #09090b; /* zinc-950 */
-    --foreground: #fafafa; /* zinc-50 */
-    --primary: #fbbf24; /* amber-400 */
+    --background: #09090b;
+    --foreground: #fafafa;
+    --primary: #fbbf24;
     --primary-foreground: #09090b;
-    --secondary: #27272a; /* zinc-800 */
+    --secondary: #27272a;
     --secondary-foreground: #fafafa;
     --muted: #27272a;
-    --muted-foreground: #a1a1aa; /* zinc-400 */
-    --accent: #f59e0b; /* amber-500 */
+    --muted-foreground: #a1a1aa;
+    --accent: #f59e0b;
     --accent-foreground: #09090b;
-    --destructive: #7f1d1d; /* red-900 */
+    --destructive: #7f1d1d;
     --destructive-foreground: #fef2f2;
     --border: #27272a;
     --input: #27272a;
@@ -61,6 +61,7 @@
   --radius-sm: calc(var(--radius) - 4px);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --font-montserrat: var(--font-montserrat);
 }
 
 body {
@@ -70,7 +71,48 @@ body {
   @apply antialiased;
 }
 
-/* Glassmorphism utils */
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 72px; /* compensate fixed navbar (h-16 = 64px) + 8px breathing room */
+}
+
+/* ── Keyframes ─────────────────────────────────────────────── */
+
+@keyframes shimmer {
+  0%   { transform: translateX(-150%) skewX(-20deg); }
+  100% { transform: translateX(250%)  skewX(-20deg); }
+}
+
+@keyframes goldGlow {
+  0%, 100% {
+    box-shadow:
+      0 0 24px 4px  rgba(199,154,74,0.25),
+      0 0 60px 8px  rgba(199,154,74,0.10);
+  }
+  50% {
+    box-shadow:
+      0 0 48px 10px rgba(199,154,74,0.55),
+      0 0 100px 20px rgba(199,154,74,0.22);
+  }
+}
+
+@keyframes borderRotate {
+  0%   { background-position: 0%   50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0%   50%; }
+}
+
+@keyframes floatY {
+  0%, 100% { transform: translateY(0);   }
+  50%       { transform: translateY(-8px); }
+}
+
+@keyframes textShimmer {
+  0%, 100% { opacity: 1;   }
+  50%       { opacity: 0.65; }
+}
+
+/* ── Utilities ─────────────────────────────────────────────── */
 @layer utilities {
   .glass {
     @apply bg-white/10 backdrop-blur-md border border-white/20 shadow-lg;
@@ -78,4 +120,76 @@ body {
   .glass-dark {
     @apply bg-black/40 backdrop-blur-md border border-white/10 shadow-lg;
   }
+  .font-montserrat {
+    font-family: var(--font-montserrat), 'Montserrat', sans-serif;
+  }
+
+  /* ── Scroll-reveal ── */
+  .reveal {
+    opacity: 0;
+    transform: translateY(32px);
+    transition:
+      opacity   0.6s cubic-bezier(0.16, 1, 0.3, 1),
+      transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .reveal.revealed {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .reveal-left {
+    opacity: 0;
+    transform: translateX(-32px);
+    transition:
+      opacity   0.65s cubic-bezier(0.16, 1, 0.3, 1),
+      transform 0.65s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .reveal-left.revealed {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  .reveal-right {
+    opacity: 0;
+    transform: translateX(32px);
+    transition:
+      opacity   0.65s cubic-bezier(0.16, 1, 0.3, 1),
+      transform 0.65s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .reveal-right.revealed {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  .reveal-scale {
+    opacity: 0;
+    transform: scale(0.92);
+    transition:
+      opacity   0.6s cubic-bezier(0.16, 1, 0.3, 1),
+      transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .reveal-scale.revealed {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  /* Stagger delays */
+  .delay-75  { transition-delay:  75ms !important; }
+  .delay-150 { transition-delay: 150ms !important; }
+  .delay-225 { transition-delay: 225ms !important; }
+  .delay-300 { transition-delay: 300ms !important; }
+  .delay-375 { transition-delay: 375ms !important; }
+  .delay-450 { transition-delay: 450ms !important; }
+
+  /* Annual plan animated glow */
+  .annual-glow  { animation: goldGlow    3s   ease-in-out infinite; }
+
+  /* Shimmer sweep on annual card */
+  .shimmer-sweep { animation: shimmer    3.5s ease-in-out infinite; }
+
+  /* Floating stat card */
+  .float-anim   { animation: floatY     4s   ease-in-out infinite; }
+
+  /* Gold badge text pulse */
+  .badge-pulse  { animation: textShimmer 2s   ease-in-out infinite; }
 }
