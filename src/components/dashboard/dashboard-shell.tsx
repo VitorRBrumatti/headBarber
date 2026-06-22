@@ -2,26 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
-import {
-  Scissors, Calendar, Users, Briefcase, PlusCircle, ShoppingBag,
-  CreditCard, Settings, UserCircle, Menu, Activity, LogOut, X
-} from 'lucide-react'
-
-const sidebarItems = [
-  { name: 'Dashboard', href: '/dashboard', icon: Activity },
-  { name: 'Agenda', href: '/dashboard/agenda', icon: Calendar },
-  { name: 'Reservas', href: '/dashboard/reservas', icon: Calendar },
-  { name: 'Barbeiros', href: '/dashboard/barbeiros', icon: Users },
-  { name: 'Serviços', href: '/dashboard/servicos', icon: Briefcase },
-  { name: 'Adicionais', href: '/dashboard/adicionais', icon: PlusCircle },
-  { name: 'Produtos', href: '/dashboard/produtos', icon: ShoppingBag },
-  { name: 'Clientes', href: '/dashboard/clientes', icon: UserCircle },
-  { name: 'Planos Mensais', href: '/dashboard/planos-mensais', icon: CreditCard },
-  { name: 'Financeiro', href: '/dashboard/financeiro', icon: Activity },
-  { name: 'Configurações', href: '/dashboard/configuracoes', icon: Settings },
-  { name: 'Admin Master', href: '/dashboard/admin-master', icon: Scissors },
-]
+import { Sidebar } from './sidebar'
 
 interface DashboardShellProps {
   children: React.ReactNode
@@ -31,139 +12,33 @@ interface DashboardShellProps {
 
 export function DashboardShell({ children, userEmail, barbershopName }: DashboardShellProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const pathname = usePathname()
+  const [profileDropdownOpen, setProfileDropdownOpen] = useState(false)
 
-  const isActive = (href: string) => {
-    if (href === '/dashboard') return pathname === '/dashboard'
-    return pathname.startsWith(href)
+  // Get user initials for profile fallback
+  const getInitials = (email: string) => {
+    if (!email) return 'HB'
+    const name = email.split('@')[0]
+    return name.substring(0, 2).toUpperCase()
   }
 
-  const NavItems = ({ onClick }: { onClick?: () => void }) => (
-    <>
-      {sidebarItems.map((item) => (
-        <Link
-          key={item.name}
-          href={item.href}
-          onClick={onClick}
-          className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all ${
-            isActive(item.href)
-              ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400'
-              : 'text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:text-zinc-50 dark:hover:bg-zinc-800/50'
-          }`}
-        >
-          <item.icon className="h-4 w-4" />
-          {item.name}
-        </Link>
-      ))}
-    </>
-  )
-
   return (
-    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 flex">
+    <div className="min-h-screen bg-[#f8f9ff] text-[#181c21] flex relative">
       {/* Sidebar (Desktop) */}
-      <aside className="hidden w-64 flex-col border-r bg-white dark:bg-zinc-900/50 dark:border-zinc-800 md:flex">
-        <div className="flex h-16 items-center border-b px-6 dark:border-zinc-800">
-          <Link href="/dashboard" className="flex items-center gap-2 hover:opacity-95 transition-opacity">
-            <img 
-              src="/brand/logo-white.png" 
-              alt="HeadBarber Logo" 
-              className="h-7 w-auto object-contain dark:block hidden"
-            />
-            <img 
-              src="/brand/logo-horizontal.png" 
-              alt="HeadBarber Logo" 
-              className="h-7 w-auto object-contain dark:hidden block"
-            />
-          </Link>
-        </div>
-        <div className="flex-1 overflow-auto py-4">
-          <nav className="grid gap-1 px-4">
-            <NavItems />
-          </nav>
-        </div>
-        <div className="border-t p-4 dark:border-zinc-800 flex justify-between items-center">
-          <div className="flex items-center gap-3 rounded-lg px-2 py-2">
-            <div className="h-8 w-8 rounded-full bg-zinc-200 dark:bg-zinc-800 flex items-center justify-center">
-              <UserCircle className="w-5 h-5 text-zinc-500" />
-            </div>
-            <div className="flex flex-col overflow-hidden font-sans">
-              <span className="text-sm font-medium truncate w-32">{userEmail}</span>
-              <span className="text-xs text-zinc-500 truncate">{barbershopName}</span>
-            </div>
-          </div>
-          <form action="/auth/signout" method="post">
-            <button type="submit" className="text-zinc-500 hover:text-destructive transition-colors">
-              <LogOut className="w-5 h-5" />
-            </button>
-          </form>
-        </div>
+      <aside className="hidden md:block fixed left-0 top-0 h-screen w-[260px] z-50">
+        <Sidebar />
       </aside>
 
-      {/* Mobile Overlay */}
-      {mobileMenuOpen && (
-        <div
-          className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm md:hidden"
-          onClick={() => setMobileMenuOpen(false)}
-        />
-      )}
-
-      {/* Mobile Sidebar Drawer */}
-      <aside
-        className={`fixed inset-y-0 left-0 z-50 w-72 flex flex-col bg-white dark:bg-zinc-900 border-r dark:border-zinc-800 transform transition-transform duration-300 ease-in-out md:hidden ${
-          mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
-        }`}
-      >
-        <div className="flex h-16 items-center justify-between border-b px-6 dark:border-zinc-800">
-          <Link href="/dashboard" className="flex items-center gap-2 hover:opacity-95 transition-opacity" onClick={() => setMobileMenuOpen(false)}>
-            <img 
-              src="/brand/logo-white.png" 
-              alt="HeadBarber Logo" 
-              className="h-7 w-auto object-contain dark:block hidden"
-            />
-            <img 
-              src="/brand/logo-horizontal.png" 
-              alt="HeadBarber Logo" 
-              className="h-7 w-auto object-contain dark:hidden block"
-            />
-          </Link>
-          <button onClick={() => setMobileMenuOpen(false)} className="text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-50">
-            <X className="h-5 w-5" />
-          </button>
-        </div>
-        <div className="flex-1 overflow-auto py-4">
-          <nav className="grid gap-1 px-4">
-            <NavItems onClick={() => setMobileMenuOpen(false)} />
-          </nav>
-        </div>
-        <div className="border-t p-4 dark:border-zinc-800">
-          <div className="flex items-center gap-3 px-2 py-2">
-            <div className="h-8 w-8 rounded-full bg-zinc-200 dark:bg-zinc-800 flex items-center justify-center">
-              <UserCircle className="w-5 h-5 text-zinc-500" />
-            </div>
-            <div className="flex flex-col overflow-hidden flex-1">
-              <span className="text-sm font-medium truncate">{userEmail}</span>
-              <span className="text-xs text-zinc-500 truncate">{barbershopName}</span>
-            </div>
-          </div>
-          <form action="/auth/signout" method="post" className="mt-2">
-            <button type="submit" className="flex items-center gap-2 w-full px-3 py-2 text-sm text-zinc-500 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-lg transition-colors">
-              <LogOut className="w-4 h-4" />
-              Sair
-            </button>
-          </form>
-        </div>
-      </aside>
-
-      {/* Main Content */}
-      <div className="flex flex-1 flex-col">
-        {/* Mobile Header */}
-        <header className="flex h-16 items-center justify-between border-b bg-white px-4 md:hidden dark:bg-zinc-900/50 dark:border-zinc-800">
-          <div className="flex items-center gap-4">
+      {/* Main Content Area */}
+      <div className="flex-1 md:pl-[260px] min-h-screen flex flex-col transition-all duration-300">
+        {/* Top Navigation */}
+        <header className="h-16 flex items-center justify-between px-6 bg-white border-b border-[#eceef4] sticky top-0 z-45 shadow-sm">
+          {/* Mobile Menu Button & Brand Symbol */}
+          <div className="flex items-center gap-4 md:hidden">
             <button
               onClick={() => setMobileMenuOpen(true)}
-              className="text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-50 transition-colors"
+              className="text-[#181c21] hover:text-[#C79A4A] transition-colors p-1"
             >
-              <Menu className="h-6 w-6" />
+              <span className="material-symbols-outlined text-2xl">menu</span>
             </button>
             <Link href="/dashboard" className="flex items-center gap-1.5 hover:opacity-90">
               <img 
@@ -171,21 +46,96 @@ export function DashboardShell({ children, userEmail, barbershopName }: Dashboar
                 alt="HeadBarber Symbol" 
                 className="h-6 w-auto object-contain"
               />
-              <span className="font-sans font-black tracking-tight text-zinc-900 dark:text-zinc-50 text-base">HeadBarber</span>
+              <span className="font-montserrat font-extrabold tracking-tight text-black text-sm">HeadBarber</span>
             </Link>
           </div>
-          <form action="/auth/signout" method="post">
-            <button type="submit" className="text-zinc-500 hover:text-destructive">
-              <LogOut className="w-5 h-5" />
+
+          {/* Search Bar (Hidden or smaller on mobile) */}
+          <div className="hidden sm:flex items-center gap-3 bg-[#f1f3fa] px-4 py-1.5 rounded-full w-full max-w-xs md:max-w-md">
+            <span className="material-symbols-outlined text-[#77767b] text-lg">search</span>
+            <input 
+              className="bg-transparent border-none outline-none focus:ring-0 w-full text-xs font-medium placeholder:text-[#858387] text-[#181c21]" 
+              placeholder="Buscar reservas, clientes..." 
+              type="text"
+            />
+          </div>
+
+          {/* Actions & Profile */}
+          <div className="flex items-center gap-4 md:gap-6 ml-auto">
+            <button className="relative text-[#47464b] hover:text-[#C79A4A] transition-all p-1 cursor-pointer">
+              <span className="material-symbols-outlined text-xl">notifications</span>
+              <span className="absolute top-1 right-1 w-1.5 h-1.5 bg-[#ba1a1a] rounded-full"></span>
             </button>
-          </form>
+            
+            <button className="text-[#47464b] hover:text-[#C79A4A] transition-all p-1 cursor-pointer hidden sm:block">
+              <span className="material-symbols-outlined text-xl">help_outline</span>
+            </button>
+
+            <div className="h-6 w-px bg-[#c8c5cb] mx-1 hidden sm:block"></div>
+
+            {/* Profile Dropdown Trigger */}
+            <div className="relative">
+              <div 
+                className="flex items-center gap-3 cursor-pointer group select-none"
+                onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
+              >
+                <div className="text-right hidden md:block">
+                  <p className="font-semibold text-xs text-[#181c21] leading-none group-hover:text-[#C79A4A] transition-colors">{userEmail.split('@')[0]}</p>
+                  <p className="text-[9px] uppercase text-[#47464b] tracking-wider font-semibold mt-0.5">{barbershopName}</p>
+                </div>
+                <div className="w-9 h-9 rounded-full border border-[#C79A4A] p-0.5 overflow-hidden flex items-center justify-center bg-[#1b1b1e] text-[#C79A4A] text-xs font-bold font-mono">
+                  {getInitials(userEmail)}
+                </div>
+              </div>
+
+              {/* Profile Dropdown Menu */}
+              {profileDropdownOpen && (
+                <>
+                  <div 
+                    className="fixed inset-0 z-45"
+                    onClick={() => setProfileDropdownOpen(false)}
+                  />
+                  <div className="absolute right-0 mt-2 w-48 bg-white border border-[#eceef4] rounded-xl shadow-xl z-50 py-2 animate-fade-in-down">
+                    <div className="px-4 py-2 border-b border-[#eceef4] md:hidden">
+                      <p className="font-semibold text-xs text-[#181c21] truncate">{userEmail}</p>
+                      <p className="text-[9px] uppercase text-[#47464b] tracking-wider font-semibold mt-0.5 truncate">{barbershopName}</p>
+                    </div>
+                    <form action="/auth/signout" method="post" className="w-full">
+                      <button 
+                        type="submit" 
+                        className="w-full text-left px-4 py-2 text-xs text-[#ba1a1a] hover:bg-[#ffdad6]/20 transition-colors flex items-center gap-2 cursor-pointer"
+                      >
+                        <span className="material-symbols-outlined text-sm">logout</span>
+                        Sair do Painel
+                      </button>
+                    </form>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
         </header>
 
         {/* Page Content */}
-        <main className="flex-1 p-6 md:p-8 overflow-auto">
+        <main className="flex-1 overflow-x-hidden">
           {children}
         </main>
       </div>
+
+      {/* Mobile Drawer Sidebar */}
+      {mobileMenuOpen && (
+        <>
+          {/* Overlay */}
+          <div 
+            className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs transition-opacity duration-300 md:hidden"
+            onClick={() => setMobileMenuOpen(false)}
+          />
+          {/* Sliding Aside */}
+          <aside className="fixed inset-y-0 left-0 w-[260px] h-full z-55 transform transition-transform duration-350 ease-in-out md:hidden translate-x-0">
+            <Sidebar onLinkClick={() => setMobileMenuOpen(false)} />
+          </aside>
+        </>
+      )}
     </div>
   )
 }

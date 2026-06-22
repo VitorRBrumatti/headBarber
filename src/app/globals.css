@@ -63,6 +63,18 @@
   --font-mono: var(--font-geist-mono);
   --font-montserrat: var(--font-montserrat);
   --font-inter: var(--font-inter);
+  --color-gold-accent: #C79A4A;
+  --color-primary-container: #1b1b1e;
+  --color-surface-container-high: #e6e8ef;
+  --color-surface-container-highest: #e0e2e9;
+  --color-surface-container-low: #f1f3fa;
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-container: #eceef4;
+  --color-surface-bright: #f8f9ff;
+  --color-surface-dim: #d8dae0;
+  --color-outline-variant: #c8c5cb;
+  --color-on-primary-container: #858387;
+  --color-on-surface-variant: #47464b;
 }
 
 body {
@@ -254,6 +266,24 @@ html {
   /* Gold badge text pulse */
   .badge-pulse {
     animation: textShimmer 2s ease-in-out infinite;
+  }
+
+  .metric-card-hover {
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .metric-card-hover:hover {
+    transform: translateY(-2px);
+  }
+
+  .sidebar-active-indicator {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 4px;
+    height: 24px;
+    background-color: #C79A4A;
   }
 }
 
