@@ -1,5 +1,4 @@
 import { createClient } from '@/utils/supabase/server'
-import { PageHeader } from '@/components/ui/page-header'
 import { ServicesClient } from './services-client'
 
 export default async function ServicosPage() {
@@ -20,10 +19,6 @@ export default async function ServicosPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader
-        title="Serviços"
-        description="Gerencie os serviços oferecidos pela sua barbearia."
-      />
       <ServicesClient services={services ?? []} />
     </div>
   )
