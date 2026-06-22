@@ -1,10 +1,6 @@
 'use client'
 
 import { useState, useTransition } from 'react'
-import { Plus, Edit, Trash2, Power, Calendar, Clock, Check, AlertTriangle, Percent } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Card } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
 import { Sheet } from '@/components/ui/sheet'
 import { Dialog } from '@/components/ui/dialog'
 import { EmptyState } from '@/components/ui/empty-state'
@@ -19,7 +15,6 @@ interface Barber {
   is_active: boolean
   commission_percentage: number
 }
-
 
 interface BarbeirosClientProps {
   barbers: Barber[]
@@ -136,20 +131,28 @@ export function BarbeirosClient({ barbers }: BarbeirosClientProps) {
   }
 
   return (
-    <div className="space-y-4">
-      <div className="flex justify-between items-center">
-        <h2 className="text-lg font-medium text-zinc-400">
-          Total: {barbers.length} {barbers.length === 1 ? 'barbeiro' : 'barbeiros'}
-        </h2>
-        <Button onClick={handleCreateNew} className="gap-2">
-          <Plus className="h-4 w-4" />
-          Novo Barbeiro
-        </Button>
+    <div className="p-6 md:p-8 space-y-6">
+      {/* Page Header */}
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-end gap-4 mb-8">
+        <div>
+          <h1 className="font-montserrat text-2xl md:text-3xl font-extrabold text-[#181c21] mb-2">Barbeiros</h1>
+          <p className="text-sm md:text-base text-[#47464b]">
+            Gerencie sua equipe, comissões e horários de atendimento.
+          </p>
+        </div>
+        <button
+          onClick={handleCreateNew}
+          className="bg-[#7c5809] text-white text-xs font-bold px-6 py-3 rounded-lg flex items-center justify-center gap-2 hover:bg-[#5f4100] transition-colors shadow-sm shrink-0"
+        >
+          <span className="material-symbols-outlined text-[18px]">person_add</span>
+          Novo barbeiro
+        </button>
       </div>
 
       {error && (
-        <div className="bg-red-500/10 border border-red-500/20 text-red-500 p-3 rounded-md text-sm">
-          {error}
+        <div className="bg-red-500/10 border border-red-500/20 text-red-500 p-4 rounded-xl text-sm flex items-center gap-2">
+          <span className="material-symbols-outlined text-[20px]">error</span>
+          <span>{error}</span>
         </div>
       )}
 
@@ -158,101 +161,128 @@ export function BarbeirosClient({ barbers }: BarbeirosClientProps) {
           title="Nenhum barbeiro cadastrado"
           description="Cadastre os barbeiros e profissionais que atendem na sua barbearia."
           action={
-            <Button onClick={handleCreateNew} className="gap-2">
-              <Plus className="h-4 w-4" />
+            <button
+              onClick={handleCreateNew}
+              className="bg-[#7c5809] text-white text-xs font-bold px-6 py-3 rounded-lg flex items-center gap-2 hover:bg-[#5f4100] transition-colors shadow-sm"
+            >
+              <span className="material-symbols-outlined text-[18px]">person_add</span>
               Adicionar Primeiro Barbeiro
-            </Button>
+            </button>
           }
         />
       ) : (
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3 gap-6">
           {barbers.map((barber) => (
-            <Card key={barber.id} className="relative overflow-hidden p-6 flex flex-col justify-between group hover:border-amber-500/30 transition-all duration-300">
+            <div
+              key={barber.id}
+              className={`bg-white rounded-xl p-6 shadow-[0_4px_12px_rgba(0,0,0,0.04)] border border-[#e0e2e9] flex flex-col justify-between relative group hover:border-[#c8c5cb] transition-colors ${
+                !barber.is_active ? 'opacity-75 grayscale-[20%]' : ''
+              }`}
+            >
               <div>
-                <div className="flex items-center gap-4">
-                  {/* Avatar Container */}
-                  <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-full border border-zinc-200 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center">
-                    {barber.avatar_url ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        src={barber.avatar_url}
-                        alt={barber.name}
-                        className="h-full w-full object-cover"
-                      />
-                    ) : (
-                      <span className="text-sm font-semibold text-zinc-500 dark:text-zinc-400">
-                        {getInitials(barber.name)}
-                      </span>
-                    )}
-                  </div>
-
-                  {/* Header Text */}
-                  <div className="space-y-1 text-left">
-                    <h3 className="font-semibold text-zinc-900 dark:text-zinc-50 leading-none">
-                      {barber.name}
-                    </h3>
-                    <Badge variant={barber.is_active ? 'default' : 'secondary'} className="mt-1">
-                      {barber.is_active ? 'Ativo' : 'Inativo'}
-                    </Badge>
+                <div className="flex items-start justify-between mb-4">
+                  <div className="flex items-center gap-4">
+                    <div className="w-14 h-14 rounded-full bg-[#eceef4] overflow-hidden shrink-0 flex items-center justify-center border border-[#e0e2e9]">
+                      {barber.avatar_url ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={barber.avatar_url}
+                          alt={barber.name}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <span className="text-base font-bold text-[#47464b] font-montserrat">
+                          {getInitials(barber.name)}
+                        </span>
+                      )}
+                    </div>
+                    <div className="text-left">
+                      <h3 className="font-montserrat text-lg font-bold text-[#181c21]">{barber.name}</h3>
+                      {barber.is_active ? (
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#E8F5E9] text-[#2E7D32] mt-1">
+                          <span className="w-1.5 h-1.5 rounded-full bg-current"></span>
+                          <span className="text-xs font-semibold leading-none">Ativo</span>
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#e0e2e9] text-[#47464b] mt-1">
+                          <span className="w-1.5 h-1.5 rounded-full bg-current"></span>
+                          <span className="text-xs font-semibold leading-none">Inativo</span>
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </div>
 
-                {/* Bio text */}
-                <p className="mt-4 text-sm text-left text-zinc-500 dark:text-zinc-400 line-clamp-3 min-h-[3.75rem]">
-                  {barber.bio || 'Sem descrição ou biografia cadastrada para este profissional.'}
-                </p>
-
-                {/* Commission Rate */}
-                <div className="mt-4 flex items-center gap-1.5 text-xs text-zinc-500">
-                  <Percent className="h-3.5 w-3.5 text-amber-500" />
-                  <span>Comissão: <strong className="text-zinc-350">{barber.commission_percentage || 0}%</strong></span>
+                <div className="mb-6 flex-1 text-left">
+                  <p className="text-sm text-[#47464b] mb-3 line-clamp-2 min-h-[2.5rem]">
+                    {barber.bio || 'Sem descrição ou biografia cadastrada para este profissional.'}
+                  </p>
+                  <div className="inline-flex items-center gap-2 bg-[#f8f9ff] p-2 rounded-lg border border-[#e0e2e9]">
+                    <span className="material-symbols-outlined text-[#7c5809] text-[18px]">percent</span>
+                    <span className="text-xs font-semibold text-[#181c21]">
+                      Comissão: <span className="text-[#7c5809] font-bold">{barber.commission_percentage}%</span>
+                    </span>
+                  </div>
                 </div>
               </div>
 
-              {/* Action Buttons */}
-              <div className="mt-6 pt-4 border-t border-zinc-100 dark:border-zinc-800/60 flex items-center justify-end gap-2">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => handleManageSchedule(barber)}
-                  disabled={isPending}
-                  title="Configurar expediente de trabalho"
-                  className="text-zinc-500 hover:text-amber-500 dark:hover:text-amber-400"
-                >
-                  <Calendar className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => handleToggleStatus(barber.id, barber.is_active)}
-                  disabled={isPending}
-                  title={barber.is_active ? 'Desativar barbeiro' : 'Ativar barbeiro'}
-                  className="text-zinc-500 hover:text-zinc-950 dark:hover:text-zinc-50"
-                >
-                  <Power className={`h-4 w-4 ${barber.is_active ? 'text-emerald-500' : 'text-zinc-400'}`} />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => handleEdit(barber)}
-                  disabled={isPending}
-                  title="Editar barbeiro"
-                  className="text-zinc-500 hover:text-zinc-950 dark:hover:text-zinc-50"
-                >
-                  <Edit className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => handleDeleteClick(barber.id)}
-                  disabled={isPending}
-                  title="Excluir barbeiro"
-                  className="text-zinc-500 hover:text-red-600 dark:hover:text-red-400"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
+              <div className="pt-4 border-t border-[#e0e2e9] flex items-center justify-between gap-2">
+                {barber.is_active ? (
+                  <button
+                    onClick={() => handleManageSchedule(barber)}
+                    disabled={isPending}
+                    className="flex-1 bg-[#ffcd77]/20 text-[#7c5809] hover:bg-[#ffcd77]/30 transition-colors py-2 rounded-lg text-xs font-bold flex items-center justify-center gap-2"
+                  >
+                    <span className="material-symbols-outlined text-[16px]">schedule</span>
+                    Expediente
+                  </button>
+                ) : (
+                  <button
+                    disabled
+                    className="flex-1 bg-[#e0e2e9] text-[#47464b] py-2 rounded-lg text-xs font-semibold flex items-center justify-center gap-2 cursor-not-allowed"
+                  >
+                    <span className="material-symbols-outlined text-[16px]">schedule</span>
+                    Expediente
+                  </button>
+                )}
+
+                <div className="flex gap-2">
+                  {/* Status Toggle (Power symbol) */}
+                  <button
+                    onClick={() => handleToggleStatus(barber.id, barber.is_active)}
+                    disabled={isPending}
+                    className={`w-9 h-9 rounded-lg border flex items-center justify-center transition-colors ${
+                      barber.is_active
+                        ? 'border-[#2E7D32]/30 text-[#2E7D32] hover:bg-[#E8F5E9] hover:border-[#2E7D32]'
+                        : 'border-[#c8c5cb] text-[#47464b] hover:text-[#181c21] hover:border-[#181c21]'
+                    }`}
+                    title={barber.is_active ? 'Desativar barbeiro' : 'Ativar barbeiro'}
+                  >
+                    <span className="material-symbols-outlined text-[18px]">power_settings_new</span>
+                  </button>
+
+                  {/* Edit */}
+                  <button
+                    onClick={() => handleEdit(barber)}
+                    disabled={isPending}
+                    className="w-9 h-9 rounded-lg border border-[#c8c5cb] text-[#47464b] hover:text-[#181c21] hover:border-[#181c21] flex items-center justify-center transition-colors"
+                    title="Editar"
+                  >
+                    <span className="material-symbols-outlined text-[18px]">edit</span>
+                  </button>
+
+                  {/* Delete */}
+                  <button
+                    onClick={() => handleDeleteClick(barber.id)}
+                    disabled={isPending}
+                    className="w-9 h-9 rounded-lg border border-[#c8c5cb] text-[#47464b] hover:text-[#ba1a1a] hover:border-[#ba1a1a] flex items-center justify-center transition-colors"
+                    title="Excluir"
+                  >
+                    <span className="material-symbols-outlined text-[18px]">delete</span>
+                  </button>
+                </div>
               </div>
-            </Card>
+            </div>
           ))}
         </div>
       )}
@@ -281,23 +311,31 @@ export function BarbeirosClient({ barbers }: BarbeirosClientProps) {
           setIsScheduleOpen(false)
           setActiveScheduleBarber(null)
         }}
-        title={`Jornada de Trabalho — ${activeScheduleBarber?.name}`}
-        description="Defina os dias, horários de expediente e de intervalo de almoço do profissional."
+        title="Configurar Jornada"
+        description={activeScheduleBarber?.name || ''}
       >
-        <div className="space-y-6 py-6 text-left text-white max-h-[75vh] overflow-y-auto pr-1">
-          {barberShifts.length === 0 ? (
-            <div className="text-center py-6 text-neutral-500 flex flex-col items-center gap-2">
-              <Clock className="w-8 h-8 text-neutral-600" />
-              <span className="text-sm">Carregando jornada de trabalho...</span>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {barberShifts.map((shift, idx) => {
+        <div className="space-y-6 py-4 flex flex-col h-[calc(100vh-180px)] text-left">
+          <div className="flex-1 overflow-y-auto pr-1 space-y-4 drawer-scroll">
+            {barberShifts.length === 0 ? (
+              <div className="text-center py-6 text-[#47464b] flex flex-col items-center gap-2">
+                <span className="material-symbols-outlined text-[32px] animate-spin">progress_activity</span>
+                <span className="text-sm">Carregando jornada de trabalho...</span>
+              </div>
+            ) : (
+              barberShifts.map((shift, idx) => {
                 return (
-                  <div key={shift.id} className="bg-zinc-900 border border-zinc-800 p-4 rounded-xl space-y-3">
-                    <div className="flex justify-between items-center">
-                      <span className="font-extrabold text-sm text-zinc-100">{WEEKDAYS[shift.day_of_week]}</span>
+                  <div
+                    key={shift.id}
+                    className={`bg-[#f8f9ff] rounded-xl border border-[#e0e2e9] p-5 transition-opacity ${
+                      shift.is_active ? '' : 'opacity-60'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between mb-4">
+                      <span className="text-xs text-[#181c21] uppercase tracking-wider font-bold">
+                        {WEEKDAYS[shift.day_of_week]}
+                      </span>
                       
+                      {/* Custom Switch Toggle */}
                       <label className="relative inline-flex items-center cursor-pointer select-none">
                         <input
                           type="checkbox"
@@ -305,79 +343,81 @@ export function BarbeirosClient({ barbers }: BarbeirosClientProps) {
                           onChange={(e) => handleShiftChange(idx, 'is_active', e.target.checked)}
                           className="sr-only peer"
                         />
-                        <div className="w-9 h-5 bg-zinc-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-zinc-300 after:border after:rounded-full after:height-4 after:w-4 after:h-4 after:transition-all peer-checked:bg-amber-500" />
-                        <span className="ml-2 text-xs font-semibold text-zinc-350">{shift.is_active ? 'Trabalha' : 'Folga'}</span>
+                        <div className="w-10 h-5 bg-[#e0e2e9] rounded-full peer peer-checked:bg-[#7c5809] after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-[#c8c5cb] after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-5" />
                       </label>
                     </div>
 
-                    {shift.is_active && (
-                      <div className="grid grid-cols-2 gap-3 pt-2 border-t border-zinc-800/40">
-                        <div className="space-y-1">
-                          <label className="text-[10px] uppercase font-mono tracking-widest text-zinc-500 block">Jornada</label>
-                          <div className="flex items-center gap-1.5">
-                            <input
-                              type="time"
-                              value={shift.start_time.substring(0, 5)}
-                              onChange={(e) => handleShiftChange(idx, 'start_time', `${e.target.value}:00`)}
-                              className="w-full bg-zinc-950 border border-zinc-800 rounded-lg p-2 text-xs text-white focus:outline-none focus:border-amber-500 font-mono"
-                            />
-                            <span className="text-zinc-650 text-xs">às</span>
-                            <input
-                              type="time"
-                              value={shift.end_time.substring(0, 5)}
-                              onChange={(e) => handleShiftChange(idx, 'end_time', `${e.target.value}:00`)}
-                              className="w-full bg-zinc-950 border border-zinc-800 rounded-lg p-2 text-xs text-white focus:outline-none focus:border-amber-500 font-mono"
-                            />
-                          </div>
+                    {shift.is_active ? (
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-xs text-[#47464b] mb-1.5 font-medium">Início</label>
+                          <input
+                            type="time"
+                            value={shift.start_time.substring(0, 5)}
+                            onChange={(e) => handleShiftChange(idx, 'start_time', `${e.target.value}:00`)}
+                            className="w-full bg-white border border-[#c8c5cb] text-[#181c21] text-sm rounded-lg px-3 py-2 focus:border-[#7c5809] focus:ring-1 focus:ring-[#7c5809] outline-none transition-colors"
+                          />
                         </div>
-
-                        <div className="space-y-1">
-                          <label className="text-[10px] uppercase font-mono tracking-widest text-zinc-500 block">Intervalo de Almoço</label>
-                          <div className="flex items-center gap-1.5">
-                            <input
-                              type="time"
-                              value={shift.lunch_start_time.substring(0, 5)}
-                              onChange={(e) => handleShiftChange(idx, 'lunch_start_time', `${e.target.value}:00`)}
-                              className="w-full bg-zinc-950 border border-zinc-800 rounded-lg p-2 text-xs text-white focus:outline-none focus:border-amber-500 font-mono"
-                            />
-                            <span className="text-zinc-650 text-xs">às</span>
-                            <input
-                              type="time"
-                              value={shift.lunch_end_time.substring(0, 5)}
-                              onChange={(e) => handleShiftChange(idx, 'lunch_end_time', `${e.target.value}:00`)}
-                              className="w-full bg-zinc-950 border border-zinc-800 rounded-lg p-2 text-xs text-white focus:outline-none focus:border-amber-500 font-mono"
-                            />
-                          </div>
+                        <div>
+                          <label className="block text-xs text-[#47464b] mb-1.5 font-medium">Fim</label>
+                          <input
+                            type="time"
+                            value={shift.end_time.substring(0, 5)}
+                            onChange={(e) => handleShiftChange(idx, 'end_time', `${e.target.value}:00`)}
+                            className="w-full bg-white border border-[#c8c5cb] text-[#181c21] text-sm rounded-lg px-3 py-2 focus:border-[#7c5809] focus:ring-1 focus:ring-[#7c5809] outline-none transition-colors"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs text-[#47464b] mb-1.5 font-medium">Início Almoço</label>
+                          <input
+                            type="time"
+                            value={shift.lunch_start_time ? shift.lunch_start_time.substring(0, 5) : '12:00'}
+                            onChange={(e) => handleShiftChange(idx, 'lunch_start_time', `${e.target.value}:00`)}
+                            className="w-full bg-white border border-[#c8c5cb] text-[#181c21] text-sm rounded-lg px-3 py-2 focus:border-[#7c5809] focus:ring-1 focus:ring-[#7c5809] outline-none transition-colors"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs text-[#47464b] mb-1.5 font-medium">Fim Almoço</label>
+                          <input
+                            type="time"
+                            value={shift.lunch_end_time ? shift.lunch_end_time.substring(0, 5) : '13:00'}
+                            onChange={(e) => handleShiftChange(idx, 'lunch_end_time', `${e.target.value}:00`)}
+                            className="w-full bg-white border border-[#c8c5cb] text-[#181c21] text-sm rounded-lg px-3 py-2 focus:border-[#7c5809] focus:ring-1 focus:ring-[#7c5809] outline-none transition-colors"
+                          />
                         </div>
                       </div>
+                    ) : (
+                      <p className="text-sm text-[#47464b] mt-3 font-medium">Folga programada.</p>
                     )}
                   </div>
                 )
-              })}
-            </div>
-          )}
+              })
+            )}
+          </div>
 
           {error && (
-            <div className="bg-red-500/10 border border-red-500/20 text-red-500 p-3 rounded-xl text-xs flex items-center gap-2">
-              <AlertTriangle className="w-4 h-4" />
+            <div className="bg-red-500/10 border border-red-500/20 text-red-500 p-3 rounded-lg text-xs flex items-center gap-2 shrink-0">
+              <span className="material-symbols-outlined text-[16px]">error</span>
               <span>{error}</span>
             </div>
           )}
 
-          <Button
-            onClick={handleSaveSchedule}
-            disabled={isPending}
-            className="w-full bg-amber-500 hover:bg-amber-400 text-neutral-950 font-bold rounded-xl py-5"
-          >
-            {isPending ? (
-              <div className="flex items-center justify-center gap-2">
-                <div className="w-4 h-4 border-2 border-neutral-950 border-t-transparent rounded-full animate-spin" />
-                <span>Salvando...</span>
-              </div>
-            ) : (
-              'Salvar Grade de Horários'
-            )}
-          </Button>
+          <div className="pt-4 border-t border-[#e0e2e9] bg-white shrink-0">
+            <button
+              onClick={handleSaveSchedule}
+              disabled={isPending}
+              className="w-full bg-[#7c5809] text-white text-xs font-bold py-4 rounded-lg hover:bg-[#5f4100] transition-colors shadow-sm flex items-center justify-center gap-2"
+            >
+              {isPending ? (
+                <>
+                  <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  <span>Salvando jornada...</span>
+                </>
+              ) : (
+                'Salvar jornada'
+              )}
+            </button>
+          </div>
         </div>
       </Sheet>
 
@@ -398,3 +438,5 @@ export function BarbeirosClient({ barbers }: BarbeirosClientProps) {
     </div>
   )
 }
+
+
