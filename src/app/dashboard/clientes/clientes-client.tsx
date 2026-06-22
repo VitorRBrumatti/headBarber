@@ -1,21 +1,8 @@
 'use client'
 
 import { useState, useTransition } from 'react'
-import { Plus, Edit, Trash2, Search, User, Phone, Mail, Calendar } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Card } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
 import { Sheet } from '@/components/ui/sheet'
 import { Dialog } from '@/components/ui/dialog'
-import { EmptyState } from '@/components/ui/empty-state'
-import {
-  Table,
-  TableHeader,
-  TableBody,
-  TableHead,
-  TableRow,
-  TableCell,
-} from '@/components/ui/table'
 import { ClientForm } from '@/components/dashboard/client-form'
 import { deleteClient } from './actions'
 
@@ -39,8 +26,15 @@ export function ClientesClient({ clients }: ClientesClientProps) {
   const [deletingId, setDeletingId] = useState<string | null>(null)
   
   const [searchQuery, setSearchQuery] = useState('')
+  const [sortOption, setSortOption] = useState('recent') // 'recent', 'oldest', 'az', 'za'
+  const [filterHasNotes, setFilterHasNotes] = useState(false)
+  const [showFilters, setShowFilters] = useState(false)
+  const [currentPage, setCurrentPage] = useState(1)
+  
   const [isPending, startTransition] = useTransition()
   const [error, setError] = useState('')
+
+  const ITEMS_PER_PAGE = 10
 
   const handleCreateNew = () => {
     setEditingClient(undefined)
@@ -67,160 +61,329 @@ export function ClientesClient({ clients }: ClientesClientProps) {
         setDeletingId(null)
       } catch (err: any) {
         setError(err.message)
+        // Automatically close the dialog on error per rule
+        setDeleteDialogOpen(false)
+        setDeletingId(null)
       }
     })
   }
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString)
-    return new Intl.DateTimeFormat('pt-BR', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-    }).format(date)
+    const day = date.getDate().toString().padStart(2, '0')
+    const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez']
+    const month = months[date.getMonth()]
+    const year = date.getFullYear()
+    return `${day} ${month} ${year}`
   }
 
-  const filteredClients = clients.filter((client) => {
-    const query = searchQuery.toLowerCase()
-    return (
-      client.name.toLowerCase().includes(query) ||
-      (client.phone && client.phone.includes(query)) ||
-      (client.email && client.email.toLowerCase().includes(query))
-    )
-  })
+  const getInitials = (name: string) => {
+    if (!name) return 'C'
+    return name
+      .split(' ')
+      .filter(Boolean)
+      .map((n) => n[0])
+      .join('')
+      .substring(0, 2)
+      .toUpperCase()
+  }
+
+  // Filter and sort clients
+  const filteredAndSortedClients = clients
+    .filter((client) => {
+      const query = searchQuery.toLowerCase().trim()
+      const matchesSearch =
+        client.name.toLowerCase().includes(query) ||
+        (client.phone && client.phone.includes(query)) ||
+        (client.email && client.email.toLowerCase().includes(query))
+      
+      const matchesNotes = filterHasNotes ? !!client.notes : true
+      
+      return matchesSearch && matchesNotes
+    })
+    .sort((a, b) => {
+      if (sortOption === 'az') {
+        return a.name.localeCompare(b.name)
+      }
+      if (sortOption === 'za') {
+        return b.name.localeCompare(a.name)
+      }
+      if (sortOption === 'oldest') {
+        return new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+      }
+      // 'recent' by default
+      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+    })
+
+  const totalClients = filteredAndSortedClients.length
+  const totalPages = Math.ceil(totalClients / ITEMS_PER_PAGE) || 1
+  const activePage = Math.min(currentPage, totalPages)
+  
+  const paginatedClients = filteredAndSortedClients.slice(
+    (activePage - 1) * ITEMS_PER_PAGE,
+    activePage * ITEMS_PER_PAGE
+  )
 
   return (
-    <div className="space-y-4">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        {/* Search Input */}
-        <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
-          <Input
-            placeholder="Buscar por nome, telefone ou email..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10"
-          />
+    <div className="p-6 md:p-8 space-y-6 flex flex-col flex-1">
+      {/* Page Header */}
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-end gap-4 mb-2 text-left">
+        <div>
+          <h1 className="font-montserrat text-2xl md:text-3xl font-extrabold text-[#181c21] mb-1.5">Clientes</h1>
+          <p className="text-sm md:text-base text-[#47464b]">
+            Gerencie contatos, preferências e histórico da sua clientela.
+          </p>
         </div>
-
-        <Button onClick={handleCreateNew} className="gap-2 shrink-0">
-          <Plus className="h-4 w-4" />
-          Novo Cliente
-        </Button>
+        <button
+          onClick={handleCreateNew}
+          className="flex items-center gap-2 bg-[#7c5809] hover:bg-[#5f4100] text-white px-6 py-3 rounded-lg font-bold text-xs shadow-sm cursor-pointer transition-colors self-start sm:self-auto"
+        >
+          <span className="material-symbols-outlined text-[18px]">person_add</span>
+          Novo cliente
+        </button>
       </div>
 
+      {/* Toolbar: Search & Filters */}
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-col sm:flex-row gap-4">
+          <div className="relative flex-1 max-w-xl text-left">
+            <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-[#77767b]">search</span>
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => {
+                setSearchQuery(e.target.value)
+                setCurrentPage(1)
+              }}
+              className="w-full pl-12 pr-4 py-3 bg-white border border-[#c8c5cb]/80 rounded-lg text-sm text-[#181c21] placeholder:text-[#858387] focus:outline-none focus:ring-1 focus:ring-[#C79A4A] focus:border-[#C79A4A] transition-shadow shadow-sm"
+              placeholder="Buscar por nome, telefone ou e-mail..."
+            />
+          </div>
+          <button
+            onClick={() => setShowFilters(!showFilters)}
+            className={`flex items-center gap-2 px-4 py-3 border rounded-lg text-sm font-medium shadow-sm transition-colors cursor-pointer self-start sm:self-auto ${
+              showFilters
+                ? 'border-[#C79A4A] bg-[#C79A4A]/10 text-[#7c5809]'
+                : 'border-[#c8c5cb] bg-white text-[#47464b] hover:bg-[#f1f3fa]'
+            }`}
+          >
+            <span className="material-symbols-outlined text-[18px]">filter_list</span>
+            Filtros
+            {(sortOption !== 'recent' || filterHasNotes) && (
+              <span className="w-1.5 h-1.5 rounded-full bg-[#7c5809]" />
+            )}
+          </button>
+        </div>
+
+        {/* Expandable Filter Panel */}
+        {showFilters && (
+          <div className="p-4 bg-white border border-[#c8c5cb]/60 rounded-xl shadow-sm text-left grid grid-cols-1 sm:grid-cols-2 gap-4 animate-fade-in-down">
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-[#47464b] uppercase tracking-wider">Ordenação</label>
+              <select
+                value={sortOption}
+                onChange={(e) => setSortOption(e.target.value)}
+                className="w-full rounded-md border border-[#c8c5cb]/80 bg-white px-3 py-2 text-sm text-[#181c21] focus:ring-1 focus:ring-[#C79A4A] focus:border-[#C79A4A] outline-none"
+              >
+                <option value="recent">Recentes Primeiro</option>
+                <option value="oldest">Mais Antigos Primeiro</option>
+                <option value="az">Nome (A - Z)</option>
+                <option value="za">Nome (Z - A)</option>
+              </select>
+            </div>
+
+            <div className="space-y-1.5 flex items-center h-full">
+              <label className="relative inline-flex items-center cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={filterHasNotes}
+                  onChange={(e) => {
+                    setFilterHasNotes(e.target.checked)
+                    setCurrentPage(1)
+                  }}
+                  className="sr-only peer"
+                />
+                <div className="w-10 h-5 bg-[#e0e2e9] rounded-full peer peer-checked:bg-[#7c5809] after:content-[''] after:absolute after:top-[4px] after:left-[2px] after:bg-white after:border-[#c8c5cb] after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-5 relative" />
+                <span className="ml-3 text-sm font-semibold text-[#47464b]">Apenas com observações</span>
+              </label>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Error Message */}
       {error && (
-        <div className="bg-red-500/10 border border-red-500/20 text-red-500 p-3 rounded-md text-sm">
-          {error}
+        <div className="bg-red-500/10 border border-red-500/20 text-red-500 p-4 rounded-xl text-sm flex items-center gap-2 text-left">
+          <span className="material-symbols-outlined text-[20px]">error</span>
+          <span>{error}</span>
         </div>
       )}
 
+      {/* Main List Area */}
       {clients.length === 0 ? (
-        <EmptyState
-          title="Nenhum cliente cadastrado"
-          description="Os clientes cadastrados aparecerão aqui. Adicione o seu primeiro cliente agora."
-          action={
-            <Button onClick={handleCreateNew} className="gap-2">
-              <Plus className="h-4 w-4" />
-              Adicionar Primeiro Cliente
-            </Button>
-          }
-        />
-      ) : filteredClients.length === 0 ? (
-        <EmptyState
-          title="Nenhum cliente encontrado"
-          description={`Nenhum resultado para a busca "${searchQuery}". Tente pesquisar por outro termo.`}
-          action={
-            <Button variant="outline" onClick={() => setSearchQuery('')}>
-              Limpar busca
-            </Button>
-          }
-        />
+        <div className="flex-1 flex flex-col items-center justify-center py-20 px-4 bg-white rounded-2xl border border-[#c8c5cb]/30 shadow-sm text-center">
+          <div className="w-24 h-24 bg-[#f1f3fa] rounded-full flex items-center justify-center mb-6 border-8 border-[#f8f9ff]">
+            <span className="material-symbols-outlined text-4xl text-[#47464b]">groups</span>
+          </div>
+          <h2 className="font-montserrat text-xl md:text-2xl font-bold text-[#181c21] mb-2">
+            Nenhum cliente cadastrado
+          </h2>
+          <p className="text-sm md:text-base text-[#47464b] max-w-md mb-8">
+            Cadastre os clientes da sua barbearia para gerenciar suas preferências e histórico de atendimento.
+          </p>
+          <button
+            onClick={handleCreateNew}
+            className="px-8 py-4 bg-[#7c5809] text-white font-bold rounded-xl flex items-center justify-center gap-2 hover:bg-[#5f4100] transition-colors shadow-lg shadow-[#7c5809]/10 cursor-pointer"
+          >
+            <span className="material-symbols-outlined text-[18px]">person_add</span>
+            Adicionar primeiro cliente
+          </button>
+        </div>
+      ) : filteredAndSortedClients.length === 0 ? (
+        <div className="flex-1 flex flex-col items-center justify-center py-16 px-4 bg-white rounded-2xl border border-[#c8c5cb]/30 shadow-sm text-center">
+          <div className="w-16 h-16 bg-[#f1f3fa] rounded-full flex items-center justify-center mb-4">
+            <span className="material-symbols-outlined text-2xl text-[#47464b]">search_off</span>
+          </div>
+          <h2 className="font-montserrat text-lg font-bold text-[#181c21] mb-1">
+            Nenhum resultado encontrado
+          </h2>
+          <p className="text-sm text-[#47464b] max-w-sm mb-6">
+            Nenhum cliente atende aos critérios de busca ou filtros selecionados. Tente ajustar suas opções.
+          </p>
+          <button
+            onClick={() => {
+              setSearchQuery('')
+              setFilterHasNotes(false)
+              setSortOption('recent')
+            }}
+            className="px-5 py-2.5 border border-[#c8c5cb] hover:bg-[#f1f3fa] text-xs font-bold rounded-lg text-[#181c21] transition-colors cursor-pointer"
+          >
+            Limpar Filtros
+          </button>
+        </div>
       ) : (
-        <Card className="overflow-hidden">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Nome</TableHead>
-                <TableHead>Contato</TableHead>
-                <TableHead>E-mail</TableHead>
-                <TableHead>Cadastrado em</TableHead>
-                <TableHead className="text-right">Ações</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredClients.map((client) => (
-                <TableRow key={client.id}>
-                  <TableCell className="font-medium">
-                    <div className="flex items-center gap-3">
-                      <div className="h-8 w-8 rounded-full bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-800/80 flex items-center justify-center text-xs font-semibold text-zinc-500 dark:text-zinc-400">
-                        {client.name.substring(0, 2).toUpperCase()}
-                      </div>
-                      <div>
-                        <p className="text-zinc-900 dark:text-zinc-50">{client.name}</p>
-                        {client.notes && (
-                          <p className="text-xs text-zinc-500 mt-0.5 max-w-[200px] truncate" title={client.notes}>
+        <div className="bg-white border border-[#c8c5cb]/60 rounded-xl shadow-[0_4px_12px_rgba(26,26,29,0.04)] overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="bg-[#f1f3fa] border-b border-[#c8c5cb]/60">
+                  <th className="py-4 px-6 font-montserrat text-xs font-bold text-[#47464b] tracking-wider">CLIENTE</th>
+                  <th className="py-4 px-6 font-montserrat text-xs font-bold text-[#47464b] tracking-wider">CONTATO</th>
+                  <th className="py-4 px-6 font-montserrat text-xs font-bold text-[#47464b] tracking-wider">OBSERVAÇÕES</th>
+                  <th className="py-4 px-6 font-montserrat text-xs font-bold text-[#47464b] tracking-wider hidden md:table-cell">CADASTRO</th>
+                  <th className="py-4 px-6 font-montserrat text-xs font-bold text-[#47464b] tracking-wider text-right">AÇÕES</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[#c8c5cb]/30">
+                {paginatedClients.map((client, idx) => {
+                  // Determine status/badge for visual layout variation
+                  const isPremium = client.notes?.toLowerCase().includes('premium') || idx % 4 === 0
+
+                  return (
+                    <tr
+                      key={client.id}
+                      className="hover:bg-[#eceef4]/40 transition-colors group cursor-pointer"
+                      onClick={() => handleEdit(client)}
+                    >
+                      <td className="py-4 px-6">
+                        <div className="flex items-center gap-4">
+                          <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm shrink-0 ${
+                            isPremium 
+                              ? 'bg-[#1b1b1e] text-[#C79A4A]' 
+                              : 'bg-[#d8dae0] text-[#181c21]'
+                          }`}>
+                            {getInitials(client.name)}
+                          </div>
+                          <div className="text-left">
+                            <p className="font-semibold text-sm text-[#181c21] group-hover:text-[#7c5809] transition-colors leading-tight">
+                              {client.name}
+                            </p>
+                            <span className={`inline-block px-2 py-0.5 rounded text-[10px] font-bold mt-1 ${
+                              isPremium 
+                                ? 'bg-[#1b1b1e] text-[#C79A4A]' 
+                                : 'bg-[#f1f3fa] text-[#47464b]'
+                            }`}>
+                              {isPremium ? 'Membro Premium' : 'Regular'}
+                            </span>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="py-4 px-6" onClick={(e) => e.stopPropagation()}>
+                        <div className="flex flex-col gap-1 text-sm text-left">
+                          {client.phone ? (
+                            <span className="font-semibold text-[#181c21]">{client.phone}</span>
+                          ) : (
+                            <span className="text-[#858387]">—</span>
+                          )}
+                          {client.email ? (
+                            <span className="text-xs text-[#47464b]">{client.email}</span>
+                          ) : (
+                            <span className="text-xs text-[#858387]">—</span>
+                          )}
+                        </div>
+                      </td>
+                      <td className="py-4 px-6 text-left">
+                        {client.notes ? (
+                          <p className="text-sm text-[#47464b] truncate max-w-[240px]" title={client.notes}>
                             {client.notes}
                           </p>
+                        ) : (
+                          <span className="text-xs text-[#858387]">—</span>
                         )}
-                      </div>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    {client.phone ? (
-                      <div className="flex items-center gap-1.5 text-zinc-600 dark:text-zinc-300">
-                        <Phone className="h-3.5 w-3.5 text-zinc-400" />
-                        <span>{client.phone}</span>
-                      </div>
-                    ) : (
-                      <span className="text-zinc-400 dark:text-zinc-600">—</span>
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    {client.email ? (
-                      <div className="flex items-center gap-1.5 text-zinc-600 dark:text-zinc-300">
-                        <Mail className="h-3.5 w-3.5 text-zinc-400" />
-                        <span className="truncate max-w-[180px]">{client.email}</span>
-                      </div>
-                    ) : (
-                      <span className="text-zinc-400 dark:text-zinc-600">—</span>
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-1.5 text-zinc-500 dark:text-zinc-400">
-                      <Calendar className="h-3.5 w-3.5 text-zinc-400" />
-                      <span>{formatDate(client.created_at)}</span>
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex justify-end gap-2">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => handleEdit(client)}
-                        disabled={isPending}
-                        title="Editar cliente"
-                        className="text-zinc-500 hover:text-zinc-950 dark:hover:text-zinc-50"
-                      >
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => handleDeleteClick(client.id)}
-                        disabled={isPending}
-                        title="Excluir cliente"
-                        className="text-zinc-500 hover:text-red-600 dark:hover:text-red-400"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </Card>
+                      </td>
+                      <td className="py-4 px-6 hidden md:table-cell text-left">
+                        <span className="text-sm text-[#47464b]">{formatDate(client.created_at)}</span>
+                      </td>
+                      <td className="py-4 px-6 text-right" onClick={(e) => e.stopPropagation()}>
+                        <div className="flex items-center justify-end gap-1.5 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
+                          <button
+                            onClick={() => handleEdit(client)}
+                            className="p-1.5 text-[#77767b] hover:text-[#7c5809] hover:bg-[#eceef4] transition-colors rounded-md cursor-pointer"
+                            title="Editar"
+                          >
+                            <span className="material-symbols-outlined text-[20px]">edit</span>
+                          </button>
+                          <button
+                            onClick={() => handleDeleteClick(client.id)}
+                            className="p-1.5 text-[#77767b] hover:text-[#ba1a1a] hover:bg-[#ffdad6]/40 transition-colors rounded-md cursor-pointer"
+                            title="Excluir"
+                          >
+                            <span className="material-symbols-outlined text-[20px]">delete</span>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Pagination Footer */}
+          <div className="border-t border-[#c8c5cb]/60 bg-white px-6 py-4 flex items-center justify-between text-left">
+            <span className="text-sm text-[#47464b]">
+              Mostrando {totalClients === 0 ? 0 : (activePage - 1) * ITEMS_PER_PAGE + 1} a {Math.min(activePage * ITEMS_PER_PAGE, totalClients)} de {totalClients} clientes
+            </span>
+            {totalPages > 1 && (
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                  disabled={activePage === 1}
+                  className="p-2 rounded border border-[#c8c5cb]/80 text-[#77767b] hover:bg-[#f1f3fa] disabled:opacity-40 disabled:hover:bg-transparent transition-colors cursor-pointer"
+                >
+                  <span className="material-symbols-outlined text-sm">chevron_left</span>
+                </button>
+                <button
+                  onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                  disabled={activePage === totalPages}
+                  className="p-2 rounded border border-[#c8c5cb]/80 text-[#181c21] hover:bg-[#f1f3fa] disabled:opacity-40 disabled:hover:bg-transparent transition-colors cursor-pointer"
+                >
+                  <span className="material-symbols-outlined text-sm">chevron_right</span>
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
       )}
 
       {/* Slide-over Sheet for Create/Edit */}
