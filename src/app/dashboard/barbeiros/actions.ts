@@ -88,10 +88,28 @@ export async function toggleBarberStatus(id: string, isActive: boolean) {
 
 export async function deleteBarber(id: string) {
   const { supabase, barbershopId } = await getBarbershopId()
+  
+  // 1. Delete work hours first to avoid shift blockages
+  await supabase.from('barber_work_hours')
+    .delete()
+    .eq('barber_id', id)
+    .eq('barbershop_id', barbershopId)
+
+  // 2. Try to delete the barber
   const { error } = await supabase.from('barbers')
     .delete()
-    .eq('id', id).eq('barbershop_id', barbershopId)
-  if (error) throw new Error(error.message)
+    .eq('id', id)
+    .eq('barbershop_id', barbershopId)
+
+  if (error) {
+    if (error.code === '23503') {
+      throw new Error(
+        'Este profissional possui agendamentos cadastrados. Para preservar o histórico financeiro e de reservas, ele não pode ser excluído permanentemente. Recomendamos desativá-lo utilizando o botão de energia.'
+      )
+    }
+    throw new Error(error.message)
+  }
+
   revalidatePath('/dashboard/barbeiros')
   revalidatePath('/dashboard')
 }

@@ -285,6 +285,11 @@ html {
     height: 24px;
     background-color: #C79A4A;
   }
+
+  .pattern-diagonal {
+    background-image: repeating-linear-gradient(45deg, #e0e2e9 0, #e0e2e9 2px, transparent 0, transparent 50%);
+    background-size: 10px 10px;
+  }
 }
 
 /* ── Auth Page Animations ──────────────────────────────────── */

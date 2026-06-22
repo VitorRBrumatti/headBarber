@@ -23,3 +23,7 @@ Olá, *Vitor Rufino Brumatti*! Seu agendamento na *Teste* foi confirmado com suc
 
 Agradecemos a preferência e nos vemos em breve! 💈✂️
 ----------------------------------------
+[2026-06-22T17:41:22.513Z] TO: (12) 31231-2312
+MESSAGE:
+Olá, *teste*! Seu agendamento na *testewtwetwetwet* para o dia 22/06/2026 foi *cancelado* pelo estabelecimento. Caso tenha dúvidas, entre em contato.
+----------------------------------------
