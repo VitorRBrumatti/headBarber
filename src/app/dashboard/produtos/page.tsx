@@ -1,5 +1,4 @@
 import { createClient } from '@/utils/supabase/server'
-import { PageHeader } from '@/components/ui/page-header'
 import { ProdutosClient } from './produtos-client'
 
 export default async function ProdutosPage() {
@@ -26,10 +25,6 @@ export default async function ProdutosPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader
-        title="Produtos"
-        description="Gerencie os produtos vendidos na sua barbearia."
-      />
       <ProdutosClient products={products ?? []} clients={clients ?? []} />
     </div>
   )

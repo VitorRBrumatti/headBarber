@@ -1,5 +1,4 @@
 import { createClient } from '@/utils/supabase/server'
-import { PageHeader } from '@/components/ui/page-header'
 import { AdicionaisClient } from './adicionais-client'
 
 export default async function AdicionaisPage() {
@@ -20,10 +19,6 @@ export default async function AdicionaisPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader
-        title="Adicionais"
-        description="Gerencie os serviços extras que podem ser adicionados durante o agendamento."
-      />
       <AdicionaisClient addOns={addOns ?? []} />
     </div>
   )

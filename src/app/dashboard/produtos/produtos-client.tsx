@@ -1,15 +1,13 @@
 'use client'
 
 import { useState, useTransition } from 'react'
-import { Plus, Edit, Trash2, Power, Package, DollarSign, Box, ShoppingBag } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { Card } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
 import { Sheet } from '@/components/ui/sheet'
 import { Dialog } from '@/components/ui/dialog'
 import { EmptyState } from '@/components/ui/empty-state'
 import { ProductForm } from '@/components/dashboard/product-form'
 import { toggleProductStatus, deleteProduct, recordProductSaleAction } from './actions'
+import { cn } from '@/lib/utils'
 
 interface Product {
   id: string
@@ -59,6 +57,17 @@ export function ProdutosClient({ products, clients }: ProdutosClientProps) {
   const [sellPaymentMethod, setSellPaymentMethod] = useState('pix')
   const [sellClientId, setSellClientId] = useState('')
 
+  // Client search states
+  const [clientSearch, setClientSearch] = useState('')
+  const [isClientDropdownOpen, setIsClientDropdownOpen] = useState(false)
+
+  // Filter and search states
+  const [searchTerm, setSearchTerm] = useState('')
+  const [selectedCategory, setSelectedCategory] = useState('all')
+
+  // Dropdown menu state per card
+  const [activeDropdownId, setActiveDropdownId] = useState<string | null>(null)
+
   const [isPending, startTransition] = useTransition()
   const [error, setError] = useState('')
 
@@ -98,6 +107,9 @@ export function ProdutosClient({ products, clients }: ProdutosClientProps) {
         setDeletingId(null)
       } catch (err: any) {
         setError(err.message)
+        // Automatically close the dialog on error per rules
+        setDeleteDialogOpen(false)
+        setDeletingId(null)
       }
     })
   }
@@ -107,6 +119,7 @@ export function ProdutosClient({ products, clients }: ProdutosClientProps) {
     setSellQuantity(1)
     setSellPaymentMethod('pix')
     setSellClientId('')
+    setClientSearch('')
     setSellSheetOpen(true)
   }
 
@@ -130,6 +143,15 @@ export function ProdutosClient({ products, clients }: ProdutosClientProps) {
     })
   }
 
+  const handleQuickSellHeaderClick = () => {
+    const firstProd = products.find(p => p.is_active && p.stock_quantity > 0)
+    setSellingProduct(firstProd)
+    setSellQuantity(1)
+    setSellPaymentMethod('pix')
+    setSellClientId('')
+    setClientSearch('')
+    setSellSheetOpen(true)
+  }
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('pt-BR', {
@@ -138,142 +160,287 @@ export function ProdutosClient({ products, clients }: ProdutosClientProps) {
     }).format(price)
   }
 
+  // Filter products client-side
+  const filteredProducts = products.filter((product) => {
+    const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (product.description && product.description.toLowerCase().includes(searchTerm.toLowerCase()))
+    
+    const matchesCategory = selectedCategory === 'all' || product.category === selectedCategory
+
+    return matchesSearch && matchesCategory
+  })
+
+  // List of active products with stock for Quick Sale dropdown
+  const activeProductsWithStock = products.filter(p => p.is_active && p.stock_quantity > 0)
+
+  // Filter clients client-side
+  const filteredClients = clientSearch
+    ? clients.filter(c => c.name.toLowerCase().includes(clientSearch.toLowerCase()))
+    : clients
+
+  // Unique categories in catalog
+  const uniqueCategories = Array.from(
+    new Set(products.map((p) => p.category).filter(Boolean))
+  ) as string[]
+
   return (
-    <div className="space-y-4">
-      <div className="flex justify-between items-center">
-        <h2 className="text-lg font-medium text-zinc-400">
-          Total: {products.length} {products.length === 1 ? 'produto' : 'produtos'}
-        </h2>
-        <Button onClick={handleCreateNew} className="gap-2">
-          <Plus className="h-4 w-4" />
-          Novo Produto
-        </Button>
+    <div className="p-6 md:p-8 space-y-6 flex flex-col flex-1">
+      {/* Header Section */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 mb-2 text-left">
+        <div>
+          <h1 className="font-montserrat text-2xl md:text-3xl font-extrabold text-[#181c21] mb-2">Produtos</h1>
+          <p className="text-sm md:text-base text-[#47464b]">
+            Controle estoque, preços e vendas da sua barbearia.
+          </p>
+        </div>
+        <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+          <button
+            onClick={handleQuickSellHeaderClick}
+            className="bg-[#f1f3fa] text-[#181c21] hover:bg-[#eceef4] text-xs font-bold px-4 py-3 rounded-lg flex items-center justify-center gap-2 transition-colors border border-[#eceef4] w-full sm:w-auto shrink-0 cursor-pointer"
+          >
+            <span className="material-symbols-outlined text-sm">point_of_sale</span>
+            Venda Rápida
+          </button>
+          <button
+            onClick={handleCreateNew}
+            className="bg-[#C79A4A] text-[#1a1a1d] hover:bg-[#b0863f] text-xs font-bold px-4 py-3 rounded-lg flex items-center justify-center gap-2 transition-colors shadow-sm w-full sm:w-auto shrink-0 cursor-pointer"
+          >
+            <span className="material-symbols-outlined text-sm">add</span>
+            Novo produto
+          </button>
+        </div>
       </div>
 
       {error && (
-        <div className="bg-red-500/10 border border-red-500/20 text-red-500 p-3 rounded-md text-sm">
+        <div className="bg-[#ffdad6] border border-[#ba1a1a]/20 text-[#93000a] p-4 rounded-xl text-sm font-semibold flex items-center gap-2 text-left">
+          <span className="material-symbols-outlined text-lg">error</span>
           {error}
         </div>
       )}
+
+      {/* Filters / Search Bar */}
+      <div className="bg-white p-4 rounded-xl shadow-soft border border-[#eceef4] flex flex-col md:flex-row gap-4">
+        <div className="relative flex-1">
+          <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[#47464b]">search</span>
+          <input
+            type="text"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full pl-10 pr-4 py-2 bg-[#f8f9ff] border border-[#eceef4] rounded-lg focus:outline-none focus:border-[#C79A4A] focus:ring-1 focus:ring-[#C79A4A] font-body-md transition-colors text-[#181c21] placeholder-[#858387]"
+            placeholder="Buscar produtos..."
+          />
+        </div>
+        <div className="flex gap-4">
+          <select
+            value={selectedCategory}
+            onChange={(e) => setSelectedCategory(e.target.value)}
+            className="px-4 py-2 bg-white border border-[#eceef4] rounded-lg focus:outline-none focus:border-[#C79A4A] font-body-md text-[#47464b]"
+          >
+            <option value="all">Todas as categorias</option>
+            {uniqueCategories.map((cat) => (
+              <option key={cat} value={cat}>
+                {CATEGORY_LABELS[cat] || cat}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
 
       {products.length === 0 ? (
         <EmptyState
           title="Nenhum produto cadastrado"
           description="Cadastre os produtos que sua barbearia vende, como pomadas, shampoos, óleos, pentes e acessórios."
           action={
-            <Button onClick={handleCreateNew} className="gap-2">
-              <Plus className="h-4 w-4" />
+            <Button onClick={handleCreateNew} className="gap-2 bg-[#C79A4A] text-[#1a1a1d] hover:bg-[#b0863f]">
+              <span className="material-symbols-outlined">add</span>
               Adicionar Primeiro Produto
             </Button>
           }
         />
+      ) : filteredProducts.length === 0 ? (
+        <div className="bg-white rounded-xl p-8 border border-dashed border-[#eceef4] text-center">
+          <span className="material-symbols-outlined text-[#77767b] text-4xl mb-2">search_off</span>
+          <p className="text-sm font-semibold text-[#181c21]">Nenhum produto corresponde aos filtros</p>
+          <p className="text-xs text-[#47464b] mt-1">Tente ajustar a busca ou categoria selecionada.</p>
+        </div>
       ) : (
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {products.map((product) => (
-            <Card key={product.id} className="relative overflow-hidden p-6 flex flex-col justify-between group hover:border-amber-500/30 transition-all duration-300">
-              <div>
-                {/* Product image or fallback */}
-                <div className="relative h-32 w-full mb-4 rounded-lg overflow-hidden bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 text-left">
+          {filteredProducts.map((product) => {
+            const isLowStock = product.stock_quantity > 0 && product.stock_quantity <= 3
+            const isOutOfStock = product.stock_quantity <= 0
+
+            return (
+              <div
+                key={product.id}
+                className={cn(
+                  "bg-white rounded-xl shadow-soft border border-[#eceef4] flex flex-col group hover:shadow-md transition-shadow duration-300 relative",
+                  !product.is_active && "opacity-75 grayscale-[30%]"
+                )}
+              >
+                {/* Product Image Wrapper */}
+                <div className="relative h-48 bg-[#f8f9ff] flex items-center justify-center p-4 rounded-t-xl border-b border-[#eceef4]/50">
                   {product.image_url ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
                       src={product.image_url}
                       alt={product.name}
-                      className="h-full w-full object-cover"
+                      className="object-contain h-full w-full max-w-[160px] drop-shadow-md mix-blend-multiply"
                     />
                   ) : (
-                    <Package className="h-10 w-10 text-zinc-300 dark:text-zinc-600" />
+                    <span className="material-symbols-outlined text-[#77767b] text-[48px]">inventory_2</span>
                   )}
-                </div>
-
-                {/* Header */}
-                <div className="space-y-2">
-                  <div className="flex items-start justify-between gap-2">
-                    <h3 className="font-semibold text-zinc-900 dark:text-zinc-50 leading-tight">
-                      {product.name}
-                    </h3>
-                    <Badge variant={product.is_active ? 'default' : 'secondary'} className="shrink-0">
+                  <div className="absolute top-3 right-3">
+                    <span
+                      className={cn(
+                        "text-xs font-semibold px-2.5 py-0.5 rounded-full border",
+                        product.is_active
+                          ? "bg-[#E6F4EA] text-[#137333] border-[#ceead6]"
+                          : "bg-[#eceef4] text-[#47464b] border-[#c8c5cb]"
+                      )}
+                    >
                       {product.is_active ? 'Ativo' : 'Inativo'}
-                    </Badge>
-                  </div>
-
-                  {product.category && (
-                    <span className="inline-block text-xs font-medium px-2 py-0.5 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400">
-                      {CATEGORY_LABELS[product.category] || product.category}
                     </span>
-                  )}
-
-                  {product.description && (
-                    <p className="text-sm text-zinc-500 dark:text-zinc-400 line-clamp-2">
-                      {product.description}
-                    </p>
-                  )}
+                  </div>
                 </div>
 
-                {/* Price & Stock */}
-                <div className="mt-4 flex items-center gap-4">
-                  <div className="flex items-center gap-1.5">
-                    <DollarSign className="h-4 w-4 text-amber-500" />
-                    <span className="text-lg font-bold text-zinc-900 dark:text-zinc-50">
-                      {formatPrice(product.sale_price)}
-                    </span>
+                {/* Details */}
+                <div className="p-5 flex flex-col flex-1">
+                  <span className="font-label-sm text-xs font-bold text-[#858387] uppercase tracking-wider mb-1">
+                    {product.category ? (CATEGORY_LABELS[product.category] || product.category) : 'Outros'}
+                  </span>
+                  <h3 className="font-montserrat text-sm md:text-base font-bold text-[#181c21] mb-2 line-clamp-1">
+                    {product.name}
+                  </h3>
+                  <p className="font-body-md text-xs md:text-sm text-[#47464b] mb-4 line-clamp-2 flex-1">
+                    {product.description || 'Sem descrição cadastrada.'}
+                  </p>
+
+                  <div className="flex justify-between items-end mb-5">
+                    <div>
+                      <span className="block text-[10px] font-bold text-[#858387] uppercase tracking-wider mb-1">Preço Venda</span>
+                      <span className="font-montserrat text-lg font-bold text-[#181c21]">
+                        {formatPrice(product.sale_price)}
+                      </span>
+                    </div>
+                    <div className="text-right">
+                      {isLowStock ? (
+                        <>
+                          <span className="block text-[10px] font-bold text-[#ba1a1a] uppercase tracking-wider mb-1">Estoque Baixo</span>
+                          <span className="font-body-md text-xs font-semibold text-[#ba1a1a]">
+                            {product.stock_quantity} un
+                          </span>
+                        </>
+                      ) : isOutOfStock ? (
+                        <>
+                          <span className="block text-[10px] font-bold text-[#ba1a1a] uppercase tracking-wider mb-1">Sem Estoque</span>
+                          <span className="font-body-md text-xs font-semibold text-[#ba1a1a]">
+                            0 un
+                          </span>
+                        </>
+                      ) : (
+                        <>
+                          <span className="block text-[10px] font-bold text-[#858387] uppercase tracking-wider mb-1">Estoque</span>
+                          <span className="font-body-md text-xs font-semibold text-[#181c21]">
+                            {product.stock_quantity} un
+                          </span>
+                        </>
+                      )}
+                    </div>
                   </div>
-                  <div className="flex items-center gap-1.5 text-sm text-zinc-500">
-                    <Box className="h-3.5 w-3.5" />
-                    <span>{product.stock_quantity} em estoque</span>
+
+                  {/* Actions row */}
+                  <div className="flex gap-2 mt-auto relative">
+                    {isOutOfStock || !product.is_active ? (
+                      <button
+                        disabled
+                        className="flex-1 bg-[#eceef4] border border-[#c8c5cb] text-[#47464b] cursor-not-allowed font-body-md text-xs font-semibold py-2 px-4 rounded-lg flex items-center justify-center gap-2"
+                      >
+                        Indisponível
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => handleSellClick(product)}
+                        className="flex-1 bg-white border border-[#eceef4] hover:border-[#1a1a1d] text-[#1a1a1d] font-body-md text-xs font-semibold py-2 px-4 rounded-lg transition-colors flex items-center justify-center gap-2 cursor-pointer"
+                      >
+                        <span className="material-symbols-outlined text-sm">point_of_sale</span>
+                        Vender
+                      </button>
+                    )}
+
+                    <div className="relative">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          setActiveDropdownId(activeDropdownId === product.id ? null : product.id)
+                        }}
+                        className="p-2 border border-[#eceef4] rounded-lg text-[#47464b] hover:bg-[#f1f3fa] transition-colors cursor-pointer flex items-center justify-center"
+                      >
+                        <span className="material-symbols-outlined text-lg leading-none">more_vert</span>
+                      </button>
+
+                      {/* Dropdown Menu */}
+                      {activeDropdownId === product.id && (
+                        <>
+                          <div
+                            className="fixed inset-0 z-10"
+                            onClick={() => setActiveDropdownId(null)}
+                          />
+                          <div className="absolute right-0 bottom-full mb-2 w-32 bg-white rounded-lg shadow-lg border border-[#eceef4] py-1 z-20 animate-in fade-in slide-in-from-bottom-2 duration-150">
+                            <button
+                              onClick={() => {
+                                handleEdit(product)
+                                setActiveDropdownId(null)
+                              }}
+                              className="w-full text-left px-4 py-2 text-xs text-[#181c21] hover:bg-[#f1f3fa] transition-colors flex items-center gap-2 cursor-pointer"
+                            >
+                              <span className="material-symbols-outlined text-sm">edit</span>
+                              Editar
+                            </button>
+                            <button
+                              onClick={() => {
+                                handleToggleStatus(product.id, product.is_active)
+                                setActiveDropdownId(null)
+                              }}
+                              className="w-full text-left px-4 py-2 text-xs text-[#181c21] hover:bg-[#f1f3fa] transition-colors flex items-center gap-2 cursor-pointer"
+                            >
+                              <span className="material-symbols-outlined text-sm">power_settings_new</span>
+                              {product.is_active ? 'Desativar' : 'Ativar'}
+                            </button>
+                            <button
+                              onClick={() => {
+                                handleDeleteClick(product.id)
+                                setActiveDropdownId(null)
+                              }}
+                              className="w-full text-left px-4 py-2 text-xs text-[#ba1a1a] hover:bg-[#ffdad6]/20 transition-colors flex items-center gap-2 cursor-pointer"
+                            >
+                              <span className="material-symbols-outlined text-sm">delete</span>
+                              Excluir
+                            </button>
+                          </div>
+                        </>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
+            )
+          })}
 
-              {/* Action Buttons */}
-              <div className="mt-6 pt-4 border-t border-zinc-100 dark:border-zinc-800/60 flex items-center justify-end gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handleSellClick(product)}
-                  disabled={isPending || !product.is_active || product.stock_quantity <= 0}
-                  className="mr-auto gap-1 text-xs font-semibold border-amber-500/20 hover:border-amber-500/50 text-amber-500 hover:bg-amber-500/10 disabled:opacity-50"
-                >
-                  <ShoppingBag className="h-3 w-3" />
-                  Vender
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => handleToggleStatus(product.id, product.is_active)}
-                  disabled={isPending}
-                  title={product.is_active ? 'Desativar produto' : 'Ativar produto'}
-                  className="text-zinc-500 hover:text-zinc-950 dark:hover:text-zinc-50"
-                >
-                  <Power className={`h-4 w-4 ${product.is_active ? 'text-emerald-500' : 'text-zinc-400'}`} />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => handleEdit(product)}
-                  disabled={isPending}
-                  title="Editar produto"
-                  className="text-zinc-500 hover:text-zinc-950 dark:hover:text-zinc-50"
-                >
-                  <Edit className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => handleDeleteClick(product.id)}
-                  disabled={isPending}
-                  title="Excluir produto"
-                  className="text-zinc-500 hover:text-red-600 dark:hover:text-red-400"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              </div>
-            </Card>
-          ))}
+          {/* Empty State / Add New Card Placeholder */}
+          <div
+            onClick={handleCreateNew}
+            className="bg-transparent border-2 border-dashed border-[#eceef4] rounded-xl flex flex-col items-center justify-center p-6 text-center hover:bg-[#f8f9ff] transition-colors duration-200 cursor-pointer min-h-[380px]"
+          >
+            <div className="w-16 h-16 rounded-full bg-[#C79A4A]/10 flex items-center justify-center mb-4 text-[#C79A4A]">
+              <span className="material-symbols-outlined text-3xl">add</span>
+            </div>
+            <h3 className="font-montserrat text-base font-bold text-[#1a1a1d] mb-1">Adicionar Novo</h3>
+            <p className="text-xs text-[#47464b]">Cadastre um novo produto no seu catálogo.</p>
+          </div>
         </div>
       )}
 
-      {/* Slide-over Sheet for Create/Edit */}
+      {/* Create/Edit Sheet */}
       <Sheet
         open={sheetOpen}
         onClose={() => setSheetOpen(false)}
@@ -290,137 +457,219 @@ export function ProdutosClient({ products, clients }: ProdutosClientProps) {
         />
       </Sheet>
 
-      {/* Slide-over Sheet for Quick Sell */}
+      {/* Quick Sell Sheet */}
       <Sheet
         open={sellSheetOpen}
         onClose={() => {
           setSellSheetOpen(false)
           setSellingProduct(undefined)
+          setClientSearch('')
+          setSellClientId('')
         }}
-        title="Registrar Venda"
-        description={`Venda rápida do produto: ${sellingProduct?.name || ''}`}
+        title="Venda Rápida"
+        description="Gerencie a venda de produtos direto do estoque."
       >
-        {sellingProduct && (
-          <form onSubmit={handleSellSubmit} className="space-y-6">
-            <div className="space-y-4">
-              <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-2">
-                  Produto
-                </label>
-                <div className="p-3 bg-zinc-900 border border-zinc-800 rounded-lg text-zinc-250">
-                  {sellingProduct.name}
+        <form onSubmit={handleSellSubmit} className="space-y-5 text-left">
+          <div className="space-y-4">
+            {/* Product selection */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-[#858387] uppercase tracking-wider">Produto</label>
+              {sellingProduct ? (
+                <div className="relative">
+                  <select
+                    value={sellingProduct.id}
+                    onChange={(e) => {
+                      const prod = products.find(p => p.id === e.target.value)
+                      if (prod) {
+                        setSellingProduct(prod)
+                        setSellQuantity(1)
+                      }
+                    }}
+                    className="w-full appearance-none bg-[#f1f3fa] border border-[#eceef4] rounded-lg pl-4 pr-10 py-3 text-sm text-[#181c21] focus:border-[#C79A4A] focus:ring-1 focus:ring-[#C79A4A] outline-none transition-colors"
+                  >
+                    {activeProductsWithStock.map((prod) => (
+                      <option key={prod.id} value={prod.id}>
+                        {prod.name}
+                      </option>
+                    ))}
+                  </select>
+                  <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-[#47464b] pointer-events-none">expand_more</span>
                 </div>
-              </div>
+              ) : (
+                <p className="text-sm text-red-500 bg-red-50 border border-red-100 p-3 rounded-lg">
+                  Não há produtos ativos com estoque disponível para realizar uma venda.
+                </p>
+              )}
+            </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-2">
-                    Preço Unitário
-                  </label>
-                  <div className="p-3 bg-zinc-900 border border-zinc-800 rounded-lg text-zinc-250">
-                    {formatPrice(sellingProduct.sale_price)}
-                  </div>
+            {/* Price and Stock Stats */}
+            {sellingProduct && (
+              <div className="flex bg-[#f8f9ff] rounded-lg p-4 justify-between items-center border border-[#eceef4] gap-4">
+                <div className="flex flex-col">
+                  <span className="text-[10px] font-bold text-[#858387] uppercase tracking-wider mb-1">Preço Unitário</span>
+                  <span className="font-montserrat text-base font-bold text-[#181c21]">{formatPrice(sellingProduct.sale_price)}</span>
                 </div>
-
-                <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-2">
-                    Em Estoque
-                  </label>
-                  <div className="p-3 bg-zinc-900 border border-zinc-800 rounded-lg text-zinc-255">
-                    {sellingProduct.stock_quantity} un
-                  </div>
-                </div>
-              </div>
-
-              <div>
-                <label htmlFor="sell-quantity" className="block text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-2">
-                  Quantidade *
-                </label>
-                <input
-                  id="sell-quantity"
-                  type="number"
-                  required
-                  min={1}
-                  max={sellingProduct.stock_quantity}
-                  value={sellQuantity}
-                  onChange={(e) => setSellQuantity(Math.max(1, Math.min(sellingProduct.stock_quantity, parseInt(e.target.value) || 1)))}
-                  className="w-full bg-zinc-950 border border-zinc-800 focus:border-amber-500 rounded-lg p-3 text-zinc-200 focus:outline-none transition-colors"
-                />
-              </div>
-
-              <div>
-                <label htmlFor="sell-payment" className="block text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-2">
-                  Forma de Pagamento *
-                </label>
-                <select
-                  id="sell-payment"
-                  required
-                  value={sellPaymentMethod}
-                  onChange={(e) => setSellPaymentMethod(e.target.value)}
-                  className="w-full bg-zinc-950 border border-zinc-800 focus:border-amber-500 rounded-lg p-3 text-zinc-200 focus:outline-none transition-colors"
-                >
-                  <option value="pix">Pix</option>
-                  <option value="money">Dinheiro</option>
-                  <option value="credit_card">Cartão de Crédito</option>
-                  <option value="debit_card">Cartão de Débito</option>
-                  <option value="other">Outro</option>
-                </select>
-              </div>
-
-              <div>
-                <label htmlFor="sell-client" className="block text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-2">
-                  Cliente (Opcional)
-                </label>
-                <select
-                  id="sell-client"
-                  value={sellClientId}
-                  onChange={(e) => setSellClientId(e.target.value)}
-                  className="w-full bg-zinc-950 border border-zinc-800 focus:border-amber-500 rounded-lg p-3 text-zinc-200 focus:outline-none transition-colors"
-                >
-                  <option value="">Cliente Avulso (Não identificado)</option>
-                  {clients.map((client) => (
-                    <option key={client.id} value={client.id}>
-                      {client.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="pt-4 border-t border-zinc-800/60">
-                <div className="flex justify-between items-center text-sm font-semibold">
-                  <span className="text-zinc-400">VALOR TOTAL:</span>
-                  <span className="text-xl font-bold text-amber-500">
-                    {formatPrice(sellingProduct.sale_price * sellQuantity)}
+                <div className="h-8 w-[1px] bg-[#eceef4]"></div>
+                <div className="flex flex-col items-end">
+                  <span className="text-[10px] font-bold text-[#858387] uppercase tracking-wider mb-1">Estoque</span>
+                  <span className="text-xs font-semibold text-[#181c21] flex items-center gap-1.5">
+                    <span className={cn(
+                      "w-2 h-2 rounded-full",
+                      sellingProduct.stock_quantity <= 3 ? "bg-[#ba1a1a]" : "bg-green-500"
+                    )}></span>
+                    {sellingProduct.stock_quantity} un.
                   </span>
                 </div>
               </div>
+            )}
+
+            {/* Quantity Selector */}
+            {sellingProduct && (
+              <div className="flex items-center justify-between py-2 border-b border-[#eceef4]/60">
+                <label className="text-xs font-bold text-[#858387] uppercase tracking-wider">Quantidade</label>
+                <div className="flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setSellQuantity(q => Math.max(1, q - 1))}
+                    disabled={sellQuantity <= 1}
+                    className="w-8 h-8 flex items-center justify-center rounded border border-[#eceef4] text-[#181c21] hover:bg-[#f1f3fa] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <span className="material-symbols-outlined text-[16px] leading-none">remove</span>
+                  </button>
+                  <span className="w-12 text-center font-montserrat text-lg font-bold text-[#181c21] select-none">
+                    {sellQuantity}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setSellQuantity(q => Math.min(sellingProduct.stock_quantity, q + 1))}
+                    disabled={sellQuantity >= sellingProduct.stock_quantity}
+                    className="w-8 h-8 flex items-center justify-center rounded border border-[#eceef4] text-[#181c21] hover:bg-[#f1f3fa] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <span className="material-symbols-outlined text-[16px] leading-none">add</span>
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Client input (Search-styled select dropdown) */}
+            <div className="space-y-1.5 relative">
+              <div className="flex justify-between items-center">
+                <label className="text-xs font-bold text-[#858387] uppercase tracking-wider">Cliente (Opcional)</label>
+                <span className="text-[10px] font-bold text-[#858387] uppercase tracking-wider">Vincular venda</span>
+              </div>
+              <div className="relative">
+                <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[#47464b] text-[20px]">person_search</span>
+                <input
+                  type="text"
+                  value={clientSearch}
+                  onChange={(e) => {
+                    setClientSearch(e.target.value)
+                    setIsClientDropdownOpen(true)
+                    if (sellClientId) {
+                      setSellClientId('')
+                    }
+                  }}
+                  onFocus={() => setIsClientDropdownOpen(true)}
+                  className="w-full pl-10 pr-10 py-3 bg-white border border-[#eceef4] rounded-lg text-sm text-[#181c21] focus:border-[#C79A4A] focus:ring-1 focus:ring-[#C79A4A] outline-none transition-colors placeholder-[#858387]"
+                  placeholder="Buscar por nome..."
+                />
+                {clientSearch && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setClientSearch('')
+                      setSellClientId('')
+                      setIsClientDropdownOpen(false)
+                    }}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[#47464b] hover:text-[#181c21] flex items-center justify-center"
+                  >
+                    <span className="material-symbols-outlined text-base">close</span>
+                  </button>
+                )}
+              </div>
+
+              {/* Client dropdown results */}
+              {isClientDropdownOpen && filteredClients.length > 0 && (
+                <>
+                  <div
+                    className="fixed inset-0 z-30"
+                    onClick={() => setIsClientDropdownOpen(false)}
+                  />
+                  <div className="absolute left-0 right-0 top-full mt-1 max-h-48 overflow-y-auto bg-white border border-[#eceef4] rounded-lg shadow-lg z-40 py-1">
+                    {filteredClients.map((client) => (
+                      <button
+                        key={client.id}
+                        type="button"
+                        onClick={() => {
+                          setSellClientId(client.id)
+                          setClientSearch(client.name)
+                          setIsClientDropdownOpen(false)
+                        }}
+                        className="w-full text-left px-4 py-2.5 text-xs font-semibold text-[#181c21] hover:bg-[#f1f3fa] transition-colors"
+                      >
+                        {client.name}
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
             </div>
 
-            <div className="flex gap-3 justify-end pt-4">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => {
-                  setSellSheetOpen(false)
-                  setSellingProduct(undefined)
-                }}
-                disabled={isPending}
-              >
-                Cancelar
-              </Button>
-              <Button
+            {/* Payment Method */}
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-[#858387] uppercase tracking-wider block">Método de Pagamento</label>
+              <div className="grid grid-cols-3 gap-3">
+                {[
+                  { value: 'credit_card', label: 'Cartão', icon: 'credit_card' },
+                  { value: 'money', label: 'Dinheiro', icon: 'payments' },
+                  { value: 'pix', label: 'Pix', icon: 'qr_code' }
+                ].map((method) => (
+                  <label key={method.value} className="relative cursor-pointer">
+                    <input
+                      type="radio"
+                      name="payment"
+                      value={method.value}
+                      checked={sellPaymentMethod === method.value}
+                      onChange={() => setSellPaymentMethod(method.value)}
+                      className="peer sr-only"
+                    />
+                    <div className="flex flex-col items-center justify-center p-3 rounded-lg border border-[#eceef4] bg-white peer-checked:border-[#C79A4A] peer-checked:bg-[#C79A4A]/5 transition-all text-[#47464b] peer-checked:text-[#C79A4A] hover:bg-[#f8f9ff]">
+                      <span className="material-symbols-outlined mb-1 text-[24px]" style={{ fontVariationSettings: "'FILL' 1" }}>
+                        {method.icon}
+                      </span>
+                      <span className="font-body-md text-[11px] font-bold text-center leading-tight">
+                        {method.label}
+                      </span>
+                    </div>
+                  </label>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Sticky Total & Register Button */}
+          {sellingProduct && (
+            <div className="pt-4 border-t border-[#eceef4] space-y-4">
+              <div className="flex justify-between items-end">
+                <span className="text-xs font-semibold text-[#858387]">Total da Venda</span>
+                <span className="font-montserrat text-2xl font-extrabold text-[#181c21] leading-none tracking-tight">
+                  {formatPrice(sellingProduct.sale_price * sellQuantity)}
+                </span>
+              </div>
+              <button
                 type="submit"
                 disabled={isPending || sellingProduct.stock_quantity <= 0}
-                className="bg-amber-500 hover:bg-amber-600 text-zinc-950 font-bold px-6 shadow-md shadow-amber-500/10"
+                className="w-full bg-[#C79A4A] hover:bg-[#b0863f] text-[#1a1a1d] font-montserrat text-xs font-bold py-3.5 px-6 rounded-lg flex items-center justify-center gap-2 transition-all duration-200 cursor-pointer shadow-sm disabled:opacity-50"
               >
-                {isPending ? 'Gravando...' : 'Confirmar Venda'}
-              </Button>
+                <span className="material-symbols-outlined text-lg leading-none">check_circle</span>
+                {isPending ? 'Registrando...' : 'Registrar venda'}
+              </button>
             </div>
-          </form>
-        )}
+          )}
+        </form>
       </Sheet>
 
-      {/* Confirmation Dialog for Delete */}
+      {/* Delete Dialog */}
       <Dialog
         open={deleteDialogOpen}
         onClose={() => {
@@ -429,7 +678,7 @@ export function ProdutosClient({ products, clients }: ProdutosClientProps) {
         }}
         onConfirm={handleDeleteConfirm}
         title="Excluir Produto"
-        description="Tem certeza que deseja excluir este produto? Esta ação não pode ser desfeita."
+        description="Tem certeza que deseja excluir este produto? Esta ação não pode ser desfeita e removerá o produto do catálogo."
         confirmLabel="Excluir"
         confirmVariant="destructive"
         loading={isPending}
