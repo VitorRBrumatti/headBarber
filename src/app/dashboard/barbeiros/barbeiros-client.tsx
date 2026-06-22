@@ -80,6 +80,8 @@ export function BarbeirosClient({ barbers }: BarbeirosClientProps) {
         setDeletingId(null)
       } catch (err: any) {
         setError(err.message)
+        setDeleteDialogOpen(false)
+        setDeletingId(null)
       }
     })
   }
