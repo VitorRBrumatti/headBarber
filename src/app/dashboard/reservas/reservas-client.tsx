@@ -1,13 +1,7 @@
 'use client'
 
 import { useState, useTransition } from 'react'
-import { 
-  Briefcase, Calendar, Clock, Search, SlidersHorizontal, User, 
-  MessageSquare, Phone, Mail, Copy, Check, Info, CheckCircle, XCircle, AlertTriangle
-} from 'lucide-react'
-import { Card, CardContent } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Button } from '@/components/ui/button'
+import Link from 'next/link'
 import { Badge } from '@/components/ui/badge'
 import { Sheet } from '@/components/ui/sheet'
 import { updateAppointmentStatus } from '../agenda/actions'
@@ -21,7 +15,7 @@ export function ReservasClient({ initialAppointments }: ReservasClientProps) {
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
   
-  // Detail modal state
+  // Detail sheet state
   const [selectedAppt, setSelectedAppt] = useState<any | null>(null)
   const [isDetailOpen, setIsDetailOpen] = useState(false)
   const [copied, setCopied] = useState(false)
@@ -31,8 +25,8 @@ export function ReservasClient({ initialAppointments }: ReservasClientProps) {
 
   // Filter and search logic
   const filteredAppointments = appointments.filter((appt) => {
-    const clientName = appt.clients?.name || ''
-    const clientPhone = appt.clients?.phone || ''
+    const clientName = (appt.clients as any)?.name || ''
+    const clientPhone = (appt.clients as any)?.phone || ''
     const matchesSearch = 
       clientName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       clientPhone.replace(/\D/g, '').includes(searchTerm.replace(/\D/g, ''))
@@ -49,7 +43,7 @@ export function ReservasClient({ initialAppointments }: ReservasClientProps) {
       try {
         await updateAppointmentStatus(apptId, status)
         
-        // Update local state reactively
+        // Update local state
         setAppointments(prev => 
           prev.map(a => a.id === apptId ? { ...a, status } : a)
         )
@@ -73,139 +67,204 @@ export function ReservasClient({ initialAppointments }: ReservasClientProps) {
     return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val)
   }
 
-  // Format start_at date
-  const formatDateTime = (startAtStr: string) => {
+  // Format start_at date UTC-safe
+  const formatDateTimeProto = (startAtStr: string) => {
     const dateObj = new Date(startAtStr)
-    const dateFormatted = dateObj.toLocaleDateString('pt-BR', {
-      day: 'numeric',
-      month: 'short',
-      year: 'numeric',
-      timeZone: 'UTC'
-    })
-    const timeFormatted = startAtStr.substring(11, 16)
-    return { dateFormatted, timeFormatted }
+    const day = dateObj.getUTCDate()
+    const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez']
+    const monthStr = months[dateObj.getUTCMonth()]
+    
+    // Day and Month formatted (e.g. 24 Out)
+    const dayAndMonth = `${day} ${monthStr}`
+    
+    // Time formatted (e.g. 14:30)
+    const time = startAtStr.substring(11, 16)
+    
+    // Full date formatted for drawer (e.g. 24 de Outubro)
+    const fullMonths = [
+      'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+      'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
+    ]
+    const fullDateStr = `${day} de ${fullMonths[dateObj.getUTCMonth()]}`
+
+    return { dayAndMonth, time, fullDateStr }
   }
 
+  // Get client initials
+  const getInitials = (name: string) => {
+    if (!name) return 'C'
+    return name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()
+  }
+
+  // Filter pills configurations
+  const filterPills = [
+    { label: 'Todos', value: 'all' },
+    { label: 'Confirmados', value: 'confirmed' },
+    { label: 'Concluídos', value: 'completed' },
+    { label: 'Cancelados', value: 'cancelled' },
+    { label: 'No-show', value: 'no_show' },
+  ]
+
   return (
-    <div className="space-y-6">
-      {/* Page Header */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <div className="text-left">
-          <h1 className="text-3xl font-extrabold text-white tracking-tight">Histórico de Reservas</h1>
-          <p className="text-sm text-neutral-400">Gerencie todos os agendamentos realizados no estabelecimento</p>
-        </div>
+    <div className="p-6 md:p-8 space-y-6">
+      {/* Header Section */}
+      <div className="text-left">
+        <h1 className="font-montserrat text-2xl md:text-3xl font-extrabold text-[#181c21] mb-1.5">
+          Histórico de Reservas
+        </h1>
+        <p className="text-sm text-[#47464b] font-medium">
+          Gerencie todos os agendamentos realizados no estabelecimento.
+        </p>
       </div>
 
-      {/* Filters & Search */}
-      <div className="flex flex-col md:flex-row gap-3 bg-neutral-900 border border-neutral-800/85 p-4 rounded-2xl shadow-xl">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-3.5 w-4 h-4 text-neutral-500" />
-          <Input
-            placeholder="Pesquisar por nome ou celular do cliente..."
+      {/* Search and Filters */}
+      <div className="space-y-4">
+        {/* Search Bar */}
+        <div className="relative w-full max-w-2xl">
+          <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-[#77767b] text-xl">
+            search
+          </span>
+          <input 
+            className="w-full bg-white border border-[#c8c5cb]/40 rounded-lg py-3 pl-12 pr-4 focus:outline-none focus:border-[#C79A4A] focus:ring-1 focus:ring-[#C79A4A] transition-colors font-body-md text-xs font-semibold text-[#181c21] placeholder:text-[#858387]" 
+            placeholder="Pesquisar por nome ou celular do cliente..." 
+            type="text"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="bg-neutral-950 border-neutral-850 rounded-xl text-white pl-10 py-5 focus:border-amber-500"
           />
         </div>
 
-        <div className="flex items-center gap-2">
-          <SlidersHorizontal className="w-4 h-4 text-neutral-450 md:inline hidden" />
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className="bg-neutral-950 border border-neutral-850 rounded-xl p-3 focus:outline-none focus:border-amber-500 text-white text-sm"
-          >
-            <option value="all">Todos os Status</option>
-            <option value="confirmed">Confirmados</option>
-            <option value="completed">Concluídos</option>
-            <option value="cancelled">Cancelados</option>
-            <option value="no_show">Faltas (No-Show)</option>
-          </select>
+        {/* Filters Row */}
+        <div className="flex flex-wrap gap-2 pt-1">
+          {filterPills.map((pill) => {
+            const active = statusFilter === pill.value
+            return (
+              <button
+                key={pill.value}
+                onClick={() => setStatusFilter(pill.value)}
+                className={`px-4 py-2 rounded-full font-semibold text-[11px] tracking-wide transition-colors border cursor-pointer ${
+                  active
+                    ? 'bg-[#1b1b1e] text-white border-[#1b1b1e]'
+                    : 'bg-white text-[#47464b] border-[#c8c5cb]/40 hover:bg-[#eceef4]'
+                }`}
+              >
+                {pill.label}
+              </button>
+            )
+          })}
         </div>
       </div>
 
-      {/* BOOKINGS CARDS / LISTING */}
+      {/* Booking List */}
       {filteredAppointments.length === 0 ? (
-        <Card className="bg-neutral-900 border-neutral-800/80 p-16 text-center text-neutral-500 rounded-2xl flex flex-col items-center justify-center">
-          <Briefcase className="w-12 h-12 text-neutral-700 mb-2" />
-          <span className="text-base font-semibold">Nenhuma reserva encontrada.</span>
-          <span className="text-xs text-neutral-600 mt-1">Nenhum agendamento corresponde aos filtros aplicados.</span>
-        </Card>
+        <div className="bg-white border border-[#eceef4] p-16 text-center text-[#77767b] rounded-2xl flex flex-col items-center justify-center shadow-xs max-w-md mx-auto my-8">
+          <span className="material-symbols-outlined text-4xl text-[#858387] mb-3">event_busy</span>
+          <span className="text-sm font-bold text-[#181c21]">Nenhuma reserva encontrada</span>
+          <span className="text-xs text-[#47464b] mt-1 font-medium">Nenhum agendamento corresponde aos filtros aplicados.</span>
+        </div>
       ) : (
-        <div className="grid grid-cols-1 gap-4">
+        <div className="space-y-4">
           {filteredAppointments.map((appt) => {
-            const { dateFormatted, timeFormatted } = formatDateTime(appt.start_at)
+            const { dayAndMonth, time, fullDateStr } = formatDateTimeProto(appt.start_at)
+            const clientName = (appt.clients as any)?.name || 'Cliente Avulso'
+            const clientPhone = (appt.clients as any)?.phone || 'Sem telefone'
+            const serviceName = (appt.services as any)?.name || 'Serviço'
+            const barberName = (appt.barbers as any)?.name || 'Profissional'
             
-            // Status style
-            let badgeStyle = 'bg-neutral-950 border-neutral-800 text-neutral-400'
-            let statusLabel = 'Pendente'
+            // Status style configs
+            let stripeBg = 'bg-zinc-400'
+            let badgeBgClass = 'bg-zinc-100 text-zinc-800'
+            let statusText = 'Pendente'
 
             switch (appt.status) {
               case 'confirmed':
-                badgeStyle = 'bg-amber-500/10 border-amber-500/30 text-amber-500'
-                statusLabel = 'Confirmado'
+                stripeBg = 'bg-blue-500'
+                badgeBgClass = 'bg-blue-100 text-blue-800'
+                statusText = 'Confirmada'
                 break
               case 'completed':
-                badgeStyle = 'bg-green-500/10 border-green-500/30 text-green-500'
-                statusLabel = 'Concluído'
+                stripeBg = 'bg-green-500'
+                badgeBgClass = 'bg-green-100 text-green-800'
+                statusText = 'Concluída'
                 break
               case 'cancelled':
-                badgeStyle = 'bg-red-500/10 border-red-500/30 text-red-500'
-                statusLabel = 'Cancelado'
+                stripeBg = 'bg-[#ba1a1a]'
+                badgeBgClass = 'bg-red-50 text-red-800 border border-red-200/50'
+                statusText = 'Cancelada'
                 break
               case 'no_show':
-                badgeStyle = 'bg-neutral-800 border-neutral-700 text-neutral-400'
-                statusLabel = 'Faltou (No-Show)'
+                stripeBg = 'bg-[#e65100]'
+                badgeBgClass = 'bg-orange-100 text-orange-850'
+                statusText = 'No-show'
                 break
             }
 
             return (
               <div 
                 key={appt.id}
-                className="bg-neutral-900 border border-neutral-800/80 rounded-2xl p-5 hover:border-neutral-700 transition-all flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 hover:scale-[1.005]"
+                className="bg-white rounded-xl custom-shadow-card flex relative overflow-hidden group hover:border-[#c8c5cb] border border-transparent transition-all"
               >
-                {/* Client info & timing */}
-                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-                  {/* Calendar Widget */}
-                  <div className="bg-neutral-950 border border-neutral-850 p-3 rounded-xl text-center min-w-[75px] font-mono flex flex-col items-center">
-                    <span className="text-[10px] text-neutral-500 font-bold uppercase tracking-wider">{timeFormatted}</span>
-                    <span className="text-xs font-bold text-white mt-1">{dateFormatted}</span>
+                {/* Left stripe */}
+                <div className={`status-stripe ${stripeBg} absolute left-0 top-0 bottom-0`}></div>
+
+                <div className="flex flex-1 p-5 items-center justify-between flex-col md:flex-row gap-4">
+                  {/* Left block: Date/Time */}
+                  <div className="flex md:flex-col items-center justify-center min-w-[90px] border-r border-[#eceef4] pr-5 mr-1 text-left w-full md:w-auto">
+                    <span className="font-montserrat text-sm font-extrabold text-[#181c21] uppercase">
+                      {dayAndMonth}
+                    </span>
+                    <span className="text-[10px] font-bold text-[#47464b] mt-0.5 md:mt-1 ml-2 md:ml-0">
+                      {time}
+                    </span>
                   </div>
 
-                  <div className="text-left space-y-1">
-                    <div className="flex items-center gap-2">
-                      <h3 className="font-extrabold text-white text-lg tracking-tight">{appt.clients?.name || 'Cliente Avulso'}</h3>
-                      <Badge className={`text-[9px] uppercase tracking-widest px-2 py-0.5 rounded-full ${badgeStyle}`}>
-                        {statusLabel}
-                      </Badge>
+                  {/* Main Grid Details */}
+                  <div className="flex-1 grid grid-cols-1 sm:grid-cols-3 gap-4 w-full text-left">
+                    <div>
+                      <h3 className={`font-montserrat font-bold text-sm mb-1 ${appt.status === 'cancelled' || appt.status === 'completed' ? 'line-through text-[#77767b]' : 'text-black'}`}>
+                        {clientName}
+                      </h3>
+                      <p className="text-[11px] text-[#47464b] flex items-center gap-1 font-semibold">
+                        <span className="material-symbols-outlined text-sm">content_cut</span> 
+                        {serviceName}
+                      </p>
                     </div>
-                    
-                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-neutral-400 font-medium">
-                      <span>✂️ {appt.services?.name}</span>
-                      <span>💈 {appt.barbers?.name}</span>
-                      {appt.clients?.phone && <span className="font-mono text-neutral-500">📞 {appt.clients.phone}</span>}
+
+                    <div className="flex flex-col justify-center">
+                      <p className="text-[11px] text-[#47464b] flex items-center gap-1 font-semibold">
+                        <span className="material-symbols-outlined text-sm">person</span> 
+                        {barberName}
+                      </p>
+                      <p className="text-[10px] text-[#47464b] font-mono flex items-center gap-1 mt-1 font-semibold">
+                        <span className="material-symbols-outlined text-sm">call</span> 
+                        {clientPhone}
+                      </p>
+                    </div>
+
+                    <div className="flex flex-col justify-center md:items-end">
+                      <span className={`font-montserrat text-sm font-extrabold ${appt.status === 'cancelled' ? 'line-through text-[#77767b]' : 'text-black'}`}>
+                        {formatCurrency(appt.total_price)}
+                      </span>
+                      {/* Status Badge */}
+                      <div className={`mt-1.5 px-2.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider flex items-center gap-1 w-max ${badgeBgClass}`}>
+                        <div className="w-1.5 h-1.5 rounded-full bg-current"></div> 
+                        {statusText}
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                {/* Price and Action Button */}
-                <div className="flex items-center justify-between sm:justify-end gap-5 w-full sm:w-auto border-t sm:border-none border-neutral-800/60 pt-3 sm:pt-0">
-                  <div className="text-left sm:text-right">
-                    <span className="text-xs text-neutral-500 uppercase tracking-widest font-mono">Valor Cobrado</span>
-                    <p className="text-xl font-black text-white mt-0.5">{formatCurrency(appt.total_price)}</p>
+                  {/* Actions */}
+                  <div className="md:ml-5 md:pl-5 border-t md:border-t-0 md:border-l border-[#eceef4] pt-3 md:pt-0 flex items-center justify-end w-full md:w-auto">
+                    <button 
+                      onClick={() => {
+                        setSelectedAppt(appt)
+                        setErrorMsg('')
+                        setIsDetailOpen(true)
+                      }}
+                      className="bg-transparent border border-[#77767b]/50 text-[#181c21] hover:bg-[#eceef4] text-[10px] font-bold uppercase tracking-wider px-4 py-2.5 rounded-md transition-colors cursor-pointer w-full md:w-auto text-center"
+                    >
+                      Gerenciar
+                    </button>
                   </div>
-
-                  <Button
-                    onClick={() => {
-                      setSelectedAppt(appt)
-                      setErrorMsg('')
-                      setIsDetailOpen(true)
-                    }}
-                    className="bg-neutral-950 border border-neutral-850 hover:bg-neutral-800 text-white rounded-xl py-5 px-4 text-xs font-semibold"
-                  >
-                    <Info className="w-4 h-4 mr-1 text-amber-500" />
-                    Gerenciar
-                  </Button>
                 </div>
               </div>
             )
@@ -213,146 +272,199 @@ export function ReservasClient({ initialAppointments }: ReservasClientProps) {
         </div>
       )}
 
-      {/* DETAIL DRAWER MODAL */}
+      {/* DETAIL DRAWER SHEET */}
       <Sheet 
         open={isDetailOpen} 
         onClose={() => {
           setIsDetailOpen(false)
           setSelectedAppt(null)
         }}
-        title="Ficha do Agendamento"
-        description="Visualize dados e configure o status da reserva"
+        title="Detalhes da Reserva"
+        description="Ficha financeira e controle do agendamento"
       >
-        {selectedAppt && (
-          <div className="py-6 space-y-6 text-zinc-900 dark:text-zinc-50 text-left">
-            {/* Quick specs */}
-            <div className="bg-zinc-100 dark:bg-zinc-950 p-4 rounded-2xl border border-zinc-200 dark:border-zinc-850/80 space-y-3">
-              <div className="flex justify-between items-center text-sm">
-                <span className="text-zinc-500">✂️ Serviço</span>
-                <span className="font-bold">{selectedAppt.services?.name}</span>
-              </div>
-              <div className="flex justify-between items-center text-sm">
-                <span className="text-zinc-500">💈 Barbeiro</span>
-                <span className="font-medium">{selectedAppt.barbers?.name}</span>
-              </div>
-              <div className="flex justify-between items-center text-sm">
-                <span className="text-zinc-500">⏰ Horário</span>
-                <span className="font-mono text-amber-500 font-black text-sm">
-                  {formatDateTime(selectedAppt.start_at).timeFormatted} no dia {formatDateTime(selectedAppt.start_at).dateFormatted}
-                </span>
-              </div>
-              <div className="flex justify-between items-center text-sm pt-2 border-t border-zinc-200 dark:border-zinc-800/60">
-                <span className="text-zinc-500 font-bold">Valor Cobrado</span>
-                <span className="text-lg font-black">{formatCurrency(selectedAppt.total_price)}</span>
-              </div>
-            </div>
+        {selectedAppt && (() => {
+          const { time, fullDateStr } = formatDateTimeProto(selectedAppt.start_at)
+          const clientName = (selectedAppt.clients as any)?.name || 'Cliente Avulso'
+          const clientPhone = (selectedAppt.clients as any)?.phone || 'Sem telefone'
+          const serviceName = (selectedAppt.services as any)?.name || 'Serviço'
+          const barberName = (selectedAppt.barbers as any)?.name || 'Profissional'
+          
+          let alertBannerClass = 'bg-zinc-50 border-zinc-200 text-zinc-800'
+          let alertIcon = 'schedule'
+          let alertLabel = 'Agendamento'
 
-            {/* Client specifications */}
-            <div className="space-y-4">
-              <h4 className="text-xs uppercase font-mono tracking-widest text-zinc-400 text-left border-b border-zinc-200 dark:border-zinc-800/40 pb-1">
-                Contato do Cliente
-              </h4>
-              
-              <div className="space-y-3.5">
+          switch (selectedAppt.status) {
+            case 'confirmed':
+              alertBannerClass = 'bg-blue-50 border-blue-200 text-blue-800'
+              alertIcon = 'schedule'
+              alertLabel = 'Confirmada'
+              break
+            case 'completed':
+              alertBannerClass = 'bg-green-50 border-green-200 text-green-800'
+              alertIcon = 'check_circle'
+              alertLabel = 'Concluída'
+              break
+            case 'cancelled':
+              alertBannerClass = 'bg-red-50 border-red-200 text-red-800'
+              alertIcon = 'cancel'
+              alertLabel = 'Cancelada'
+              break
+            case 'no_show':
+              alertBannerClass = 'bg-orange-50 border-orange-200 text-orange-800'
+              alertIcon = 'person_off'
+              alertLabel = 'No-show'
+              break
+          }
+
+          return (
+            <div className="py-4 space-y-6 text-zinc-950 text-left">
+              {/* Status Alert Banner */}
+              <div className={`border rounded-lg p-3.5 flex items-center gap-3 ${alertBannerClass}`}>
+                <span className="material-symbols-outlined text-xl">{alertIcon}</span>
+                <div>
+                  <p className="text-[9px] uppercase tracking-wider font-bold opacity-80">Status Atual</p>
+                  <p className="text-xs font-bold">{alertLabel}</p>
+                </div>
+              </div>
+
+              {/* Client specifications */}
+              <section className="space-y-4">
+                <h3 className="text-[10px] font-bold text-[#77767b] uppercase tracking-wider border-b border-[#eceef4] pb-2">
+                  Cliente
+                </h3>
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-zinc-200 dark:bg-zinc-950 border border-zinc-300 dark:border-zinc-800 flex items-center justify-center">
-                    <User className="w-4 h-4 text-zinc-550" />
+                  <div className="w-12 h-12 rounded-full bg-[#eceef4] flex items-center justify-center text-[#181c21] font-bold text-sm border border-[#c8c5cb]/30">
+                    {getInitials(clientName)}
                   </div>
-                  <div className="text-left">
-                    <p className="text-[10px] text-zinc-500 font-mono">Nome</p>
-                    <p className="text-sm font-semibold">{selectedAppt.clients?.name || 'Cliente Avulso'}</p>
+                  <div>
+                    <h4 className="font-montserrat text-sm font-bold text-black leading-tight">{clientName}</h4>
+                    <p className="text-xs text-[#47464b] font-mono mt-0.5">{clientPhone}</p>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-zinc-200 dark:bg-zinc-950 border border-zinc-300 dark:border-zinc-800 flex items-center justify-center">
-                    <Phone className="w-4 h-4 text-zinc-550" />
+                <div className="grid grid-cols-2 gap-4 pt-3 border-t border-[#eceef4]/60">
+                  <div>
+                    <p className="text-[9px] text-[#77767b] font-bold uppercase tracking-wider mb-0.5">Tipo de Registro</p>
+                    <p className="text-xs text-black font-semibold">Cliente Estabelecimento</p>
                   </div>
-                  <div className="text-left flex-1 flex justify-between items-center">
-                    <div>
-                      <p className="text-[10px] text-zinc-500 font-mono">WhatsApp</p>
-                      <p className="text-sm font-semibold">{selectedAppt.clients?.phone || 'Não informado'}</p>
-                    </div>
-                    {selectedAppt.clients?.phone && (
-                      <Button
-                        onClick={() => copyToClipboard(selectedAppt.clients.phone)}
-                        className="bg-zinc-250 dark:bg-zinc-950 border border-zinc-300 dark:border-zinc-850 hover:bg-zinc-200 p-2 h-8 w-8 rounded-lg"
-                      >
-                        {copied ? <Check className="w-3.5 h-3.5 text-green-500" /> : <Copy className="w-3.5 h-3.5 text-neutral-400" />}
-                      </Button>
-                    )}
+                  <div>
+                    <p className="text-[9px] text-[#77767b] font-bold uppercase tracking-wider mb-0.5">Celular Principal</p>
+                    <p className="text-xs text-black font-mono">{clientPhone}</p>
                   </div>
                 </div>
+              </section>
 
-                {selectedAppt.clients?.email && (
+              {/* Service Details */}
+              <section className="space-y-4">
+                <h3 className="text-[10px] font-bold text-[#77767b] uppercase tracking-wider border-b border-[#eceef4] pb-2">
+                  Serviço Agendado
+                </h3>
+                <div className="flex justify-between items-start">
+                  <div>
+                    <p className="text-sm text-black font-bold">{serviceName}</p>
+                    <p className="text-[10px] text-[#47464b] font-semibold mt-0.5">Duração: 30 minutos</p>
+                  </div>
+                  <p className="text-sm font-extrabold text-black">{formatCurrency(selectedAppt.total_price)}</p>
+                </div>
+
+                <div className="bg-[#f8f9ff] rounded-xl p-4 space-y-3.5 border border-[#eceef4]">
                   <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-zinc-200 dark:bg-zinc-950 border border-zinc-300 dark:border-zinc-800 flex items-center justify-center">
-                      <Mail className="w-4 h-4 text-zinc-550" />
-                    </div>
-                    <div className="text-left">
-                      <p className="text-[10px] text-zinc-500 font-mono">E-mail</p>
-                      <p className="text-sm font-medium">{selectedAppt.clients.email}</p>
+                    <span className="material-symbols-outlined text-[#77767b] text-lg">calendar_today</span>
+                    <div>
+                      <p className="text-[9px] text-[#77767b] font-bold uppercase tracking-wider">Data e Hora</p>
+                      <p className="text-xs text-black font-bold mt-0.5">{fullDateStr}, às {time}</p>
                     </div>
                   </div>
-                )}
-
-                {selectedAppt.notes && (
-                  <div className="flex items-start gap-3">
-                    <div className="w-8 h-8 rounded-full bg-zinc-200 dark:bg-zinc-950 border border-zinc-300 dark:border-zinc-800 flex items-center justify-center mt-1">
-                      <MessageSquare className="w-4 h-4 text-zinc-550" />
-                    </div>
-                    <div className="text-left flex-1 bg-zinc-100 dark:bg-zinc-950 p-3 rounded-xl border border-zinc-250 dark:border-zinc-850">
-                      <p className="text-[9px] text-zinc-500 font-mono uppercase tracking-wider mb-1">Notas da Reserva</p>
-                      <p className="text-xs text-zinc-650 dark:text-zinc-300 italic">"{selectedAppt.notes}"</p>
+                  <div className="flex items-center gap-3">
+                    <span className="material-symbols-outlined text-[#77767b] text-lg">content_cut</span>
+                    <div>
+                      <p className="text-[9px] text-[#77767b] font-bold uppercase tracking-wider">Profissional</p>
+                      <p className="text-xs text-black font-bold mt-0.5">{barberName}</p>
                     </div>
                   </div>
-                )}
-              </div>
-            </div>
+                </div>
+              </section>
 
-            {errorMsg && (
-              <div className="text-red-500 text-xs font-semibold bg-red-500/10 border border-red-500/30 p-3 rounded-xl flex items-center gap-2">
-                <AlertTriangle className="w-4 h-4" />
-                <span>{errorMsg}</span>
-              </div>
-            )}
-
-            <div className="border-t border-zinc-200 dark:border-zinc-800 pt-6 flex flex-col gap-2">
-              {selectedAppt.status === 'confirmed' && (
-                <div className="grid grid-cols-2 gap-2 w-full">
-                  <Button
-                    onClick={() => handleStatusChange(selectedAppt.id, 'completed')}
-                    disabled={isUpdating}
-                    className="bg-green-500 hover:bg-green-400 text-neutral-950 font-bold rounded-xl py-5"
-                  >
-                    <CheckCircle className="w-4 h-4 mr-1" />
-                    Concluir
-                  </Button>
+              {/* Financial Summary */}
+              <section className="space-y-3">
+                <h3 className="text-[10px] font-bold text-[#77767b] uppercase tracking-wider border-b border-[#eceef4] pb-2">
+                  Resumo Financeiro
+                </h3>
+                <div className="space-y-2 text-xs font-semibold text-[#47464b]">
+                  <div className="flex justify-between">
+                    <span>Subtotal</span>
+                    <span>{formatCurrency(selectedAppt.total_price)}</span>
+                  </div>
+                  <div className="flex justify-between text-[#ba1a1a]">
+                    <span>Descontos</span>
+                    <span>R$ 0,00</span>
+                  </div>
+                  <div className="flex justify-between items-center pt-2 border-t border-[#eceef4] mt-2 text-black font-bold">
+                    <span className="font-montserrat text-sm font-extrabold">Total Cobrado</span>
+                    <span className="font-montserrat text-sm font-extrabold">{formatCurrency(selectedAppt.total_price)}</span>
+                  </div>
                   
-                  <Button
-                    onClick={() => handleStatusChange(selectedAppt.id, 'no_show')}
-                    disabled={isUpdating}
-                    className="bg-zinc-850 hover:bg-zinc-700 text-white font-bold rounded-xl py-5 border border-zinc-700"
-                  >
-                    <AlertTriangle className="w-4 h-4 mr-1" />
-                    No-Show
-                  </Button>
+                  {selectedAppt.status === 'completed' && (
+                    <div className="flex justify-end mt-2">
+                      <span className="text-[9px] font-bold bg-[#eceef4] px-2.5 py-1 rounded-md text-[#77767b] uppercase tracking-wider">
+                        Pago no Estabelecimento
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </section>
+
+              {errorMsg && (
+                <div className="text-red-500 text-xs font-semibold bg-red-500/10 border border-red-500/30 p-3 rounded-xl flex items-center gap-2">
+                  <span className="material-symbols-outlined text-sm">warning</span>
+                  <span>{errorMsg}</span>
                 </div>
               )}
 
-              {(selectedAppt.status === 'confirmed' || selectedAppt.status === 'no_show') && (
-                <Button
-                  onClick={() => handleStatusChange(selectedAppt.id, 'cancelled')}
-                  disabled={isUpdating}
-                  className="w-full bg-red-500/10 hover:bg-red-500/20 text-red-500 border border-red-500/20 font-bold rounded-xl py-5 mt-2"
-                >
-                  <XCircle className="w-4 h-4 mr-1" />
-                  Cancelar Reserva
-                </Button>
-              )}
+              {/* Drawer Actions */}
+              <div className="p-6 border-t border-[#eceef4] bg-white pt-6 flex flex-col gap-2">
+                {selectedAppt.status === 'confirmed' ? (
+                  <>
+                    <button 
+                      onClick={() => handleStatusChange(selectedAppt.id, 'completed')}
+                      disabled={isUpdating}
+                      className="w-full bg-[#1b5e20] hover:bg-[#1b5e20]/90 text-white font-bold py-3.5 rounded-xl transition-colors cursor-pointer text-xs uppercase tracking-wider flex items-center justify-center gap-2"
+                    >
+                      <span className="material-symbols-outlined text-sm">check_circle</span>
+                      Marcar como Concluído
+                    </button>
+
+                    <div className="grid grid-cols-2 gap-3 mt-1">
+                      <button 
+                        onClick={() => handleStatusChange(selectedAppt.id, 'no_show')}
+                        disabled={isUpdating}
+                        className="w-full bg-transparent border border-[#77767b]/50 text-[#181c21] hover:bg-[#eceef4] font-bold py-2.5 rounded-xl transition-colors cursor-pointer text-[10px] uppercase tracking-wider flex items-center justify-center gap-1"
+                      >
+                        <span className="material-symbols-outlined text-xs">person_off</span>
+                        No-show
+                      </button>
+                      <button 
+                        onClick={() => handleStatusChange(selectedAppt.id, 'cancelled')}
+                        disabled={isUpdating}
+                        className="w-full bg-transparent border border-[#ba1a1a]/40 text-[#ba1a1a] hover:bg-[#ffdad6]/20 font-bold py-2.5 rounded-xl transition-colors cursor-pointer text-[10px] uppercase tracking-wider flex items-center justify-center gap-1"
+                      >
+                        <span className="material-symbols-outlined text-xs">cancel</span>
+                        Cancelar
+                      </button>
+                    </div>
+                  </>
+                ) : (
+                  <button 
+                    disabled
+                    className="w-full bg-[#eceef4] text-[#77767b] font-bold py-3.5 rounded-xl cursor-not-allowed text-xs uppercase tracking-wider text-center"
+                  >
+                    Atendimento Encerrado
+                  </button>
+                )}
+              </div>
             </div>
-          </div>
-        )}
+          )
+        })()}
       </Sheet>
     </div>
   )

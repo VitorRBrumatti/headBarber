@@ -45,19 +45,19 @@ export function Dialog({
       {/* Dialog Box */}
       <div
         className={cn(
-          'relative w-full max-w-md rounded-xl bg-white dark:bg-zinc-900 shadow-2xl p-6',
+          'relative w-full max-w-md rounded-xl bg-white border border-[#eceef4] text-[#181c21] shadow-2xl p-6',
           'animate-in fade-in zoom-in-95 duration-200'
         )}
       >
-        <h2 className="text-lg font-semibold">{title}</h2>
+        <h2 className="font-montserrat text-base font-bold text-[#181c21]">{title}</h2>
         {description && (
-          <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">{description}</p>
+          <p className="mt-2 text-xs text-[#47464b] font-medium leading-normal">{description}</p>
         )}
         <div className="mt-6 flex gap-3 justify-end">
-          <Button variant="outline" onClick={onClose} disabled={loading}>
+          <Button variant="outline" onClick={onClose} disabled={loading} className="cursor-pointer">
             Cancelar
           </Button>
-          <Button variant={confirmVariant} onClick={onConfirm} disabled={loading}>
+          <Button variant={confirmVariant} onClick={onConfirm} disabled={loading} className="cursor-pointer">
             {loading ? 'Aguarde...' : confirmLabel}
           </Button>
         </div>

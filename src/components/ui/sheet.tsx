@@ -44,21 +44,21 @@ export function Sheet({ open, onClose, title, description, children }: SheetProp
       {/* Panel */}
       <div
         className={cn(
-          'relative ml-auto h-full w-full max-w-md bg-white dark:bg-zinc-900 shadow-2xl',
+          'relative ml-auto h-full w-full max-w-md bg-white text-[#181c21] border-l border-[#eceef4] shadow-2xl',
           'flex flex-col animate-in slide-in-from-right duration-300'
         )}
       >
         {/* Header */}
-        <div className="flex items-start justify-between border-b p-6 dark:border-zinc-800">
+        <div className="flex items-start justify-between border-b border-[#eceef4] p-6">
           <div>
-            {title && <h2 className="text-lg font-semibold">{title}</h2>}
-            {description && <p className="mt-1 text-sm text-zinc-500">{description}</p>}
+            {title && <h2 className="text-base font-montserrat font-bold text-[#181c21]">{title}</h2>}
+            {description && <p className="mt-1 text-xs text-[#47464b] font-medium leading-normal">{description}</p>}
           </div>
           <button
             onClick={onClose}
-            className="rounded-md p-1 text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900 dark:hover:bg-zinc-800 dark:hover:text-zinc-50 transition-colors"
+            className="rounded-md p-1.5 text-[#47464b] hover:bg-[#eceef4] hover:text-black transition-colors"
           >
-            <X className="h-5 w-5" />
+            <X className="h-4.5 w-4.5" />
           </button>
         </div>
         {/* Content */}
