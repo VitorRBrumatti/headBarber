@@ -1,5 +1,6 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
+import { hasProductAccess } from '@/lib/plans'
 
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
@@ -15,7 +16,7 @@ export async function updateSession(request: NextRequest) {
           return request.cookies.getAll()
         },
         setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value, options }) => request.cookies.set(name, value))
+          cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value))
           supabaseResponse = NextResponse.next({
             request,
           })
@@ -27,51 +28,59 @@ export async function updateSession(request: NextRequest) {
     }
   )
 
-  // Recarrega a sessão e pega o usuário autenticado
   const {
     data: { user },
   } = await supabase.auth.getUser()
 
   const path = request.nextUrl.pathname
+  const isDashboard = path.startsWith('/dashboard')
+  const isOnboarding = path.startsWith('/onboarding')
+  const isPlans = path.startsWith('/plans')
+  const isLogin = path.startsWith('/login')
 
-  // Proteger rotas que comecem com /dashboard
-  if (path.startsWith('/dashboard') && !user) {
+  if ((isDashboard || isOnboarding || isPlans) && !user) {
     const url = request.nextUrl.clone()
     url.pathname = '/login'
     return NextResponse.redirect(url)
   }
 
-  // Usuário logado tentando acessar /login → redireciona para dashboard
-  if (path.startsWith('/login') && user) {
-    const url = request.nextUrl.clone()
-    url.pathname = '/dashboard'
-    return NextResponse.redirect(url)
-  }
+  if (user && (isDashboard || isOnboarding || isPlans || isLogin)) {
+    const [{ data: subscription }, { data: profile }] = await Promise.all([
+      supabase
+        .from('subscriptions')
+        .select('status')
+        .eq('user_id', user.id)
+        .maybeSingle(),
+      supabase
+        .from('profiles')
+        .select('barbershop_id')
+        .eq('id', user.id)
+        .maybeSingle(),
+    ])
 
-  // Usuário logado no dashboard, verificar se tem barbershop_id
-  if (user && path.startsWith('/dashboard')) {
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('barbershop_id')
-      .eq('id', user.id)
-      .single()
+    const hasAccess = hasProductAccess(subscription?.status)
 
-    if (!profile?.barbershop_id) {
+    if (!hasAccess && !isPlans) {
+      const url = request.nextUrl.clone()
+      url.pathname = '/plans'
+      url.search = ''
+      return NextResponse.redirect(url)
+    }
+
+    if (hasAccess && (isPlans || isLogin)) {
+      const url = request.nextUrl.clone()
+      url.pathname = profile?.barbershop_id ? '/dashboard' : '/onboarding'
+      url.search = ''
+      return NextResponse.redirect(url)
+    }
+
+    if (hasAccess && isDashboard && !profile?.barbershop_id) {
       const url = request.nextUrl.clone()
       url.pathname = '/onboarding'
       return NextResponse.redirect(url)
     }
-  }
 
-  // Usuário logado com barbearia tentando acessar /onboarding → dashboard
-  if (user && path.startsWith('/onboarding')) {
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('barbershop_id')
-      .eq('id', user.id)
-      .single()
-
-    if (profile?.barbershop_id) {
+    if (hasAccess && isOnboarding && profile?.barbershop_id) {
       const url = request.nextUrl.clone()
       url.pathname = '/dashboard'
       return NextResponse.redirect(url)

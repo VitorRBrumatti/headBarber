@@ -16,7 +16,7 @@ const sidebarItems = [
   { name: 'Adicionais', href: '/dashboard/adicionais', icon: 'add_circle' },
   { name: 'Produtos', href: '/dashboard/produtos', icon: 'inventory_2' },
   { name: 'Clientes', href: '/dashboard/clientes', icon: 'groups' },
-  { name: 'Planos Mensais', href: '/dashboard/planos-mensais', icon: 'card_membership' },
+  { name: 'Assinatura', href: '/dashboard/planos-mensais', icon: 'card_membership' },
   { name: 'Financeiro', href: '/dashboard/financeiro', icon: 'payments' },
   { name: 'Configurações', href: '/dashboard/configuracoes', icon: 'settings' },
   { name: 'Admin Master', href: '/dashboard/admin-master', icon: 'admin_panel_settings' },
