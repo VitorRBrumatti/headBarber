@@ -75,16 +75,34 @@ test.describe('HeadBarber - Fluxo Principal (Fase 5 - Financeiro)', () => {
     const totalRevText = await page.locator('div.group:has(p:has-text("Faturamento Total")) h3').first().innerText()
     console.log('Faturamento Total exibido:', totalRevText)
 
-    // 8. Lançar uma despesa manual de aluguel no valor de R$ 40,00
-    await page.click('button:has-text("Lançar Despesa")')
-    await page.selectOption('select[id="exp-category"]', 'rent')
-    await page.fill('input[id="exp-description"]', 'Aluguel do Salão E2E')
-    await page.fill('input[id="exp-amount"]', '40')
-    await page.click('form button:has-text("Lançar Despesa")')
+    // 8. Abrir o lançamento unificado e validar os campos condicionais
+    await page.getByRole('button', { name: 'Novo Lançamento' }).click()
 
-    // Validar se despesas aumentaram
-    await page.waitForTimeout(1000)
-    const totalExpText = await page.locator('div.group:has(p:has-text("Saídas e Custos")) h3').first().innerText()
+    const entryDrawer = page.getByRole('dialog', { name: 'Novo Lançamento' })
+    await expect(entryDrawer).toBeVisible()
+    await expect(entryDrawer.getByRole('button', { name: 'Receita' })).toHaveAttribute('aria-pressed', 'true')
+    await expect(entryDrawer.getByLabel('Forma de pagamento')).toBeVisible()
+    await expect(entryDrawer.getByLabel('Despesa recorrente')).toHaveCount(0)
+
+    await entryDrawer.getByRole('button', { name: 'Despesa' }).click()
+    await expect(entryDrawer.getByRole('button', { name: 'Despesa' })).toHaveAttribute('aria-pressed', 'true')
+    await expect(entryDrawer.getByLabel('Forma de pagamento')).toHaveCount(0)
+    await expect(entryDrawer.getByLabel('Despesa recorrente')).toBeVisible()
+
+    // 9. Lançar uma despesa manual de aluguel no valor de R$ 40,00
+    await entryDrawer.getByLabel('Categoria').selectOption('rent')
+    await entryDrawer.getByLabel('Descrição').fill('Aluguel do Salão E2E')
+    await entryDrawer.getByLabel('Valor').fill('40')
+    await entryDrawer.getByRole('button', { name: 'Salvar Lançamento' }).click()
+
+    await expect(entryDrawer).toBeHidden()
+    const totalExpText = await page.getByTestId('metric-total-expenses').innerText()
     console.log('Saídas e Custos exibidos:', totalExpText)
+
+    // 10. Escape fecha o drawer sem submeter
+    await page.getByRole('button', { name: 'Novo Lançamento' }).click()
+    await expect(entryDrawer).toBeVisible()
+    await page.keyboard.press('Escape')
+    await expect(entryDrawer).toBeHidden()
   })
 })
