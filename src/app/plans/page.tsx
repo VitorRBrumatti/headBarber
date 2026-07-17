@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation'
 import { Check, Crown, LogOut, ShieldCheck, Sparkles } from 'lucide-react'
 import { createClient } from '@/utils/supabase/server'
 import { createCheckoutSession } from './actions'
+import { isBillingEnvironmentConfigured } from '@/lib/stripe'
 import { formatPlanAmount, hasProductAccess, PLAN_DETAILS, type BillingPlan } from '@/lib/plans'
 
 const features = [
@@ -13,6 +14,7 @@ const features = [
 ]
 
 const messages: Record<string, string> = {
+  'billing-unavailable': 'O pagamento est\u00e1 temporariamente indispon\u00edvel. Tente novamente mais tarde.',
   'invalid-plan': 'Escolha um plano válido para continuar.',
   checkout: 'Não foi possível iniciar o pagamento. Tente novamente.',
 }
@@ -37,12 +39,7 @@ export default async function PlansPage({
     redirect('/dashboard')
   }
 
-  const billingReady = Boolean(
-    process.env.STRIPE_SECRET_KEY &&
-    process.env.STRIPE_MONTHLY_PRICE_ID &&
-    process.env.STRIPE_ANNUAL_PRICE_ID &&
-    process.env.SUPABASE_SERVICE_ROLE_KEY,
-  )
+  const billingReady = isBillingEnvironmentConfigured()
 
   return (
     <main className="min-h-screen bg-[#f8f9ff] text-[#181c21]">

@@ -19,11 +19,20 @@ export async function createCheckoutSession(formData: FormData) {
   }
 
   const admin = createAdminClient()
-  const { data: currentSubscription } = await admin
+  const { data: currentSubscription, error: subscriptionError } = await admin
     .from('subscriptions')
     .select('stripe_customer_id, status')
     .eq('user_id', user.id)
     .maybeSingle()
+
+  if (subscriptionError) {
+    console.error(JSON.stringify({
+      level: 'error',
+      message: 'Stripe checkout blocked because the subscription store is unavailable',
+      code: subscriptionError.code,
+    }))
+    redirect('/plans?error=billing-unavailable')
+  }
 
   if (hasProductAccess(currentSubscription?.status)) {
     redirect('/dashboard')

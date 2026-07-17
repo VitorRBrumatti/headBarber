@@ -2,11 +2,34 @@ import Stripe from 'stripe'
 
 let stripeClient: Stripe | undefined
 
+const stripeServerKeyPrefixes = [
+  'sk_test_',
+  'sk_live_',
+  'rk_test_',
+  'rk_live_',
+] as const
+
+function isStripeServerKey(value?: string): value is string {
+  return Boolean(value && stripeServerKeyPrefixes.some((prefix) => value.startsWith(prefix)))
+}
+
+export function isBillingEnvironmentConfigured(
+  environment: Partial<NodeJS.ProcessEnv> = process.env,
+) {
+  return Boolean(
+    isStripeServerKey(environment.STRIPE_SECRET_KEY) &&
+    environment.STRIPE_WEBHOOK_SECRET?.startsWith('whsec_') &&
+    environment.STRIPE_MONTHLY_PRICE_ID?.startsWith('price_') &&
+    environment.STRIPE_ANNUAL_PRICE_ID?.startsWith('price_') &&
+    environment.SUPABASE_SERVICE_ROLE_KEY,
+  )
+}
+
 export function getStripe() {
   const secretKey = process.env.STRIPE_SECRET_KEY
 
-  if (!secretKey) {
-    throw new Error('STRIPE_SECRET_KEY is not configured')
+  if (!isStripeServerKey(secretKey)) {
+    throw new Error('A valid Stripe server key is not configured')
   }
 
   stripeClient ??= new Stripe(secretKey, {

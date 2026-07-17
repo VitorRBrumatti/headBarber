@@ -43,9 +43,11 @@ export async function POST(request: Request) {
       }
       case 'customer.subscription.created':
       case 'customer.subscription.updated':
-      case 'customer.subscription.deleted':
-        await syncStripeSubscription(event.data.object)
+      case 'customer.subscription.deleted': {
+        const subscription = await getStripe().subscriptions.retrieve(event.data.object.id)
+        await syncStripeSubscription(subscription)
         break
+      }
       default:
         break
     }
