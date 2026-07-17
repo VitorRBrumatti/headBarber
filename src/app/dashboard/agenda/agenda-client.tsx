@@ -555,6 +555,33 @@ export function AgendaClient({
               </div>
             </div>
 
+            {(() => {
+              const reservedProducts = (selectedAppt.appointment_products || []).filter(
+                (item: any) => item.status === 'reserved',
+              )
+              if (reservedProducts.length === 0) return null
+              const subtotal = reservedProducts.reduce(
+                (sum: number, item: any) => sum + Number(item.unit_price) * item.quantity,
+                0,
+              )
+              return (
+                <section className="space-y-3 rounded-xl border border-amber-200 bg-amber-50/60 p-4">
+                  <div className="flex items-center justify-between gap-3">
+                    <h3 className="text-[10px] font-extrabold uppercase tracking-wider text-zinc-800">Produtos para retirada</h3>
+                    <span className="text-[9px] font-bold uppercase text-amber-800">Pendente</span>
+                  </div>
+                  {reservedProducts.map((item: any, index: number) => (
+                    <div key={`${item.products?.name}-${index}`} className="flex justify-between gap-4 text-xs">
+                      <span className="font-semibold text-zinc-700">{item.quantity}× {item.products?.name || 'Produto'}</span>
+                      <span className="font-bold text-zinc-950">{formatCurrency(Number(item.unit_price) * item.quantity)}</span>
+                    </div>
+                  ))}
+                  <div className="flex justify-between border-t border-amber-200 pt-3 text-xs font-extrabold"><span>Subtotal</span><span>{formatCurrency(subtotal)}</span></div>
+                  <p className="text-[10px] font-semibold text-amber-800">Pagamento pendente na barbearia</p>
+                </section>
+              )
+            })()}
+
             {/* Observações */}
             {selectedAppt.notes && (
               <div className="bg-[#f1f3fa] rounded-xl p-4 space-y-1.5 border border-[#eceef4]">

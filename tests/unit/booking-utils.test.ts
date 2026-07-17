@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
+  clampSelectionsToStock,
   getBookingTotals,
   setProductQuantity,
   toSelectedProducts,
@@ -36,5 +37,16 @@ describe('booking product helpers', () => {
       productSubtotal: 84,
       total: 159,
     })
+  })
+
+  it('preserves unaffected products and clamps only changed stock', () => {
+    expect(clampSelectionsToStock(
+      { pomade: 3, oil: 1 },
+      [{ productId: 'pomade', availableQuantity: 1 }],
+    )).toEqual({ pomade: 1, oil: 1 })
+    expect(clampSelectionsToStock(
+      { pomade: 1 },
+      [{ productId: 'pomade', availableQuantity: 0 }],
+    )).toEqual({})
   })
 })

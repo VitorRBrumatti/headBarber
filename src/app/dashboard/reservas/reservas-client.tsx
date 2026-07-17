@@ -288,6 +288,10 @@ export function ReservasClient({ initialAppointments }: ReservasClientProps) {
           const clientPhone = (selectedAppt.clients as any)?.phone || 'Sem telefone'
           const serviceName = (selectedAppt.services as any)?.name || 'Serviço'
           const barberName = (selectedAppt.barbers as any)?.name || 'Profissional'
+          const reservedProducts = (selectedAppt.appointment_products || []).filter(
+            (item: any) => item.status === 'reserved',
+          )
+          const productsSubtotal = reservedProducts.reduce((sum: number, item: any) => sum + Number(item.unit_price) * item.quantity, 0)
           
           let alertBannerClass = 'bg-zinc-50 border-zinc-200 text-zinc-800'
           let alertIcon = 'schedule'
@@ -384,6 +388,27 @@ export function ReservasClient({ initialAppointments }: ReservasClientProps) {
                   </div>
                 </div>
               </section>
+
+              {reservedProducts.length > 0 && (
+                <section className="space-y-3">
+                  <div className="flex items-center justify-between border-b border-[#eceef4] pb-2">
+                    <h3 className="text-[10px] font-bold text-[#77767b] uppercase tracking-wider">Produtos para retirada</h3>
+                    <span className="rounded-md bg-amber-100 px-2 py-1 text-[9px] font-bold uppercase tracking-wider text-amber-800">Pendente</span>
+                  </div>
+                  <div className="space-y-2 rounded-xl border border-amber-200 bg-amber-50/60 p-4">
+                    {reservedProducts.map((item: any, index: number) => (
+                      <div key={`${item.products?.name}-${index}`} className="flex items-center justify-between gap-4 text-xs">
+                        <span className="font-semibold text-zinc-800">{item.quantity}× {item.products?.name || 'Produto'}</span>
+                        <span className="font-bold text-zinc-950">{formatCurrency(Number(item.unit_price) * item.quantity)}</span>
+                      </div>
+                    ))}
+                    <div className="flex justify-between border-t border-amber-200 pt-3 text-xs font-extrabold text-zinc-950">
+                      <span>Subtotal dos produtos</span><span>{formatCurrency(productsSubtotal)}</span>
+                    </div>
+                    <p className="text-[10px] font-semibold text-amber-800">Pagamento pendente na barbearia</p>
+                  </div>
+                </section>
+              )}
 
               {/* Financial Summary */}
               <section className="space-y-3">

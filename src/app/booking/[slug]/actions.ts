@@ -344,6 +344,24 @@ export async function createPublicBooking(input: CreatePublicBookingInput) {
       }
     }
 
+    let productsText = ''
+    if (input.products && input.products.length > 0) {
+      const quantities = new Map(input.products.map((item) => [item.productId, item.quantity]))
+      const { data: reservedProducts } = await supabase
+        .from('products')
+        .select('id, name, sale_price')
+        .in('id', input.products.map((item) => item.productId))
+
+      if (reservedProducts && reservedProducts.length > 0) {
+        const productLines = reservedProducts.map((product) => {
+          const quantity = quantities.get(product.id) || 0
+          const subtotal = Number(product.sale_price) * quantity
+          return `  • ${quantity}x ${product.name} — R$ ${subtotal.toFixed(2).replace('.', ',')}`
+        })
+        productsText = `\n\n📦 *Produtos reservados para retirada:*\n${productLines.join('\n')}\n_Pagamento na barbearia._`
+      }
+    }
+
     const whatsappMessage = 
 `Olá, *${input.clientName}*! Seu agendamento na *${barbershop?.name || 'Barbearia'}* foi confirmado com sucesso! ✅
 
@@ -351,7 +369,7 @@ export async function createPublicBooking(input: CreatePublicBookingInput) {
 ⏰ *Horário:* ${formattedTime}
 💈 *Profissional:* ${barber?.name || 'Qualquer'}
 ✂️ *Serviço:* ${service?.name || 'Corte'} ${addOnsText}
-💰 *Valor Total:* R$ ${totalPrice}
+💰 *Valor do atendimento:* R$ ${totalPrice}${productsText}
 
 Agradecemos a preferência e nos vemos em breve! 💈✂️`
 

@@ -64,7 +64,13 @@ export async function getAgendaAppointments(dateStr: string) {
       total_price,
       notes,
       clients ( name, phone, email ),
-      services ( name )
+      services ( name ),
+      appointment_products (
+        quantity,
+        unit_price,
+        status,
+        products ( name, image_url )
+      )
     `)
     .eq('barbershop_id', barbershopId)
     .gte('start_at', startOfDay)

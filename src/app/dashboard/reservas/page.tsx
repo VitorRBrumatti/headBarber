@@ -27,7 +27,13 @@ export default async function ReservasPage() {
           notes,
           clients ( name, phone, email ),
           services ( name ),
-          barbers ( name )
+          barbers ( name ),
+          appointment_products (
+            quantity,
+            unit_price,
+            status,
+            products ( name, image_url )
+          )
         `)
         .eq('barbershop_id', profile.barbershop_id)
         .order('start_at', { ascending: false })

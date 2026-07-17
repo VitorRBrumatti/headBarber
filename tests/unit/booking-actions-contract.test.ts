@@ -25,4 +25,10 @@ describe('booking actions product contract', () => {
     expect(source).toContain("code: 'INSUFFICIENT_STOCK'")
     expect(source).toContain('unavailableProducts')
   })
+
+  it('includes reserved products in the local-payment confirmation', () => {
+    expect(source).toContain('Produtos reservados para retirada')
+    expect(source).toContain('Pagamento na barbearia')
+    expect(source).toContain('Valor do atendimento')
+  })
 })

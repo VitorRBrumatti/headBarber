@@ -9,6 +9,7 @@ export interface BookingProduct {
 }
 
 export type SelectedProductQuantities = Record<string, number>
+export type ProductSelection = SelectedProductQuantities
 
 export interface SelectedBookingProduct {
   productId: string

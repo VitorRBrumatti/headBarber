@@ -2,7 +2,23 @@ import type {
   BookingProduct,
   SelectedBookingProduct,
   SelectedProductQuantities,
+  UnavailableProduct,
 } from './booking-types'
+
+export const formatCurrency = (value: number) =>
+  new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value)
+
+export function clampSelectionsToStock(
+  current: SelectedProductQuantities,
+  unavailable: UnavailableProduct[],
+): SelectedProductQuantities {
+  const next = { ...current }
+  for (const item of unavailable) {
+    if (item.availableQuantity <= 0) delete next[item.productId]
+    else next[item.productId] = Math.min(next[item.productId] ?? 0, item.availableQuantity)
+  }
+  return next
+}
 
 export function setProductQuantity(
   current: SelectedProductQuantities,
