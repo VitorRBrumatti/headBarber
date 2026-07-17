@@ -72,7 +72,7 @@ test.describe('HeadBarber - Fluxo Principal (Fase 5 - Financeiro)', () => {
 
     // 7. Navegar até o painel financeiro e verificar se o faturamento aumentou
     await page.goto('/dashboard/financeiro')
-    const totalRevText = await page.locator('div.group:has(p:has-text("Faturamento Total")) h3').first().innerText()
+    const totalRevText = await page.getByTestId('metric-total-revenues').innerText()
     console.log('Faturamento Total exibido:', totalRevText)
 
     // 8. Abrir o lançamento unificado e validar os campos condicionais
