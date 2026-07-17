@@ -10,6 +10,7 @@ interface SidebarProps {
 const sidebarItems = [
   { name: 'Dashboard', href: '/dashboard', icon: 'dashboard' },
   { name: 'Agenda', href: '/dashboard/agenda', icon: 'calendar_today' },
+  { name: 'Financeiro', href: '/dashboard/financeiro', icon: 'payments' },
   { name: 'Reservas', href: '/dashboard/reservas', icon: 'book_online' },
   { name: 'Barbeiros', href: '/dashboard/barbeiros', icon: 'content_cut' },
   { name: 'Serviços', href: '/dashboard/servicos', icon: 'dry_cleaning' },
@@ -17,9 +18,7 @@ const sidebarItems = [
   { name: 'Produtos', href: '/dashboard/produtos', icon: 'inventory_2' },
   { name: 'Clientes', href: '/dashboard/clientes', icon: 'groups' },
   { name: 'Assinatura', href: '/dashboard/planos-mensais', icon: 'card_membership' },
-  { name: 'Financeiro', href: '/dashboard/financeiro', icon: 'payments' },
   { name: 'Configurações', href: '/dashboard/configuracoes', icon: 'settings' },
-  { name: 'Admin Master', href: '/dashboard/admin-master', icon: 'admin_panel_settings' },
 ]
 
 export function Sidebar({ onLinkClick }: SidebarProps) {
