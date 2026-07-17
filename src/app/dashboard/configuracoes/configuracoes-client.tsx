@@ -1,18 +1,9 @@
 'use client'
 
-import { useState, useEffect, useTransition } from 'react'
-import { 
-  Settings, Clock, Bell, Calendar, Plus, Trash2, 
-  Check, AlertTriangle, Shield, CalendarDays, ClipboardList
-} from 'lucide-react'
+import { useCallback, useEffect, useState, useTransition } from 'react'
+import { AlertTriangle, CalendarClock, CalendarDays, Check, ChevronDown, Clock3, ListChecks, LoaderCircle, PlusCircle, Save, Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Badge } from '@/components/ui/badge'
-import { 
-  updateBarbershopSettingsAction, createBarberBlock, 
-  getBarberBlocks, deleteBarberBlock 
-} from './actions'
+import { updateBarbershopSettingsAction, createBarberBlock, getBarberBlocks, deleteBarberBlock } from './actions'
 
 interface SettingsClientProps {
   initialSettings?: {
@@ -23,65 +14,65 @@ interface SettingsClientProps {
     default_lunch_start?: string | null
     default_lunch_end?: string | null
   } | null
-  barbers: {
-    id: string
-    name: string
-  }[]
+  barbers: { id: string; name: string }[]
+}
+
+interface BarberBlock {
+  id: string
+  reason?: string | null
+  start_at: string
+  end_at: string
+}
+
+const fieldLabelClassName = 'block font-inter text-[11px] font-semibold uppercase tracking-[0.08em] text-[#47464b]'
+const controlClassName = 'h-12 w-full rounded-lg border border-[#c8c5cb] bg-[#f8f9ff] px-4 font-inter text-sm text-[#181c21] outline-none transition-colors focus:border-[#C79A4A] focus:ring-2 focus:ring-[#C79A4A]/15 disabled:cursor-not-allowed disabled:opacity-60'
+const cardClassName = 'rounded-xl border border-[#e0e2e9] bg-white shadow-[0_4px_12px_rgba(26,26,29,0.04)]'
+
+function getErrorMessage(error: unknown) {
+  return error instanceof Error ? error.message : 'Não foi possível concluir a operação.'
 }
 
 export function ConfiguracoesClient({ initialSettings, barbers }: SettingsClientProps) {
   const [activeTab, setActiveTab] = useState<'agenda' | 'blocked'>('agenda')
-
-  // Form State: settings
   const [whatsappReminderHours, setWhatsappReminderHours] = useState(initialSettings?.whatsapp_reminder_hours ?? 2)
   const [slotIntervalMinutes, setSlotIntervalMinutes] = useState(initialSettings?.slot_interval_minutes ?? 30)
   const [defaultStartTime, setDefaultStartTime] = useState((initialSettings?.default_start_time || '09:00:00').substring(0, 5))
   const [defaultEndTime, setDefaultEndTime] = useState((initialSettings?.default_end_time || '19:00:00').substring(0, 5))
   const [defaultLunchStart, setDefaultLunchStart] = useState((initialSettings?.default_lunch_start || '12:00:00').substring(0, 5))
   const [defaultLunchEnd, setDefaultLunchEnd] = useState((initialSettings?.default_lunch_end || '13:00:00').substring(0, 5))
-
-  // Form State: blocks
   const [selectedBarberBlock, setSelectedBarberBlock] = useState('')
   const [blockStart, setBlockStart] = useState('')
   const [blockEnd, setBlockEnd] = useState('')
   const [blockReason, setBlockReason] = useState('')
-  
-  // List of active blocks for chosen barber
-  const [activeBlocks, setActiveBlocks] = useState<any[]>([])
+  const [activeBlocks, setActiveBlocks] = useState<BarberBlock[]>([])
   const [isLoadingBlocks, startLoadingBlocks] = useTransition()
-
   const [isSaving, startSaving] = useTransition()
   const [isBlocking, startBlocking] = useTransition()
   const [errorMsg, setErrorMsg] = useState('')
   const [successMsg, setSuccessMsg] = useState('')
 
-  // Reactively fetch calendar blocks when the barber changes in the dropdown
-  useEffect(() => {
-    if (!selectedBarberBlock) {
-      setActiveBlocks([])
-      return
-    }
-
-    fetchBlocksForBarber(selectedBarberBlock)
-  }, [selectedBarberBlock])
-
-  const fetchBlocksForBarber = (barberId: string) => {
+  const fetchBlocksForBarber = useCallback((barberId: string) => {
     startLoadingBlocks(async () => {
       try {
         const blocks = await getBarberBlocks(barberId)
         setActiveBlocks(blocks)
-      } catch (err: any) {
-        console.error('Error fetching calendar blocks:', err)
+      } catch (error: unknown) {
+        console.error('Error fetching calendar blocks:', error)
       }
     })
-  }
+  }, [])
 
-  // Save Settings
-  const handleSaveSettings = (e: React.FormEvent) => {
-    e.preventDefault()
+  useEffect(() => {
+    if (!selectedBarberBlock) {
+      return
+    }
+    fetchBlocksForBarber(selectedBarberBlock)
+  }, [fetchBlocksForBarber, selectedBarberBlock])
+
+  const handleSaveSettings = (event: React.FormEvent) => {
+    event.preventDefault()
     setErrorMsg('')
     setSuccessMsg('')
-
     startSaving(async () => {
       try {
         await updateBarbershopSettingsAction({
@@ -90,390 +81,136 @@ export function ConfiguracoesClient({ initialSettings, barbers }: SettingsClient
           defaultStartTime: `${defaultStartTime}:00`,
           defaultEndTime: `${defaultEndTime}:00`,
           defaultLunchStart: `${defaultLunchStart}:00`,
-          defaultLunchEnd: `${defaultLunchEnd}:00`
+          defaultLunchEnd: `${defaultLunchEnd}:00`,
         })
         setSuccessMsg('Configurações salvas com sucesso!')
         setTimeout(() => setSuccessMsg(''), 4000)
-      } catch (err: any) {
-        setErrorMsg(err.message)
+      } catch (error: unknown) {
+        setErrorMsg(getErrorMessage(error))
       }
     })
   }
 
-  // Add Calendar Block
-  const handleAddBlock = (e: React.FormEvent) => {
-    e.preventDefault()
+  const handleAddBlock = (event: React.FormEvent) => {
+    event.preventDefault()
     if (!selectedBarberBlock || !blockStart || !blockEnd) {
       setErrorMsg('Preencha os campos obrigatórios para o bloqueio.')
       return
     }
     setErrorMsg('')
     setSuccessMsg('')
-
-    // Parse input strings to ISO timestamps
     const startIso = new Date(blockStart).toISOString()
     const endIso = new Date(blockEnd).toISOString()
-
     startBlocking(async () => {
       try {
         await createBarberBlock(selectedBarberBlock, startIso, endIso, blockReason)
         setSuccessMsg('Bloqueio de agenda criado com sucesso!')
-        
-        // Reset block form
         setBlockStart('')
         setBlockEnd('')
         setBlockReason('')
-
-        // Reload
         fetchBlocksForBarber(selectedBarberBlock)
         setTimeout(() => setSuccessMsg(''), 4000)
-      } catch (err: any) {
-        setErrorMsg(err.message)
+      } catch (error: unknown) {
+        setErrorMsg(getErrorMessage(error))
       }
     })
   }
 
-  // Delete Calendar Block
   const handleDeleteBlock = (blockId: string) => {
     setErrorMsg('')
     setSuccessMsg('')
-
     startBlocking(async () => {
       try {
         await deleteBarberBlock(blockId)
         setSuccessMsg('Bloqueio excluído com sucesso!')
-        
-        // Reload
-        if (selectedBarberBlock) {
-          fetchBlocksForBarber(selectedBarberBlock)
-        }
+        if (selectedBarberBlock) fetchBlocksForBarber(selectedBarberBlock)
         setTimeout(() => setSuccessMsg(''), 4000)
-      } catch (err: any) {
-        setErrorMsg(err.message)
+      } catch (error: unknown) {
+        setErrorMsg(getErrorMessage(error))
       }
     })
   }
 
-  // format date time
-  const formatDateTime = (isoStr: string) => {
-    const d = new Date(isoStr)
-    return d.toLocaleString('pt-BR', {
-      day: 'numeric',
-      month: 'short',
-      hour: '2-digit',
-      minute: '2-digit',
-      timeZone: 'UTC'
-    })
+  const formatDateTime = (isoStr: string) => new Date(isoStr).toLocaleString('pt-BR', {
+    day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', timeZone: 'UTC',
+  })
+
+  const selectTab = (tab: 'agenda' | 'blocked') => {
+    setActiveTab(tab)
+    setErrorMsg('')
+    setSuccessMsg('')
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div>
-        <h1 className="text-3xl font-extrabold text-white tracking-tight">Configurações do Sistema</h1>
-        <p className="text-sm text-neutral-400">Gerencie parâmetros de agendamento, expedientes e regras da barbearia</p>
-      </div>
+    <div className="min-h-[calc(100vh-4rem)] bg-[#f8f9ff] px-4 py-6 sm:px-6 lg:px-8">
+      <div className="mx-auto w-full max-w-[1180px]">
+        <header className="mb-7">
+          <h1 className="font-montserrat text-2xl font-bold tracking-[-0.02em] text-[#181c21] sm:text-[32px]">Configurações</h1>
+          <p className="mt-2 max-w-2xl font-inter text-sm leading-6 text-[#47464b] sm:text-base">Defina regras de agenda, horários e bloqueios da barbearia.</p>
+        </header>
 
-      {/* Navigation tabs */}
-      <div className="flex space-x-2 bg-neutral-900 border border-neutral-800/80 p-1.5 rounded-xl max-w-sm">
-        <button
-          onClick={() => {
-            setActiveTab('agenda')
-            setErrorMsg('')
-            setSuccessMsg('')
-          }}
-          className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${
-            activeTab === 'agenda' ? 'bg-amber-500 text-neutral-950 shadow-md' : 'text-neutral-400 hover:text-white'
-          }`}
-        >
-          <Clock className="w-4 h-4 inline mr-1" />
-          Agenda & Slots
-        </button>
-
-        <button
-          onClick={() => {
-            setActiveTab('blocked')
-            setErrorMsg('')
-            setSuccessMsg('')
-          }}
-          className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${
-            activeTab === 'blocked' ? 'bg-amber-500 text-neutral-950 shadow-md' : 'text-neutral-400 hover:text-white'
-          }`}
-        >
-          <CalendarDays className="w-4 h-4 inline mr-1" />
-          Bloqueios Excepcionais
-        </button>
-      </div>
-
-      {/* Success / Error feedbacks */}
-      {successMsg && (
-        <div className="max-w-xl bg-green-500/10 border border-green-500/30 text-green-500 p-4 rounded-xl text-sm font-semibold flex items-center gap-2">
-          <Check className="w-5 h-5" />
-          <span>{successMsg}</span>
+        <div role="tablist" aria-label="Seções das configurações" className="mb-8 flex gap-7 overflow-x-auto border-b border-[#e0e2e9]">
+          <button id="agenda-tab" type="button" role="tab" aria-controls="agenda-panel" aria-selected={activeTab === 'agenda'} onClick={() => selectTab('agenda')} className={`relative shrink-0 px-0.5 pb-3 font-inter text-sm font-semibold transition-colors ${activeTab === 'agenda' ? 'text-[#181c21] after:absolute after:inset-x-0 after:-bottom-px after:h-[3px] after:rounded-full after:bg-[#C79A4A]' : 'text-[#77767b] hover:text-[#181c21]'}`}>Agenda & Horários</button>
+          <button id="blocked-tab" type="button" role="tab" aria-controls="blocked-panel" aria-selected={activeTab === 'blocked'} onClick={() => selectTab('blocked')} className={`relative shrink-0 px-0.5 pb-3 font-inter text-sm font-semibold transition-colors ${activeTab === 'blocked' ? 'text-[#181c21] after:absolute after:inset-x-0 after:-bottom-px after:h-[3px] after:rounded-full after:bg-[#C79A4A]' : 'text-[#77767b] hover:text-[#181c21]'}`}>Bloqueios Excepcionais</button>
         </div>
-      )}
 
-      {errorMsg && (
-        <div className="max-w-xl bg-red-500/10 border border-red-500/30 text-red-500 p-4 rounded-xl text-sm font-semibold flex items-center gap-2">
-          <AlertTriangle className="w-5 h-5" />
-          <span>{errorMsg}</span>
-        </div>
-      )}
+        {successMsg ? <div role="status" className="mb-6 flex max-w-2xl items-center gap-3 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 font-inter text-sm font-semibold text-emerald-800"><Check className="h-5 w-5 shrink-0" aria-hidden="true" /><span>{successMsg}</span></div> : null}
+        {errorMsg ? <div role="alert" className="mb-6 flex max-w-2xl items-center gap-3 rounded-lg border border-red-200 bg-red-50 px-4 py-3 font-inter text-sm font-semibold text-red-800"><AlertTriangle className="h-5 w-5 shrink-0" aria-hidden="true" /><span>{errorMsg}</span></div> : null}
 
-      {/* SECTION 1: AGENDA & SLOTS SETTINGS */}
-      {activeTab === 'agenda' && (
-        <Card className="bg-neutral-900 border-neutral-800/80 shadow-2xl max-w-2xl rounded-2xl">
-          <CardHeader className="border-b border-neutral-800 pb-4 text-left">
-            <CardTitle className="text-xl font-bold text-white flex items-center gap-2">
-              <ClipboardList className="w-5 h-5 text-amber-500" />
-              Parâmetros de Agenda
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="p-6">
+        {activeTab === 'agenda' ? (
+          <div id="agenda-panel" role="tabpanel" aria-labelledby="agenda-tab">
             <form onSubmit={handleSaveSettings} className="space-y-6">
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* Slot Interval */}
-                <div className="space-y-1.5 text-left">
-                  <label className="text-xs uppercase font-mono tracking-widest text-neutral-400">Intervalo dos Slots *</label>
-                  <select
-                    value={slotIntervalMinutes}
-                    onChange={(e) => setSlotIntervalMinutes(Number(e.target.value))}
-                    className="w-full bg-neutral-950 border border-neutral-850 rounded-xl p-3 focus:outline-none focus:border-amber-500 text-white text-sm"
-                  >
-                    <option value={15}>15 minutos</option>
-                    <option value={30}>30 minutos (Recomendado)</option>
-                    <option value={60}>1 hora</option>
-                  </select>
-                  <p className="text-[10px] text-neutral-500 font-medium">Define a frequência de slots livres na página pública.</p>
-                </div>
+              <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+                <section className={cardClassName} aria-labelledby="scheduling-rules-title">
+                  <div className="flex items-center gap-3 border-b border-[#eceef4] px-5 py-5 sm:px-6"><span className="flex h-10 w-10 items-center justify-center rounded-full bg-[#f1f3fa] text-[#181c21]"><ListChecks className="h-5 w-5" aria-hidden="true" /></span><h2 id="scheduling-rules-title" className="font-montserrat text-lg font-semibold text-[#181c21] sm:text-xl">Regras de Agendamento</h2></div>
+                  <div className="space-y-6 p-5 sm:p-6">
+                    <label className="block space-y-2"><span className={fieldLabelClassName}>Intervalo dos slots</span><span className="relative block"><select value={slotIntervalMinutes} onChange={(event) => setSlotIntervalMinutes(Number(event.target.value))} className={`${controlClassName} appearance-none pr-10`}><option value={15}>15 minutos</option><option value={30}>30 minutos (Recomendado)</option><option value={60}>1 hora</option></select><ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#77767b]" aria-hidden="true" /></span><span className="block font-inter text-xs leading-5 text-[#77767b]">Define a frequência de slots livres na página pública.</span></label>
+                    <label className="block space-y-2"><span className={fieldLabelClassName}>Lembrete WhatsApp (antecedência)</span><span className="relative block"><select value={whatsappReminderHours} onChange={(event) => setWhatsappReminderHours(Number(event.target.value))} className={`${controlClassName} appearance-none pr-10`}><option value={1}>1 hora antes</option><option value={2}>2 horas antes (Recomendado)</option><option value={4}>4 horas antes</option><option value={24}>24 horas antes</option></select><ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#77767b]" aria-hidden="true" /></span><span className="block font-inter text-xs leading-5 text-[#77767b]">Antecedência da mensagem de lembrete do WhatsApp.</span></label>
+                  </div>
+                </section>
 
-                {/* Reminder hours */}
-                <div className="space-y-1.5 text-left">
-                  <label className="text-xs uppercase font-mono tracking-widest text-neutral-400">Lembrete WhatsApp (Antecedência) *</label>
-                  <select
-                    value={whatsappReminderHours}
-                    onChange={(e) => setWhatsappReminderHours(Number(e.target.value))}
-                    className="w-full bg-neutral-950 border border-neutral-850 rounded-xl p-3 focus:outline-none focus:border-amber-500 text-white text-sm"
-                  >
-                    <option value={1}>1 hora antes</option>
-                    <option value={2}>2 horas antes (Recomendado)</option>
-                    <option value={4}>4 horas antes</option>
-                    <option value={24}>24 horas antes</option>
-                  </select>
-                  <p className="text-[10px] text-neutral-500 font-medium">Antecedência da mensagem de lembrete do WhatsApp.</p>
-                </div>
+                <section className={cardClassName} aria-labelledby="business-hours-title">
+                  <div className="flex items-center gap-3 border-b border-[#eceef4] px-5 py-5 sm:px-6"><span className="flex h-10 w-10 items-center justify-center rounded-full bg-[#f1f3fa] text-[#181c21]"><Clock3 className="h-5 w-5" aria-hidden="true" /></span><h2 id="business-hours-title" className="font-montserrat text-lg font-semibold text-[#181c21] sm:text-xl">Horários de Funcionamento</h2></div>
+                  <div className="space-y-6 p-5 sm:p-6">
+                    <div><h3 className="mb-4 font-inter text-[11px] font-semibold uppercase tracking-[0.08em] text-[#47464b]">Expediente padrão</h3><div className="grid grid-cols-1 gap-4 sm:grid-cols-2"><label className="space-y-2"><span className={fieldLabelClassName}>Início</span><input type="time" value={defaultStartTime} onChange={(event) => setDefaultStartTime(event.target.value)} className={controlClassName} /></label><label className="space-y-2"><span className={fieldLabelClassName}>Fim</span><input type="time" value={defaultEndTime} onChange={(event) => setDefaultEndTime(event.target.value)} className={controlClassName} /></label></div></div>
+                    <div className="border-t border-[#eceef4] pt-5"><h3 className="mb-4 font-inter text-[11px] font-semibold uppercase tracking-[0.08em] text-[#47464b]">Horário de almoço</h3><div className="grid grid-cols-1 gap-4 sm:grid-cols-2"><label className="space-y-2"><span className={fieldLabelClassName}>Início</span><input type="time" value={defaultLunchStart} onChange={(event) => setDefaultLunchStart(event.target.value)} className={controlClassName} /></label><label className="space-y-2"><span className={fieldLabelClassName}>Fim</span><input type="time" value={defaultLunchEnd} onChange={(event) => setDefaultLunchEnd(event.target.value)} className={controlClassName} /></label></div></div>
+                  </div>
+                </section>
               </div>
-
-              {/* Default Commercial shift */}
-              <div className="space-y-4 pt-4 border-t border-neutral-800/40">
-                <h4 className="text-xs uppercase font-mono tracking-widest text-amber-500 font-bold text-left">
-                  Expediente Padrão para novos profissionais
-                </h4>
-                
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-1 text-left">
-                    <label className="text-[10px] uppercase font-mono tracking-widest text-neutral-500">Início de Expediente</label>
-                    <input
-                      type="time"
-                      value={defaultStartTime}
-                      onChange={(e) => setDefaultStartTime(e.target.value)}
-                      className="w-full bg-neutral-950 border border-neutral-850 rounded-xl p-3 focus:outline-none focus:border-amber-500 text-white text-sm font-mono"
-                    />
-                  </div>
-
-                  <div className="space-y-1 text-left">
-                    <label className="text-[10px] uppercase font-mono tracking-widest text-neutral-500">Término de Expediente</label>
-                    <input
-                      type="time"
-                      value={defaultEndTime}
-                      onChange={(e) => setDefaultEndTime(e.target.value)}
-                      className="w-full bg-neutral-950 border border-neutral-850 rounded-xl p-3 focus:outline-none focus:border-amber-500 text-white text-sm font-mono"
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-1 text-left">
-                    <label className="text-[10px] uppercase font-mono tracking-widest text-neutral-500">Início de Almoço</label>
-                    <input
-                      type="time"
-                      value={defaultLunchStart}
-                      onChange={(e) => setDefaultLunchStart(e.target.value)}
-                      className="w-full bg-neutral-950 border border-neutral-850 rounded-xl p-3 focus:outline-none focus:border-amber-500 text-white text-sm font-mono"
-                    />
-                  </div>
-
-                  <div className="space-y-1 text-left">
-                    <label className="text-[10px] uppercase font-mono tracking-widest text-neutral-500">Término de Almoço</label>
-                    <input
-                      type="time"
-                      value={defaultLunchEnd}
-                      onChange={(e) => setDefaultLunchEnd(e.target.value)}
-                      className="w-full bg-neutral-950 border border-neutral-850 rounded-xl p-3 focus:outline-none focus:border-amber-500 text-white text-sm font-mono"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div className="pt-4 border-t border-neutral-800 flex justify-end">
-                <Button
-                  type="submit"
-                  disabled={isSaving}
-                  className="bg-amber-500 hover:bg-amber-400 text-neutral-950 font-bold rounded-xl py-5 px-8 shadow-lg shadow-amber-500/10"
-                >
-                  {isSaving ? (
-                    <div className="flex items-center gap-2">
-                      <div className="w-4 h-4 border-2 border-neutral-950 border-t-transparent rounded-full animate-spin" />
-                      <span>Salvando...</span>
-                    </div>
-                  ) : (
-                    'Salvar Configurações'
-                  )}
-                </Button>
-              </div>
+              <div className="flex justify-end border-t border-[#e0e2e9] pt-6"><Button type="submit" disabled={isSaving} className="h-12 gap-2 rounded-lg px-6 font-inter text-sm">{isSaving ? <LoaderCircle className="h-4 w-4 animate-spin" aria-hidden="true" /> : <Save className="h-4 w-4" aria-hidden="true" />}{isSaving ? 'Salvando...' : 'Salvar configurações'}</Button></div>
             </form>
-          </CardContent>
-        </Card>
-      )}
+          </div>
+        ) : (
+          <div id="blocked-panel" role="tabpanel" aria-labelledby="blocked-tab">
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-12 lg:gap-8">
+              <section className={`${cardClassName} h-fit lg:col-span-5`} aria-labelledby="new-block-title">
+                <div className="flex items-center gap-3 border-b border-[#eceef4] px-5 py-5 sm:px-6"><PlusCircle className="h-5 w-5 text-[#C79A4A]" aria-hidden="true" /><h2 id="new-block-title" className="font-montserrat text-lg font-semibold text-[#181c21] sm:text-xl">Novo Bloqueio</h2></div>
+                <form onSubmit={handleAddBlock} className="space-y-5 p-5 sm:p-6">
+                  <label className="block space-y-2"><span className={fieldLabelClassName}>Barbeiro</span><span className="relative block"><select value={selectedBarberBlock} onChange={(event) => setSelectedBarberBlock(event.target.value)} className={`${controlClassName} appearance-none pr-10`}><option value="" disabled>Selecionar barbeiro</option>{barbers.map((barber) => <option key={barber.id} value={barber.id}>{barber.name}</option>)}</select><ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#77767b]" aria-hidden="true" /></span></label>
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2"><label className="space-y-2"><span className={fieldLabelClassName}>Início do bloqueio</span><input type="datetime-local" value={blockStart} onChange={(event) => setBlockStart(event.target.value)} className={controlClassName} /></label><label className="space-y-2"><span className={fieldLabelClassName}>Fim do bloqueio</span><input type="datetime-local" value={blockEnd} onChange={(event) => setBlockEnd(event.target.value)} className={controlClassName} /></label></div>
+                  <label className="block space-y-2"><span className={fieldLabelClassName}>Motivo / observação</span><textarea rows={3} placeholder="Ex: Férias, folga médica, compromisso externo..." value={blockReason} onChange={(event) => setBlockReason(event.target.value)} className={`${controlClassName} min-h-28 resize-none py-3`} /></label>
+                  <Button type="submit" disabled={isBlocking} className="h-12 w-full gap-2 rounded-lg font-inter text-sm">{isBlocking ? <LoaderCircle className="h-4 w-4 animate-spin" aria-hidden="true" /> : <CalendarClock className="h-4 w-4" aria-hidden="true" />}{isBlocking ? 'Registrando bloqueio...' : 'Registrar bloqueio'}</Button>
+                </form>
+              </section>
 
-      {/* SECTION 2: EXCEPTIONAL CALENDAR BLOCKS */}
-      {activeTab === 'blocked' && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 max-w-5xl">
-          {/* Creation Block Form */}
-          <Card className="bg-neutral-900 border-neutral-800/80 shadow-2xl rounded-2xl h-fit">
-            <CardHeader className="border-b border-neutral-800 pb-4 text-left">
-              <CardTitle className="text-xl font-bold text-white flex items-center gap-2">
-                <Shield className="w-5 h-5 text-amber-500" />
-                Bloquear Horário Excepcional
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-6">
-              <form onSubmit={handleAddBlock} className="space-y-4">
-                
-                <div className="space-y-1.5 text-left">
-                  <label className="text-xs uppercase font-mono tracking-widest text-neutral-400">Escolha o Barbeiro *</label>
-                  <select
-                    value={selectedBarberBlock}
-                    onChange={(e) => setSelectedBarberBlock(e.target.value)}
-                    className="w-full bg-neutral-950 border border-neutral-850 rounded-xl p-3 focus:outline-none focus:border-amber-500 text-white text-sm"
-                  >
-                    <option value="" disabled>Selecionar Barbeiro</option>
-                    {barbers.map((b) => (
-                      <option key={b.id} value={b.id}>{b.name}</option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="space-y-1.5 text-left">
-                    <label className="text-[10px] uppercase font-mono tracking-widest text-neutral-500">Início do Bloqueio *</label>
-                    <input
-                      type="datetime-local"
-                      value={blockStart}
-                      onChange={(e) => setBlockStart(e.target.value)}
-                      className="w-full bg-neutral-950 border border-neutral-850 rounded-xl p-3 focus:outline-none focus:border-amber-500 text-white text-xs font-mono"
-                    />
-                  </div>
-
-                  <div className="space-y-1.5 text-left">
-                    <label className="text-[10px] uppercase font-mono tracking-widest text-neutral-500">Fim do Bloqueio *</label>
-                    <input
-                      type="datetime-local"
-                      value={blockEnd}
-                      onChange={(e) => setBlockEnd(e.target.value)}
-                      className="w-full bg-neutral-950 border border-neutral-850 rounded-xl p-3 focus:outline-none focus:border-amber-500 text-white text-xs font-mono"
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-1.5 text-left">
-                  <label className="text-xs uppercase font-mono tracking-widest text-neutral-400 font-semibold">Motivo do Bloqueio</label>
-                  <textarea
-                    rows={2}
-                    placeholder="Ex: Férias, Folga médica, Compromisso externo..."
-                    value={blockReason}
-                    onChange={(e) => setBlockReason(e.target.value)}
-                    className="w-full bg-neutral-950 border border-neutral-850 rounded-xl p-3 focus:outline-none focus:border-amber-500 text-white text-sm"
-                  />
-                </div>
-
-                <Button
-                  type="submit"
-                  disabled={isBlocking}
-                  className="w-full bg-amber-500 hover:bg-amber-400 text-neutral-950 font-bold rounded-xl py-5 shadow-md shadow-amber-500/10"
-                >
-                  {isBlocking ? (
-                    <div className="flex items-center justify-center gap-2">
-                      <div className="w-4 h-4 border-2 border-neutral-950 border-t-transparent rounded-full animate-spin" />
-                      <span>Inserindo Bloqueio...</span>
-                    </div>
+              <section className={`${cardClassName} min-h-[420px] lg:col-span-7`} aria-labelledby="active-blocks-title">
+                <div className="flex items-center justify-between gap-4 border-b border-[#eceef4] px-5 py-5 sm:px-6"><div className="flex items-center gap-3"><CalendarDays className="h-5 w-5 text-[#77767b]" aria-hidden="true" /><h2 id="active-blocks-title" className="font-montserrat text-lg font-semibold text-[#181c21] sm:text-xl">Bloqueios Ativos</h2></div>{selectedBarberBlock && !isLoadingBlocks ? <span className="rounded-full border border-[#e0e2e9] bg-[#eceef4] px-3 py-1 font-inter text-[11px] font-semibold text-[#47464b]">{activeBlocks.length} {activeBlocks.length === 1 ? 'bloqueio' : 'bloqueios'}</span> : null}</div>
+                <div className="p-5 sm:p-6">
+                  {!selectedBarberBlock ? (
+                    <div className="flex min-h-[280px] flex-col items-center justify-center text-center"><CalendarDays className="mb-3 h-9 w-9 text-[#c8c5cb]" aria-hidden="true" /><h3 className="font-montserrat text-base font-semibold text-[#181c21]">Selecione um barbeiro</h3><p className="mt-2 max-w-sm font-inter text-sm leading-6 text-[#77767b]">Escolha um profissional no painel ao lado para visualizar e gerenciar seus bloqueios.</p></div>
+                  ) : isLoadingBlocks ? (
+                    <div className="flex min-h-[280px] flex-col items-center justify-center gap-3 text-[#77767b]"><LoaderCircle className="h-7 w-7 animate-spin text-[#C79A4A]" aria-hidden="true" /><span className="font-inter text-sm">Consultando bloqueios...</span></div>
+                  ) : activeBlocks.length === 0 ? (
+                    <div className="flex min-h-[280px] flex-col items-center justify-center text-center"><Check className="mb-3 h-9 w-9 text-[#c8c5cb]" aria-hidden="true" /><h3 className="font-montserrat text-base font-semibold text-[#181c21]">Nenhum bloqueio ativo</h3><p className="mt-2 max-w-sm font-inter text-sm leading-6 text-[#77767b]">Este profissional não possui bloqueios excepcionais cadastrados.</p></div>
                   ) : (
-                    'Adicionar Bloqueio de Agenda'
+                    <div className="space-y-3">{activeBlocks.map((block) => <article key={block.id} className="flex items-start justify-between gap-4 rounded-lg border border-[#e0e2e9] bg-[#f8f9ff] p-4"><div className="flex min-w-0 items-start gap-3"><span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#eceef4] text-[#47464b]"><CalendarClock className="h-4 w-4" aria-hidden="true" /></span><div className="min-w-0"><div className="flex flex-wrap items-center gap-2"><h3 className="font-inter text-sm font-semibold text-[#181c21]">{block.reason || 'Bloqueio de agenda'}</h3><span className="rounded-full border border-[#e0e2e9] bg-white px-2 py-1 font-inter text-[9px] font-semibold uppercase tracking-[0.08em] text-[#47464b]">Bloqueado</span></div><p className="mt-1 font-inter text-xs leading-5 text-[#77767b]">{formatDateTime(block.start_at)} — {formatDateTime(block.end_at)}</p></div></div><button type="button" aria-label="Excluir bloqueio" onClick={() => handleDeleteBlock(block.id)} disabled={isBlocking} className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-[#77767b] transition-colors hover:bg-red-50 hover:text-red-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-300 disabled:cursor-not-allowed disabled:opacity-50"><Trash2 className="h-4 w-4" aria-hidden="true" /></button></article>)}</div>
                   )}
-                </Button>
-              </form>
-            </CardContent>
-          </Card>
-
-          {/* List of Active Blocks */}
-          <Card className="bg-neutral-900 border-neutral-800/80 shadow-2xl rounded-2xl">
-            <CardHeader className="border-b border-neutral-800 pb-4 text-left">
-              <CardTitle className="text-xl font-bold text-white flex items-center gap-2">
-                <Calendar className="w-5 h-5 text-amber-500" />
-                Bloqueios Ativos
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-6">
-              {!selectedBarberBlock ? (
-                <div className="text-center py-12 text-neutral-500 italic text-sm">
-                  Selecione um barbeiro no painel ao lado para visualizar e gerenciar seus bloqueios ativos.
                 </div>
-              ) : isLoadingBlocks ? (
-                <div className="text-center py-12 text-neutral-500 flex flex-col items-center gap-2">
-                  <div className="w-6 h-6 border-2 border-amber-500 border-t-transparent rounded-full animate-spin" />
-                  <span className="text-xs">Consultando bloqueios...</span>
-                </div>
-              ) : activeBlocks.length === 0 ? (
-                <div className="text-center py-12 text-neutral-500 italic text-sm">
-                  Nenhum bloqueio excepcional de data encontrado para este profissional.
-                </div>
-              ) : (
-                <div className="space-y-3.5">
-                  {activeBlocks.map((block) => (
-                    <div
-                      key={block.id}
-                      className="bg-neutral-950 border border-neutral-850 p-4 rounded-xl flex justify-between items-center hover:border-neutral-750 transition-all gap-4"
-                    >
-                      <div className="text-left space-y-1">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <span className="font-extrabold text-sm text-white">
-                            {block.reason || 'Bloqueio de Agenda'}
-                          </span>
-                          <Badge variant="secondary" className="text-[9px] uppercase tracking-widest px-1.5 py-0 bg-neutral-900 border-neutral-800 text-neutral-400">
-                            Bloqueado
-                          </Badge>
-                        </div>
-                        <p className="text-[10px] text-neutral-500 font-mono">
-                          {formatDateTime(block.start_at)} às {formatDateTime(block.end_at)}
-                        </p>
-                      </div>
-
-                      <Button
-                        onClick={() => handleDeleteBlock(block.id)}
-                        disabled={isBlocking}
-                        className="bg-red-500/10 hover:bg-red-500/20 hover:text-red-500 border border-red-500/25 p-2 h-9 w-9 rounded-xl flex-shrink-0"
-                      >
-                        <Trash2 className="w-4 h-4 text-red-500" />
-                      </Button>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </div>
-      )}
+              </section>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   )
 }
