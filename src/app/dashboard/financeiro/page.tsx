@@ -21,7 +21,7 @@ export default async function FinanceiroPage({
   const overview = await getFinancialOverview(startDate, endDate)
 
   return (
-    <div className="space-y-6">
+    <div className="min-h-[calc(100dvh-4rem)] bg-white">
       <FinanceiroClient
         overview={overview}
         initialStartDate={startDate}
