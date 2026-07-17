@@ -2,6 +2,10 @@
 
 import { createClient } from '@/utils/supabase/server'
 import { sendWhatsAppNotification } from '@/lib/whatsapp'
+import type {
+  SelectedBookingProduct,
+  UnavailableProduct,
+} from './booking-types'
 
 /**
  * Fetches the active data for the public booking page.
@@ -45,11 +49,23 @@ export async function getBookingPageData(slug: string) {
     .eq('is_active', true)
     .order('name')
 
+  const { data: products, error: productsError } = await supabase
+    .from('products')
+    .select('id, name, description, category, sale_price, stock_quantity, image_url')
+    .eq('barbershop_id', barbershop.id)
+    .eq('is_active', true)
+    .order('name')
+
+  if (productsError) {
+    console.error('Error loading public products:', productsError.message)
+  }
+
   return {
     barbershop,
     services: services || [],
     barbers: barbers || [],
     addOns: addOns || [],
+    products: products || [],
   }
 }
 
@@ -182,6 +198,7 @@ export type CreatePublicBookingInput = {
   startAt: string // ISO string timestamp, e.g. "2026-06-01T14:30:00.000Z"
   notes?: string
   addOnIds?: string[]
+  products?: SelectedBookingProduct[]
 }
 
 /**
@@ -238,7 +255,7 @@ export async function createPublicBooking(input: CreatePublicBookingInput) {
 
   // 2. Invoke the Postgres transactional booking RPC
   const { data: appointmentId, error } = await supabase.rpc(
-    'create_public_appointment_with_client',
+    'create_public_appointment_with_products',
     {
       p_barbershop_id: input.barbershopId,
       p_client_name: input.clientName,
@@ -249,11 +266,29 @@ export async function createPublicBooking(input: CreatePublicBookingInput) {
       p_start_at: input.startAt,
       p_notes: input.notes || null,
       p_add_on_ids: input.addOnIds || null,
+      p_products: input.products || [],
     }
   )
 
   if (error) {
     console.error('Error invoking booking RPC:', error.message)
+
+    if (error.message === 'INSUFFICIENT_STOCK') {
+      let unavailableProducts: UnavailableProduct[] = []
+
+      try {
+        unavailableProducts = JSON.parse(error.details || '[]')
+      } catch {
+        unavailableProducts = []
+      }
+
+      return {
+        error: 'Alguns produtos tiveram o estoque alterado. Ajuste as quantidades para continuar.',
+        code: 'INSUFFICIENT_STOCK' as const,
+        unavailableProducts,
+      }
+    }
+
     return { error: error.message }
   }
 

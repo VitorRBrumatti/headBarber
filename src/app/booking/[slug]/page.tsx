@@ -16,12 +16,13 @@ export default async function BookingPage({ params }: BookingPageProps) {
     const data = await getBookingPageData(slug)
     
     return (
-      <div className="min-h-screen bg-neutral-950 text-neutral-100">
+      <div className="min-h-screen bg-[#1A1A1D] text-white">
         <BookingClient 
           barbershop={data.barbershop}
           services={data.services}
           barbers={data.barbers}
           addOns={data.addOns}
+          products={data.products}
         />
       </div>
     )
