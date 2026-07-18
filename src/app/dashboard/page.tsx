@@ -1,5 +1,4 @@
 import { createClient } from '@/utils/supabase/server'
-import Image from 'next/image'
 import Link from 'next/link'
 import { BookingLinkWidget } from './booking-link-widget'
 
@@ -284,22 +283,6 @@ export default async function DashboardPage() {
           </div>
         </div>
       </div>
-
-      <section
-        aria-label="Parceiro Oficial"
-        className="rounded-2xl border border-[#c8c5cb]/30 bg-white px-6 py-8 text-center shadow-xs sm:px-10"
-      >
-        <p className="mb-5 text-[10px] font-bold uppercase tracking-[0.24em] text-[#C79A4A]">
-          Parceiro Oficial
-        </p>
-        <Image
-          src="/brand/partners/hoffmanns-barber.png"
-          alt="Hoffmann's Barber, parceiro oficial da HeadBarber"
-          width={3817}
-          height={2176}
-          className="mx-auto h-auto w-full max-w-[360px] object-contain"
-        />
-      </section>
     </div>
   )
 }

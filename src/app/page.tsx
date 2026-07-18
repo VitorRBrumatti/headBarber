@@ -456,6 +456,24 @@ export default function Home() {
             </div>
           </div>
         </section>
+
+        <section
+          aria-label="Parceiro Oficial"
+          className="bg-[#f8f9ff] py-16 sm:py-20"
+        >
+          <div className="container mx-auto px-6 text-center">
+            <p className="mb-5 text-[10px] font-bold uppercase tracking-[0.24em] text-[#C79A4A]">
+              Parceiro Oficial
+            </p>
+            <Image
+              src="/brand/partners/hoffmanns-barber.png"
+              alt="Hoffmann's Barber, parceiro oficial da HeadBarber"
+              width={3817}
+              height={2176}
+              className="mx-auto h-auto w-full max-w-[360px] object-contain"
+            />
+          </div>
+        </section>
       </main>
 
       {/* ── Footer ───────────────────────────────────────────── */}

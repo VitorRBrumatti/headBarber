@@ -5,15 +5,17 @@ import { resolve } from 'node:path'
 const source = (path: string) => readFileSync(resolve(process.cwd(), path), 'utf8')
 
 describe('home partner banner and sidebar navigation', () => {
-  it('shows the official partner banner with the provided logo', () => {
-    const home = source('src/app/dashboard/page.tsx')
+  it('shows the official partner banner on the landing page only', () => {
+    const landingPage = source('src/app/page.tsx')
+    const dashboard = source('src/app/dashboard/page.tsx')
 
-    expect(home).toContain("import Image from 'next/image'")
-    expect(home).toContain('aria-label="Parceiro Oficial"')
-    expect(home).toContain('Parceiro Oficial')
-    expect(home).toContain('/brand/partners/hoffmanns-barber.png')
-    expect(home).toContain('width={3817}')
-    expect(home).toContain('height={2176}')
+    expect(landingPage).toContain('aria-label="Parceiro Oficial"')
+    expect(landingPage).toContain('Parceiro Oficial')
+    expect(landingPage).toContain('/brand/partners/hoffmanns-barber.png')
+    expect(landingPage).toContain('width={3817}')
+    expect(landingPage).toContain('height={2176}')
+    expect(dashboard).not.toContain('aria-label="Parceiro Oficial"')
+    expect(dashboard).not.toContain('/brand/partners/hoffmanns-barber.png')
   })
 
   it('places Financeiro after Agenda and removes Admin Master from the sidebar', () => {
