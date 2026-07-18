@@ -6,6 +6,7 @@ import type {
   SelectedBookingProduct,
   UnavailableProduct,
 } from './booking-types'
+import { filterBookableSlotsForDate } from './booking-availability'
 
 /**
  * Fetches the active data for the public booking page.
@@ -165,27 +166,8 @@ export async function getPublicSlotsAction(
 
   const sortedSlots = Array.from(slotsSet).sort()
 
-  // 4. If target date is today, filter out past slots in local time
-  const targetDate = new Date(dateStr + 'T00:00:00')
-  const today = new Date()
-  const isToday =
-    targetDate.getFullYear() === today.getFullYear() &&
-    targetDate.getMonth() === today.getMonth() &&
-    targetDate.getDate() === today.getDate()
-
-  if (isToday) {
-    const currentHour = today.getHours()
-    const currentMinute = today.getMinutes()
-
-    return sortedSlots.filter((slot) => {
-      const [hour, minute] = slot.split(':').map(Number)
-      if (hour > currentHour) return true
-      if (hour === currentHour && minute > currentMinute) return true
-      return false
-    })
-  }
-
-  return sortedSlots
+  // 4. Hide only past slots. The current minute remains bookable for walk-ins/late clients.
+  return filterBookableSlotsForDate(sortedSlots, dateStr)
 }
 
 export type CreatePublicBookingInput = {
