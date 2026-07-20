@@ -12,6 +12,7 @@
 
 .agents/
 .agent/
+.worktrees/
 
 # testing
 /coverage
