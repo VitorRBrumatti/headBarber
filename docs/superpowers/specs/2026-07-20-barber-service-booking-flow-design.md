@@ -34,10 +34,11 @@ A nova tabela contém:
 | `barber_id` | UUID obrigatório, referência ao barbeiro |
 | `service_id` | UUID obrigatório, referência ao serviço |
 | `price` | `numeric(10,2)`, obrigatório, maior ou igual a zero |
-| `duration_minutes` | inteiro obrigatório, maior que zero |
+| `duration_minutes` | inteiro obrigatório, entre 5 e 720 minutos |
 | `is_available` | booleano obrigatório, padrão `true` |
 | `created_at` | timestamp UTC |
 | `updated_at` | timestamp UTC |
+| `configuration_version` | bigint obrigatório, inicia em 1 e é incrementado somente quando preço, duração ou disponibilidade mudarem |
 
 Restrições e índices:
 
@@ -65,24 +66,48 @@ Adicionar:
 - `service_price`, snapshot do preço do serviço no momento da criação;
 - `service_duration_minutes`, snapshot da duração no momento da criação.
 
-`barber_id` e `service_id` permanecem para consultas diretas e compatibilidade com relatórios existentes. A função transacional deve garantir que os três identificadores descrevam a mesma combinação.
+`barber_id` e `service_id` permanecem para consultas diretas e compatibilidade com relatórios existentes. O banco garante a coerência estrutural com uma chave estrangeira composta de `(barber_service_id, barbershop_id, barber_id, service_id)` para a chave única equivalente em `barber_services`.
 
 `total_price` continua representando o valor total do atendimento segundo a regra atual: serviço mais adicionais. Produtos reservados continuam com seus próprios snapshots em `appointment_products` e não entram no valor do atendimento enquanto forem pagos na retirada.
 
-### Migração de dados
+Nomes de barbeiro e serviço não serão snapshots nesta entrega: telas históricas exibem os nomes atuais do cadastro. Esta é uma decisão explícita; histórico documental de nomes poderá ser adicionado em uma evolução separada.
 
-A migração deve ocorrer nesta ordem lógica:
+### Migração e implantação em fases
 
-1. Criar `barber_services`, restrições, índices, RLS e políticas.
-2. Inserir uma relação para cada par de barbeiro e serviço da mesma barbearia, copiando `services.price` e `services.duration_minutes`, com `is_available = true`. Os status globais já existentes em barbeiro e serviço continuam impedindo a publicação dos itens inativos.
-3. Adicionar as colunas de snapshot em `appointments`.
-4. Preencher todos os agendamentos existentes com a combinação correspondente. Reconstruir `service_price` como `total_price` menos os snapshots de adicionais daquele agendamento e reconstruir `service_duration_minutes` pela diferença entre `end_at` e `start_at`. Depois do preenchimento validado, tornar os novos campos obrigatórios. Os valores históricos não devem ser substituídos pelo preço ou pela duração atuais do catálogo.
-5. Substituir as funções públicas de slots e criação de agendamento.
-6. Revogar assinaturas antigas que permitam contornar a validação da relação.
-7. Remover o uso e, ao final, as colunas globais de preço/duração de `services`.
+A implantação é dividida em releases independentes. Nenhuma release pode aplicar simultaneamente expansão e contração.
+
+#### Fase 1 — Expandir
+
+1. Criar `barber_services`, constraints compostas, índices, RLS e políticas.
+2. Inserir uma relação para cada par de barbeiro e serviço da mesma barbearia, copiando preço e duração atuais, com `is_available = true`.
+3. Adicionar `barber_service_id`, `service_price` e `service_duration_minutes` como colunas anuláveis em `appointments`.
+4. Executar pré-validações e interromper a migração se houver: agendamento sem relação correspondente, preço reconstruído negativo, `end_at <= start_at` ou duração fora de 5 a 720 minutos. Nenhuma anomalia será convertida silenciosamente para zero.
+5. Fazer o backfill somente depois dessas validações. O preço histórico é `total_price` menos os snapshots de adicionais; a duração é derivada de `end_at - start_at`.
+6. Criar as novas funções e adaptar as assinaturas antigas para também validar `barber_services` e preencher snapshots, mantendo-as executáveis para clientes antigos.
+7. Manter `services.price` e `services.duration_minutes`; a operação administrativa grava nelas o primeiro vínculo disponível ordenado por `barber_id`, somente para compatibilidade. Nenhum código novo usa esses campos para cálculo.
+8. Registrar chamadas das RPCs legadas em uma tabela no schema `private`, permitindo medir clientes antigos sem expor telemetria pelo Data API.
+
+#### Fase 2 — Migrar a aplicação
+
+1. Publicar Server Actions e interfaces novas usando as RPCs e relações novas.
+2. Fazer todos os novos agendamentos preencherem relação e snapshots.
+3. Auditar por busca e teste todos os `INSERT` e `UPDATE` de `appointments`. Qualquer operação que crie ou volte a bloquear um intervalo deve usar o mesmo lock e as mesmas validações de expediente, almoço, bloqueios e sobreposição.
+4. Monitorar snapshots nulos e chamadas das RPCs legadas por pelo menos 14 dias consecutivos.
+
+#### Fase 3 — Contrair em release separada
+
+Somente após 14 dias sem chamadas legadas e com contagem zero de snapshots nulos:
+
+1. Aplicar `NOT NULL` aos três campos novos.
+2. Revogar/remover as assinaturas antigas.
+3. Remover a telemetria privada de compatibilidade quando não for mais necessária.
+4. Manter as colunas globais de `services` por mais um ciclo de release.
+
+#### Fase 4 — Limpeza futura
+
+Após confirmar por busca de código, logs e testes que nenhum consumidor lê as colunas globais, criar uma migração separada para remover `services.price` e `services.duration_minutes`. Essa limpeza é obrigatória para encerrar a transição, mas não acompanha o deploy inicial.
 
 A migração deve ser idempotente apenas onde isso for compatível com o padrão do repositório; o arquivo versionado será a fonte de histórico.
-
 ## Segurança e acesso
 
 `barber_services` fica no schema exposto `public`, portanto RLS deve ser habilitada.
@@ -110,6 +135,7 @@ As funções transacionais públicas existentes usam `SECURITY DEFINER`. As vers
 - qualificar todas as relações com schema;
 - validar explicitamente barbearia, barbeiro, serviço e vínculo;
 - revogar execução de `PUBLIC` e conceder somente às funções/roles necessárias;
+- manter funções internas no schema não exposto `private`, com `EXECUTE` revogado de `PUBLIC`, `anon` e `authenticated`; somente o wrapper público explicitamente concedido pode acioná-las;
 - nunca aceitar preço ou duração fornecidos pelo cliente como fonte de verdade.
 
 ## Fluxo público
@@ -128,7 +154,7 @@ As sete etapas passam a ser:
 
 A primeira etapa lista somente barbeiros ativos da barbearia. A opção “qualquer profissional” é removida porque não existe preço determinístico antes da escolha concreta.
 
-Ao selecionar um barbeiro, o cliente inicia uma consulta que retorna somente os vínculos disponíveis daquele profissional, incluindo os dados do catálogo necessários à exibição, o preço/duração do vínculo e uma versão de configuração baseada em `updated_at`.
+Ao selecionar um barbeiro, o cliente inicia uma consulta que retorna somente os vínculos disponíveis daquele profissional, incluindo os dados do catálogo necessários à exibição, o preço/duração do vínculo e o `configuration_version` vigente.
 
 ### Seleção de serviço
 
@@ -161,13 +187,15 @@ A consulta de slots recebe a combinação barbeiro-serviço, ou identificadores 
 - não cruza bloqueio excepcional;
 - não sobrepõe outro agendamento ativo.
 
-O intervalo entre possíveis horários de início continua vindo das configurações da barbearia; ele não substitui a duração real do atendimento.
+O intervalo entre possíveis horários de início continua vindo das configurações da barbearia; ele não substitui a duração real do atendimento. A nova função preserva a semântica temporal existente em UTC e o filtro de `America/Sao_Paulo`; altera somente a origem do barbeiro/duração e a verificação do intervalo completo. Casos próximos à meia-noite recebem testes de regressão próprios.
 
 ### Confirmação
 
-Antes de inserir, o banco relê e bloqueia os dados necessários, confirma que o vínculo ainda está disponível e compara a versão selecionada com o `updated_at` vigente. O navegador envia essa versão somente para detectar concorrência; preço e duração continuam vindo exclusivamente do banco.
+Antes de inserir, o banco relê e bloqueia os dados necessários, confirma que o vínculo ainda está disponível e compara `configuration_version`. Essa versão só muda quando preço, duração ou disponibilidade mudam; salvamentos idênticos não invalidam fluxos em andamento. Preço e duração continuam vindo exclusivamente do banco.
 
-Se o vínculo tiver sido desativado, a resposta orienta a interface a voltar para Serviço, limpar data/horário e recarregar a lista. Se preço ou duração tiverem mudado desde a seleção, a transação retorna `CONFIG_CHANGED` sem criar o agendamento; a interface recarrega a configuração e pede uma nova confirmação, evitando alteração silenciosa do valor mostrado.
+Se o vínculo tiver sido desativado, a resposta orienta a interface a voltar para Serviço, limpar data/horário e recarregar a lista. Se preço ou duração tiverem mudado desde a seleção, a transação retorna `CONFIG_CHANGED` sem criar o agendamento; a interface recarrega a configuração e pede uma nova confirmação.
+
+Quando a criação é concluída, a RPC retorna um comprovante autoritativo com IDs e nomes, snapshots de preço/duração, totais de adicionais e produtos, total do atendimento, total a pagar, início e fim. A tela de sucesso usa exclusivamente esse comprovante, não o estado anterior do navegador.
 
 ## Painel administrativo
 
@@ -190,7 +218,9 @@ Um novo serviço exige:
 - nome válido;
 - ao menos um barbeiro explicitamente selecionado;
 - preço numérico maior ou igual a zero em todo vínculo disponível;
-- duração inteira positiva em todo vínculo disponível.
+- duração inteira entre 5 e 720 minutos em todo vínculo disponível.
+
+Na criação, ao menos um vínculo precisa estar disponível. Na edição de serviço existente, todos os vínculos podem ser desativados; o serviço pode permanecer globalmente ativo, mas não aparece no agendamento público. TypeScript e SQL aplicam exatamente essa mesma regra.
 
 Ao desmarcar um barbeiro, o vínculo é mantido com `is_available = false`, em vez de ser apagado. Isso preserva referências históricas e permite reativação sem recriação.
 
@@ -251,7 +281,7 @@ As Server Actions autenticadas validam os campos antes de chamar uma operação 
 - Profissional é obrigatório antes do serviço.
 - Serviço precisa pertencer à lista do profissional atual.
 - Preço aceita zero, mas não aceita valor negativo, vazio ou não numérico em vínculo disponível.
-- Duração deve ser positiva e compatível com as opções apresentadas.
+- Duração deve estar entre 5 e 720 minutos e ser compatível com as opções apresentadas.
 - Trocar profissional invalida serviço, data e horário.
 - Não é possível avançar enquanto uma consulta obrigatória está carregando ou falhou.
 
@@ -278,12 +308,14 @@ As Server Actions autenticadas validam os campos antes de chamar uma operação 
 - vínculo único por barbeiro/serviço;
 - leitura anônima apenas de vínculos publicáveis;
 - escrita autenticada apenas na própria barbearia;
-- revogação de funções antigas;
+- manutenção compatível das funções antigas na expansão e revogação somente na contração;
 - snapshots de preço/duração;
 - criação rejeitada para combinação inválida ou indisponível;
 - cálculo de `end_at` e total a partir do vínculo;
 - slots que comportam a duração completa;
-- concorrência e conflito de agenda.
+- concorrência e conflito de agenda;
+- testes comportamentais reais no Postgres local para preço por vínculo, RLS entre tenants, almoço, bloqueios, duração de 45 minutos, CONFIG_CHANGED, snapshots e duas reservas simultâneas;
+- testes de timezone próximos à meia-noite preservando a semântica UTC já usada pela aplicação.
 
 ### Unidade e componentes
 
@@ -304,6 +336,7 @@ As Server Actions autenticadas validam os campos antes de chamar uma operação 
 - troca de barbeiro remove o serviço anterior;
 - confirmação registra snapshots corretos;
 - agenda e reservas exibem profissional, serviço e valores históricos;
+- o E2E cria a reserva, valida o comprovante, abre o painel, altera o preço atual e confirma que o agendamento antigo mantém o snapshot;
 - desativação de vínculo durante o fluxo produz recuperação segura.
 
 ## Critérios de aceite
@@ -318,7 +351,7 @@ As Server Actions autenticadas validam os campos antes de chamar uma operação 
 - O painel permite configurar disponibilidade, preço e duração por barbeiro.
 - Dados existentes continuam agendáveis após o preenchimento inicial.
 - Resumo, sucesso, agenda e reservas mostram barbeiro, serviço e preços corretos.
-- Testes, lint e build passam; migração, RPCs e políticas são verificadas contra Supabase local quando disponível.
+- Testes, lint e build passam; migrações, RPCs, concorrência e políticas são obrigatoriamente verificadas contra Supabase local antes de declarar conclusão.
 
 ## Fora de escopo
 

@@ -2,66 +2,41 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Make the barber-service relationship the single source of truth for public and manual bookings, including per-barber price, duration, availability, historical snapshots, and barber-first selection.
+**Goal:** Make `barber_services` authoritative for availability, price, and duration without breaking old browser sessions during deployment, while preserving authoritative appointment history.
 
-**Architecture:** Add a tenant-safe `barber_services` join table and snapshot columns on `appointments`, then introduce service-aware slot and booking RPCs that validate and price each appointment inside Postgres. Public and admin flows query relationship records after a barber is selected; service management persists catalog data and assignments transactionally.
+**Architecture:** Ship independent expand, application-migration, contract, and cleanup releases. Expand adds nullable snapshots, composite integrity, compatibility-aware legacy RPCs, new receipt-returning RPCs, telemetry, and pgTAP; the application release switches every UI and Server Action; contract and cleanup are hard-gated by production evidence.
 
-**Tech Stack:** Next.js 16.2 App Router and Server Actions, React 19, TypeScript 5, Supabase/Postgres with RLS and PL/pgSQL RPCs, Vitest 4, Playwright 1.60.
+**Tech Stack:** Next.js 16.2.6 App Router and Server Actions, React 19.2.4, TypeScript 5, Supabase CLI/Postgres, RLS, PL/pgSQL, pgTAP, Vitest 4.1.8, Playwright 1.60.
 
 ## Global Constraints
 
-- Read the relevant guide in `node_modules/next/dist/docs/` before changing any Next.js API, convention, or file structure.
-- Before Supabase implementation, scan `https://supabase.com/changelog.md`, use current official documentation, and discover CLI commands with `npx supabase --help` and subcommand `--help`.
-- Create every migration with `npx supabase migration new <name>`; use the exact path printed by the CLI and never invent a migration timestamp.
-- Enable RLS on every new table in `public`; public reads expose only available relationships whose barber and service are active.
-- Price and duration sent by a browser are never authoritative; database functions load both from `barber_services`.
-- New services require explicit barber assignments; new barbers receive no automatic service assignments.
-- Keep add-on and product behavior unchanged, including products paid on pickup.
-- Follow red-green-refactor for every behavior change and commit after each independently testable task.
-- Do not add a validation or form dependency; use focused TypeScript validation helpers and database constraints.
+- Read the relevant file in `node_modules/next/dist/docs/` before changing any Next.js API, convention, or file structure.
+- Scan the current Supabase changelog and official database, RLS, function, and testing docs before database work.
+- Discover CLI commands with `npx supabase --help` and subcommand `--help`; create migrations only with `npx supabase migration new <name>`.
+- Keep internal `SECURITY DEFINER` functions in non-exposed `private` with `search_path = ''`; revoke execution from `PUBLIC`, `anon`, and `authenticated`.
+- Enable RLS on `public.barber_services`; use explicit roles, tenant predicates, `USING` plus `WITH CHECK`, and indexed policy/filter columns.
+- Browser-supplied prices, durations, names, and totals are never authoritative.
+- Enforce `duration_minutes between 5 and 720` in TypeScript, functions, and constraints.
+- Creating a service requires one available barber; editing an existing service may leave zero available barbers.
+- Preserve current UTC wire/storage semantics and the `America/Sao_Paulo` past-slot filter.
+- Do not revoke compatibility functions or remove compatibility columns in Expand or Migrate Application.
+- Database completion requires local `db reset`, real pgTAP behavior tests, concurrency verification, and database lint/advisors. Text-search tests are supplemental.
+- Follow red-green-refactor and commit after each independently verified task.
 
 ---
 
-## File and Interface Map
+## Release Boundaries and Hard Gates
 
-### New files
+| Release | Contents | Compatibility |
+| --- | --- | --- |
+| A — Expand | Relation, nullable snapshots, safe backfill, new and compatible legacy RPCs, telemetry, pgTAP | Existing deployment and old browser tabs |
+| B — Migrate Application | Public/admin flows, authoritative receipt, historical details, E2E | Both RPC generations |
+| C — Contract | `NOT NULL` and legacy RPC retirement | Only after 14 consecutive days with zero legacy calls and zero null snapshots |
+| D — Cleanup | Drop global service price/duration | Only after another stable release cycle and zero consumers |
 
-- `tests/unit/barber-services-migration.test.ts` — schema, backfill, RLS, snapshot, and grant contract.
-- `tests/unit/barber-service-booking-functions.test.ts` — service-aware slot, booking, admin-save, and privilege contract.
-- `src/app/booking/[slug]/booking-selection.ts` — pure dependent-selection reset helper.
-- `tests/unit/booking-selection.test.ts` — reset semantics when a barber changes.
-- `src/app/dashboard/servicos/service-types.ts` — admin service and assignment DTOs shared by page, form, and actions.
-- `src/app/dashboard/servicos/service-validation.ts` — pure parser/validator for service assignments.
-- `src/components/dashboard/service-assignments-editor.tsx` — per-barber availability, price, and duration editor.
-- `tests/unit/service-assignments.test.ts` — parser, validation, and range formatting tests.
-- `tests/unit/service-admin-contract.test.ts` — authenticated query/action/UI source contract.
-- `tests/e2e/barber-service-booking.spec.ts` — two-barber price/filter/reset journey.
-- Two migration files whose timestamped paths are created by the Supabase CLI: suffixes `_barber_services.sql` and `_barber_service_booking_functions.sql`.
+Release C and D must not be created or deployed with A/B. Stop at each hard gate and request explicit operator authorization with evidence.
 
-### Modified files
-
-- `src/app/booking/[slug]/booking-types.ts` — public relationship DTO and structured booking error/result types.
-- `src/app/booking/[slug]/actions.ts` — barber-scoped catalog query, service-aware slots, relationship-based booking.
-- `src/app/booking/[slug]/page.tsx` — stop loading global services.
-- `src/app/booking/[slug]/booking-client.tsx` — barber-first wizard, reload/reset behavior, stale-request protection.
-- `src/app/booking/[slug]/booking-summary-bar.tsx` — separate service price from add-ons and products.
-- `src/app/booking/[slug]/booking-success.tsx` — show service price and duration explicitly.
-- `src/app/dashboard/servicos/page.tsx` — load catalog, barbers, and assignments.
-- `src/app/dashboard/servicos/actions.ts` — authenticated transactional save payload.
-- `src/app/dashboard/servicos/services-client.tsx` — assignment-aware cards and form props.
-- `src/components/dashboard/service-form.tsx` — catalog fields plus assignment editor.
-- `src/app/dashboard/agenda/page.tsx` — stop loading global service prices.
-- `src/app/dashboard/agenda/actions.ts` — admin relationship catalog, service-aware slots/creation, historical detail fields.
-- `src/app/dashboard/agenda/agenda-client.tsx` — barber-first manual booking and snapshot display.
-- `src/app/dashboard/reservas/page.tsx` — fetch snapshots and add-on snapshots.
-- `src/app/dashboard/reservas/reservas-client.tsx` — display barber, service price, duration, add-ons, and totals.
-- `tests/unit/booking-wizard-contract.test.ts` — new step order and removal of `any`.
-- `tests/unit/booking-actions-contract.test.ts` — relationship query and RPC payload.
-- `tests/unit/booking-ui.test.ts` — explicit price/duration summary contract.
-- `tests/unit/booking-reservations-dashboard.test.ts` — snapshot detail contract.
-- `tests/e2e/fluxo-principal.spec.ts` — keep existing journey compatible with the new service form.
-
-### Stable interfaces produced by this plan
+## Stable Interfaces
 
 ```ts
 export interface BarberServiceOption {
@@ -72,7 +47,23 @@ export interface BarberServiceOption {
   description: string | null
   price: number
   durationMinutes: number
-  configurationUpdatedAt: string
+  configurationVersion: number
+}
+
+export interface CreatedBookingReceipt {
+  appointmentId: string
+  barberId: string
+  barberName: string
+  serviceId: string
+  serviceName: string
+  servicePrice: string
+  serviceDurationMinutes: number
+  addOnTotal: string
+  productSubtotal: string
+  attendanceTotal: string
+  totalAtShop: string
+  startAt: string
+  endAt: string
 }
 
 export interface ServiceAssignmentInput {
@@ -81,474 +72,361 @@ export interface ServiceAssignmentInput {
   durationMinutes: number
   isAvailable: boolean
 }
+```
 
-export interface ManagedService {
-  id: string
-  name: string
-  description: string | null
-  isActive: boolean
-  assignments: ServiceAssignmentInput[]
-}
+New Release A functions:
 
-export async function getBarberServicesAction(
-  barbershopId: string,
-  barberId: string,
-): Promise<BarberServiceOption[]>
+```sql
+public.get_public_available_slots_for_service(
+  p_barbershop_id uuid, p_barber_service_id uuid, p_date date
+) returns table (available_time time)
 
-export async function getPublicSlotsAction(
-  barbershopId: string,
-  barberServiceId: string,
-  dateStr: string,
-): Promise<string[]>
+public.create_public_appointment_with_barber_service_and_products(
+  p_barbershop_id uuid, p_client_name text, p_client_phone text,
+  p_client_email text, p_barber_service_id uuid,
+  p_configuration_version bigint, p_start_at timestamptz,
+  p_notes text, p_add_on_ids uuid[], p_products jsonb default '[]'::jsonb
+) returns jsonb
+
+public.save_service_with_barbers(
+  p_service_id uuid, p_name text, p_description text,
+  p_is_active boolean, p_assignments jsonb
+) returns uuid
 ```
 
 ---
 
-### Task 1: Add the relationship schema, historical snapshots, backfill, RLS, and grants
+# Release A — Expand
+
+### Task 1: Audit appointment writers and add an expandable schema
 
 **Files:**
-- Create through CLI: the exact file printed by `npx supabase migration new barber_services`, ending in `_barber_services.sql`
-- Create: `tests/unit/barber-services-migration.test.ts`
+- Create via CLI: migration ending `_barber_services_expand.sql`
+- Create via CLI: `supabase/tests/database/barber_services_expand.test.sql`
+- Create: `tests/unit/appointment-writers-audit.test.ts`
 
 **Interfaces:**
-- Produces table `public.barber_services` with columns `id`, `barbershop_id`, `barber_id`, `service_id`, `price`, `duration_minutes`, `is_available`, `created_at`, and `updated_at`.
-- Produces non-null `appointments.barber_service_id`, `appointments.service_price`, and `appointments.service_duration_minutes` after backfill.
-- Preserves existing `services.price` and `services.duration_minutes` temporarily for deployment compatibility, but no later application task may read them.
+- Produces `barber_services` with composite identity and `configuration_version`.
+- Adds nullable appointment relation/price/duration snapshots and a composite FK.
+- Produces private legacy-RPC telemetry.
 
-- [ ] **Step 1: Discover the installed Supabase CLI and create the migration through the CLI**
-
-Run:
+- [ ] **Step 1: Discover CLI and create migration/test files**
 
 ```powershell
+npx supabase --version
 npx supabase --help
-npx supabase migration --help
 npx supabase migration new --help
-npx supabase migration new barber_services
+npx supabase test new --help
+npx supabase migration new barber_services_expand
+npx supabase test new database/barber_services_expand.test
 ```
 
-Expected: the last command prints the exact new path ending in `_barber_services.sql`. Use that printed path for every SQL edit in this task.
+Expected: CLI prints the exact timestamped migration and pgTAP paths.
 
-- [ ] **Step 2: Write the failing migration contract test**
+- [ ] **Step 2: Write the failing writer inventory test**
 
-Create `tests/unit/barber-services-migration.test.ts`:
+Create `tests/unit/appointment-writers-audit.test.ts` that runs:
 
 ```ts
-import { readFileSync, readdirSync } from 'node:fs'
-import { resolve } from 'node:path'
-import { describe, expect, it } from 'vitest'
-
-const migrationName = readdirSync(resolve(process.cwd(), 'supabase/migrations'))
-  .find((name) => name.endsWith('_barber_services.sql'))
-
-const sql = migrationName
-  ? readFileSync(resolve(process.cwd(), 'supabase/migrations', migrationName), 'utf8').toLowerCase()
-  : ''
-
-describe('barber service relationship migration', () => {
-  it('creates tenant-safe relationship data with price, duration and availability', () => {
-    expect(migrationName).toBeDefined()
-    expect(sql).toContain('create table public.barber_services')
-    expect(sql).toContain('unique (barber_id, service_id)')
-    expect(sql).toContain('check (price >= 0)')
-    expect(sql).toContain('check (duration_minutes > 0)')
-    expect(sql).toContain('alter table public.barber_services enable row level security')
-  })
-
-  it('backfills only same-shop pairs and preserves appointment snapshots', () => {
-    expect(sql).toContain('insert into public.barber_services')
-    expect(sql).toContain('barber.barbershop_id = service.barbershop_id')
-    expect(sql).toContain('add column barber_service_id')
-    expect(sql).toContain('add column service_price')
-    expect(sql).toContain('add column service_duration_minutes')
-    expect(sql).toContain('appointment_add_ons')
-    expect(sql).toContain("extract(epoch from (appointment.end_at - appointment.start_at)) / 60")
-  })
-
-  it('exposes only bookable rows to anon and tenant rows to authenticated users', () => {
-    expect(sql).toContain('on public.barber_services for select to anon')
-    expect(sql).toContain('barber_services.is_available')
-    expect(sql).toContain('barber.is_active')
-    expect(sql).toContain('service.is_active')
-    expect(sql).toContain('to authenticated')
-    expect(sql).toContain('(select auth.uid())')
-    expect(sql).toContain('grant select on public.barber_services to anon')
-  })
-})
+const matches = execFileSync('rg', [
+  '-n',
+  "from\\('appointments'\\)|insert into public\\.appointments|update public\\.appointments",
+  'src',
+  'supabase/migrations',
+], { encoding: 'utf8' })
 ```
 
-- [ ] **Step 3: Run the focused test and verify RED**
+Assert the current application has no direct appointment insert, only the reviewed RPC creation paths and `.update({ status })`; assert Agenda has no direct `start_at`, `barber_id`, or `service_id` update.
 
-Run: `npm test -- tests/unit/barber-services-migration.test.ts`
+- [ ] **Step 3: Run writer inventory**
 
-Expected: FAIL because the generated migration does not yet contain the table, backfill, snapshots, and policies.
+Run: `npm test -- tests/unit/appointment-writers-audit.test.ts`
 
-- [ ] **Step 4: Implement the schema and backfill in the CLI-created migration**
+Expected: PASS only for the verified baseline. Any additional writer must be added to this plan before continuing.
 
-The migration must implement this exact data contract:
+- [ ] **Step 4: Write pgTAP schema tests before SQL**
+
+Test table/columns/checks/indexes, RLS/grants, nullable snapshot columns, composite FK, and private telemetry. Key assertions:
 
 ```sql
-alter table public.barbers
-  add constraint barbers_id_barbershop_id_key unique (id, barbershop_id);
-alter table public.services
-  add constraint services_id_barbershop_id_key unique (id, barbershop_id);
-
-create table public.barber_services (
-  id uuid primary key default gen_random_uuid(),
-  barbershop_id uuid not null references public.barbershops(id) on delete cascade,
-  barber_id uuid not null,
-  service_id uuid not null,
-  price numeric(10,2) not null check (price >= 0),
-  duration_minutes integer not null check (duration_minutes > 0),
-  is_available boolean not null default true,
-  created_at timestamptz not null default timezone('utc', now()),
-  updated_at timestamptz not null default timezone('utc', now()),
-  unique (barber_id, service_id),
-  foreign key (barber_id, barbershop_id)
-    references public.barbers(id, barbershop_id) on delete cascade,
-  foreign key (service_id, barbershop_id)
-    references public.services(id, barbershop_id) on delete cascade
-);
-
-create index barber_services_barbershop_id_idx on public.barber_services(barbershop_id);
-create index barber_services_barber_available_idx
-  on public.barber_services(barber_id, is_available);
-create index barber_services_service_id_idx on public.barber_services(service_id);
-
-create trigger update_barber_services_updated_at
-before update on public.barber_services
-for each row execute function public.update_updated_at_column();
-
-insert into public.barber_services (
-  barbershop_id, barber_id, service_id, price, duration_minutes, is_available
-)
-select
-  barber.barbershop_id,
-  barber.id,
-  service.id,
-  service.price,
-  service.duration_minutes,
-  true
-from public.barbers as barber
-join public.services as service
-  on barber.barbershop_id = service.barbershop_id
-on conflict (barber_id, service_id) do nothing;
-
-alter table public.appointments add column barber_service_id uuid;
-alter table public.appointments add column service_price numeric(10,2);
-alter table public.appointments add column service_duration_minutes integer;
-
-update public.appointments as appointment
-set barber_service_id = relationship.id,
-    service_price = greatest(
-      appointment.total_price - coalesce((
-        select sum(snapshot.price)
-        from public.appointment_add_ons as snapshot
-        where snapshot.appointment_id = appointment.id
-      ), 0),
-      0
-    ),
-    service_duration_minutes = round(
-      extract(epoch from (appointment.end_at - appointment.start_at)) / 60
-    )::integer
-from public.barber_services as relationship
-where relationship.barber_id = appointment.barber_id
-  and relationship.service_id = appointment.service_id
-  and relationship.barbershop_id = appointment.barbershop_id;
-
-alter table public.appointments
-  alter column barber_service_id set not null,
-  alter column service_price set not null,
-  alter column service_duration_minutes set not null,
-  add constraint appointments_service_price_check check (service_price >= 0),
-  add constraint appointments_service_duration_check check (service_duration_minutes > 0),
-  add constraint appointments_barber_service_id_fkey
-    foreign key (barber_service_id) references public.barber_services(id) on delete restrict;
+select has_table('public', 'barber_services');
+select has_column('public', 'barber_services', 'configuration_version');
+select has_check('public', 'barber_services', 'barber_services_duration_minutes_check');
+select has_index('public', 'barber_services', 'barber_services_barber_available_idx');
+select col_is_null('public', 'appointments', 'barber_service_id');
+select col_is_null('public', 'appointments', 'service_price');
+select col_is_null('public', 'appointments', 'service_duration_minutes');
+select has_fk('public', 'appointments', 'appointments_barber_service_identity_fkey');
+select has_table('private', 'legacy_booking_rpc_calls');
 ```
 
-Add RLS policies with explicit `TO` roles. The anonymous policy requires `barber_services.is_available`, an active same-shop barber, and an active same-shop service. Authenticated SELECT/INSERT/UPDATE/DELETE policies require `barber_services.barbershop_id` to equal the caller profile's `barbershop_id`; UPDATE includes both `USING` and `WITH CHECK`. Grant `SELECT` to `anon` and `SELECT, INSERT, UPDATE, DELETE` to `authenticated`.
-
-- [ ] **Step 5: Run migration tests and the existing migration suite**
-
-Run:
+- [ ] **Step 5: Verify pgTAP RED**
 
 ```powershell
-npm test -- tests/unit/barber-services-migration.test.ts tests/unit/migrations.test.ts tests/unit/public-booking-catalog-migration.test.ts
+npx supabase start
+npx supabase db reset --local
+npx supabase test db supabase/tests/database/barber_services_expand.test.sql --local
 ```
 
-Expected: PASS with 0 failed tests.
+Expected: FAIL because the expand schema is absent.
 
-- [ ] **Step 6: Commit the schema foundation**
+- [ ] **Step 6: Implement expand-only schema/backfill**
+
+The CLI-created migration must:
+
+1. Create `private` if missing.
+2. Add unique `(id, barbershop_id)` constraints to barbers/services.
+3. Create `barber_services` with price `>= 0`, duration `5..720`, availability, `configuration_version bigint default 1`, unique `(barber_id, service_id)`, unique `(id, barbershop_id, barber_id, service_id)`, and composite same-tenant FKs.
+4. Index `(barber_id, is_available)`, `service_id`, `barbershop_id`, and FK columns.
+5. Backfill same-shop barber/service pairs from legacy values; abort on out-of-range duration.
+6. Add nullable `appointments.barber_service_id`, `service_price`, and `service_duration_minutes`.
+7. Before backfill, raise explicit exceptions for: missing relation, reconstructed negative price, `end_at <= start_at`, or duration outside 5..720.
+8. Backfill without `greatest`; price is `total_price - sum(appointment_add_ons.price)`, duration is `end_at - start_at`.
+9. Add composite FK:
+
+```sql
+foreign key (barber_service_id, barbershop_id, barber_id, service_id)
+references public.barber_services (id, barbershop_id, barber_id, service_id)
+on delete restrict
+```
+
+10. Create `private.legacy_booking_rpc_calls(function_name text, called_at timestamptz)` and revoke all public-role access.
+11. Enable RLS and minimum grants. Do not add `NOT NULL`, revoke old RPCs, or drop old columns.
+
+- [ ] **Step 7: Verify GREEN and commit**
 
 ```powershell
-git add supabase/migrations tests/unit/barber-services-migration.test.ts
-git commit -m "feat: add barber service relationship schema"
+npx supabase db reset --local
+npx supabase test db supabase/tests/database/barber_services_expand.test.sql --local
+npm test -- tests/unit/appointment-writers-audit.test.ts tests/unit/migrations.test.ts
+git add supabase/migrations supabase/tests/database tests/unit/appointment-writers-audit.test.ts
+git commit -m "feat: expand schema for barber service pricing"
 ```
-
 ---
 
-### Task 2: Add service-aware slot, booking, product, and admin-save database functions
+### Task 2: Add compatible legacy RPCs, authoritative new RPCs, and real database tests
 
 **Files:**
-- Create through CLI: the exact file printed by `npx supabase migration new barber_service_booking_functions`, ending in `_barber_service_booking_functions.sql`
-- Create: `tests/unit/barber-service-booking-functions.test.ts`
+- Create via CLI: migration ending `_barber_service_rpc_expand.sql`
+- Create via CLI: `supabase/tests/database/barber_service_booking.test.sql`
+- Modify: `supabase/tests/database/barber_services_expand.test.sql`
 
 **Interfaces:**
-- Produces `public.get_public_available_slots_for_service(p_barbershop_id uuid, p_barber_service_id uuid, p_date date)` returning `available_time time`.
-- Produces `public.create_public_appointment_with_barber_service_and_products(p_barbershop_id uuid, p_client_name text, p_client_phone text, p_client_email text, p_barber_service_id uuid, p_configuration_updated_at timestamptz, p_start_at timestamptz, p_notes text, p_add_on_ids uuid[], p_products jsonb)` returning an appointment UUID.
-- Produces `public.save_service_with_barbers(p_service_id uuid, p_name text, p_description text, p_is_active boolean, p_assignments jsonb)` returning a service UUID.
-- Emits stable PostgreSQL messages `INVALID_BARBER_SERVICE`, `CONFIG_CHANGED`, `SLOT_UNAVAILABLE`, `INVALID_ASSIGNMENTS`, and existing `INSUFFICIENT_STOCK`.
+- Keeps old signatures callable, now validating relationships and filling snapshots.
+- New booking wrapper returns `CreatedBookingReceipt` JSON.
+- Admin save changes `configuration_version` only when relationship configuration changes.
 
-- [ ] **Step 1: Create the functions migration through the CLI**
-
-Run:
+- [ ] **Step 1: Create migration and pgTAP file**
 
 ```powershell
-npx supabase migration new --help
-npx supabase migration new barber_service_booking_functions
+npx supabase migration new barber_service_rpc_expand
+npx supabase test new database/barber_service_booking.test
 ```
 
-Expected: a path ending in `_barber_service_booking_functions.sql`.
+- [ ] **Step 2: Write real behavior pgTAP tests RED**
 
-- [ ] **Step 2: Write the failing function contract test**
+Inside one rollback transaction, create two tenants, authenticated owners/profiles, two barbers with the same service at prices 40/50 and durations 30/45, work hours, lunch, block, settings, add-ons, and products. Execute functions—not SQL text searches—to test:
 
-Create `tests/unit/barber-service-booking-functions.test.ts` and read the migration by suffix. Assert all of the following exact fragments:
+1. distinct prices/durations for the same catalog service;
+2. anon reads only active/available rows;
+3. authenticated tenant A cannot write tenant B;
+4. cross-tenant relationship booking raises `INVALID_BARBER_SERVICE`;
+5. 45-minute service fits only full-duration intervals on a 15-minute start grid;
+6. lunch overlap rejection;
+7. exceptional-block rejection;
+8. appointment overlap rejection;
+9. `CONFIG_CHANGED` on stale version;
+10. correct service/add-on/product snapshots;
+11. authoritative receipt decimal totals and times;
+12. create-service with zero available assignments is rejected;
+13. edit-service with zero is accepted;
+14. identical save preserves version;
+15. changed price increments version;
+16. legacy RPC still executes and fills snapshots;
+17. private core is not executable by anon/authenticated;
+18. timezone boundary fixtures produce expected UTC times.
 
-```ts
-expect(sql).toContain('get_public_available_slots_for_service')
-expect(sql).toContain('p_barber_service_id uuid')
-expect(sql).toContain('relationship.duration_minutes')
-expect(sql).toContain('slot_start < appointment.end_at')
-expect(sql).toContain('slot_end > appointment.start_at')
-expect(sql).toContain('create_public_appointment_with_barber_service_and_products')
-expect(sql).toContain('p_configuration_updated_at timestamptz')
-expect(sql).toContain("message = 'config_changed'")
-expect(sql).toContain('appointment.service_price')
-expect(sql).toContain('appointment.service_duration_minutes')
-expect(sql).toContain('save_service_with_barbers')
-expect(sql).toContain("jsonb_to_recordset(p_assignments)")
-expect(sql).toContain('security invoker')
-expect(sql).toContain('set search_path = \'\'')
-expect(sql).toContain('revoke execute on function')
-```
-
-- [ ] **Step 3: Run the focused test and verify RED**
-
-Run: `npm test -- tests/unit/barber-service-booking-functions.test.ts`
-
-Expected: FAIL because the function migration is empty.
-
-- [ ] **Step 4: Implement service-aware availability**
-
-Implement `get_public_available_slots_for_service` with `SECURITY DEFINER SET search_path = ''`. It must:
-
-1. Load and validate one available relationship joined to active same-shop barber and service.
-2. Read the relationship barber and duration.
-3. Generate candidate starts using `barbershop_settings.slot_interval_minutes`.
-4. Set `slot_end = slot_start + make_interval(mins => duration_minutes)`.
-5. Require the entire interval inside work hours.
-6. Reject any overlap with lunch using `slot_start < lunch_end AND slot_end > lunch_start`.
-7. Reject overlap with active appointments and `barber_blocked_times` using half-open interval checks.
-8. Return ordered start times only.
-
-The public wrapper qualifies every relation with `public.` and grants execution only to `anon, authenticated` after revoking `PUBLIC`.
-
-- [ ] **Step 5: Implement the relationship-based booking transaction**
-
-Implement a private core function and the public product wrapper. The core transaction must use this input contract:
+Example executed assertions:
 
 ```sql
-p_barbershop_id uuid,
-p_client_name text,
-p_client_phone text,
-p_client_email text,
-p_barber_service_id uuid,
-p_configuration_updated_at timestamptz,
-p_start_at timestamptz,
-p_notes text,
-p_add_on_ids uuid[]
+select results_eq(
+  $$select price from public.barber_services where barber_id = '10000000-0000-0000-0000-000000000001'$$,
+  $$values (40.00::numeric)$$,
+  'barber A has its own price'
+);
+select throws_ok(
+  $$select public.create_public_appointment_with_barber_service_and_products(
+    'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'Client', '11999999999', null,
+    'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb', 1,
+    '2026-07-21 14:00:00+00', null, null, '[]'::jsonb
+  )$$,
+  'P0001', 'INVALID_BARBER_SERVICE', 'cross-tenant relationship is rejected'
+);
 ```
 
-Within the transaction:
-
-- take `pg_advisory_xact_lock(hashtext(relationship.barber_id::text))`;
-- select the relationship `FOR UPDATE`, joined to active barber and service;
-- raise `INVALID_BARBER_SERVICE` if not found;
-- compare `relationship.updated_at` with `p_configuration_updated_at` and raise `CONFIG_CHANGED` on mismatch;
-- compute `end_at` with `relationship.duration_minutes`;
-- repeat work-hours, lunch, block, and appointment overlap validation for the full interval;
-- validate add-ons belong to the same barbershop and are active;
-- insert/update the normalized client as the existing function does;
-- insert `appointments` with relationship barber/service IDs, `barber_service_id`, `service_price`, `service_duration_minutes`, `end_at`, and total of relationship price plus add-ons;
-- insert add-on price snapshots.
-
-The product wrapper keeps the current row locking, duplicate/quantity validation, stock snapshot, stock decrement, and release trigger behavior, but calls the new relationship core. Keep `INSUFFICIENT_STOCK` details compatible with the existing TypeScript mapper.
-
-- [ ] **Step 6: Implement transactional admin service saving**
-
-Implement `save_service_with_barbers` as `SECURITY INVOKER SET search_path = ''`, executable only by `authenticated`. It derives the barbershop from `public.profiles` using `(select auth.uid())`, validates a non-empty trimmed name and at least one available assignment, rejects duplicates and foreign barber IDs, inserts or updates `public.services`, upserts every submitted relationship, and sets omitted existing relationships to `is_available = false` rather than deleting them.
-
-Assignments use this JSON shape:
-
-```json
-[
-  {
-    "barberId": "uuid",
-    "price": 40,
-    "durationMinutes": 30,
-    "isAvailable": true
-  }
-]
-```
-
-Reject available assignments when price is null/negative or duration is null/non-positive. Revoke execution of the legacy public booking signatures from `PUBLIC`, `anon`, and `authenticated` once the new functions are granted.
-
-- [ ] **Step 7: Run function and migration contract tests**
-
-Run:
+- [ ] **Step 3: Run pgTAP RED**
 
 ```powershell
-npm test -- tests/unit/barber-service-booking-functions.test.ts tests/unit/barber-services-migration.test.ts tests/unit/booking-products-migration.test.ts
+npx supabase db reset --local
+npx supabase test db supabase/tests/database/barber_service_booking.test.sql --local
 ```
 
-Expected: PASS with the product reservation contract unchanged.
+Expected: FAIL because functions/compatibility behavior are missing.
 
-- [ ] **Step 8: Reset and query the local database when available**
+- [ ] **Step 4: Implement one private interval guard and trigger**
 
-First discover exact flags:
+Create `private.assert_bookable_appointment_interval` with `SECURITY DEFINER SET search_path = ''`. For blocking statuses it takes `pg_advisory_xact_lock(hashtext(barber_id::text))`, validates composite relationship identity, work hours, lunch, exceptional blocks, and half-open overlap excluding the current appointment ID.
+
+Attach a trigger to appointment INSERT and updates of identity, interval, or status. After the compatibility migration is installed, reject every new INSERT whose relationship, service price, or service duration snapshot is null, even though columns remain nullable for rollout. Validate any transition from non-blocking to blocking. Reject direct post-creation changes of barber/service/relationship/start/end with `APPOINTMENT_RESCHEDULE_REQUIRES_RPC`; no speculative rescheduling feature is added.
+
+- [ ] **Step 5: Adapt old creation RPC signatures without revocation**
+
+Keep exact legacy signatures. Log each call to the private telemetry table. Resolve `(barbershop_id, barber_id, service_id)` to an active/available relationship, use its duration/price, fill snapshots, and reuse the guard. Preserve old timezone/payload semantics. The old slot RPC cannot know service duration; final creation remains authoritative and can reject a displayed legacy slot.
+
+After replacing legacy functions, rerun preflight and catch-up backfill for rows created between migrations. Keep columns nullable.
+
+- [ ] **Step 6: Implement new service-aware slots conservatively**
+
+Copy the existing timestamp construction and UTC behavior from `get_public_available_slots`. Change only relationship validation, barber source, duration source, and full-interval checks. Preserve slot interval configuration. Test `23:45`, `00:00`, and `America/Sao_Paulo` current-minute filtering at the TypeScript boundary.
+
+- [ ] **Step 7: Implement private core and authoritative public receipt wrapper**
+
+The private core locks the relationship and barber, compares `configuration_version`, validates add-ons/products, writes appointment and snapshots, and returns created identity. The public product wrapper returns all `CreatedBookingReceipt` fields from authoritative locked/inserted data. Return money as decimal strings. Do not trust request totals.
+
+- [ ] **Step 8: Implement transactional service save with exact zero rule**
+
+`save_service_with_barbers` is `SECURITY INVOKER SET search_path = ''`, granted only to authenticated users. For `p_service_id is null`, require one available assignment; for an existing service, allow zero. Validate tenant, duplicate IDs, price, and 5..720 duration.
+
+Use `ON CONFLICT DO UPDATE ... WHERE` with `IS DISTINCT FROM`; increment `configuration_version` only for changed price/duration/availability. Synchronize legacy service price/duration from the first available assignment ordered by `barber_id`; if edit leaves zero available, retain the previous compatibility values.
+
+- [ ] **Step 9: Revoke internal execution explicitly**
+
+```sql
+revoke execute on function private.create_appointment_from_barber_service(
+  uuid, text, text, text, uuid, bigint, timestamptz, text, uuid[]
+) from public, anon, authenticated;
+revoke execute on function private.assert_bookable_appointment_interval(
+  uuid, uuid, uuid, uuid, timestamptz, timestamptz, text, uuid
+) from public, anon, authenticated;
+```
+
+Revoke `PUBLIC` from every new public wrapper before granting only intended roles. Do not revoke legacy wrappers.
+
+- [ ] **Step 10: Verify database GREEN and commit**
 
 ```powershell
-npx supabase db reset --help
-npx supabase migration list --help
+npx supabase db reset --local
+npx supabase test db --local
+npx supabase db lint --help
+npx supabase db lint --local
+npx supabase migration list --local
+git add supabase/migrations supabase/tests/database
+git commit -m "feat: add compatible barber service booking RPCs"
 ```
 
-Then run the supported local reset and migration-list commands. Execute test SQL through the supported CLI command or Supabase MCP to verify: two prices for one service, full-duration slot exclusion, `CONFIG_CHANGED`, cross-tenant rejection, and snapshot insertion. Expected: each valid case returns the configured relationship values; each invalid case raises its stable error code.
-
-- [ ] **Step 9: Commit database behavior**
-
-```powershell
-git add supabase/migrations tests/unit/barber-service-booking-functions.test.ts
-git commit -m "feat: enforce barber service booking rules"
-```
+Expected: reset, all pgTAP, lint, and migration list exit 0.
 
 ---
 
-### Task 3: Add shared booking types, dependent reset behavior, and server contracts
+### Task 3: Add rollout gates and prove old-application compatibility
+
+**Files:**
+- Create: `docs/runbooks/barber-service-rollout.md`
+- Create: `tests/unit/barber-service-rollout-contract.test.ts`
+
+**Interfaces:**
+- Defines rollback boundaries, telemetry queries, release order, and hard gates.
+
+- [ ] **Step 1: Write runbook contract RED**
+
+Require headings for Releases A/B/C/D, “14 consecutive days”, null-snapshot query, legacy-telemetry query, and rollback rules.
+
+- [ ] **Step 2: Write exact runbook gates**
+
+Run both queries as the database owner in the Supabase SQL Editor (or an equivalent owner-only operational session). The application, `anon`, and `authenticated` roles must not receive access to `private.legacy_booking_rpc_calls`.
+
+`sql
+select count(*) as null_snapshots
+from public.appointments
+where barber_service_id is null
+   or service_price is null
+   or service_duration_minutes is null;
+
+select function_name, count(*) as calls, max(called_at) as last_call
+from private.legacy_booking_rpc_calls
+where called_at >= now() - interval '14 days'
+group by function_name;
+```
+
+Release A is application-rollback-safe. Release B may roll back while legacy functions remain. Release C requires zero null snapshots and zero legacy calls for 14 consecutive days; it also ends old-application rollback support.
+
+- [ ] **Step 3: Prove old API compatibility locally**
+
+After a fresh reset, run the legacy pgTAP cases and verify old signatures create snapshots and use relationship pricing.
+
+- [ ] **Step 4: Verify and commit runbook**
+
+```powershell
+npm test -- tests/unit/barber-service-rollout-contract.test.ts
+npx supabase test db --local
+git add docs/runbooks/barber-service-rollout.md tests/unit/barber-service-rollout-contract.test.ts
+git commit -m "docs: add safe barber service rollout gates"
+```
+
+Release A may now deploy independently. Release B starts only after local reset/pgTAP are green.
+---
+
+# Release B — Migrate Application
+
+### Task 4: Add authoritative booking types, reset behavior, and Server Actions
 
 **Files:**
 - Modify: `src/app/booking/[slug]/booking-types.ts`
 - Create: `src/app/booking/[slug]/booking-selection.ts`
 - Create: `tests/unit/booking-selection.test.ts`
 - Modify: `src/app/booking/[slug]/actions.ts`
+- Modify: `src/app/booking/[slug]/page.tsx`
 - Modify: `tests/unit/booking-actions-contract.test.ts`
+- Modify: `tests/unit/booking-availability.test.ts`
 
 **Interfaces:**
-- Produces `BarberServiceOption` exactly as defined in the File and Interface Map.
-- Produces `resetForBarberChange(state, barberId)` that clears relationship, date, time, slots, and relationship errors while preserving add-ons/products.
-- Produces `getBarberServicesAction`, the new `getPublicSlotsAction` signature, and `createPublicBooking` using `barberServiceId` plus `configurationUpdatedAt`.
+- Produces stable `BarberServiceOption` and `CreatedBookingReceipt`.
+- Produces `getBarberServicesAction(barbershopId, barberId)` and service-aware slots.
+- `createPublicBooking` returns `{ success: true, receipt }` or a structured error.
 
-- [ ] **Step 1: Write the failing reset test**
+- [ ] **Step 1: Write reset behavior tests RED**
 
-Create `tests/unit/booking-selection.test.ts`:
+Changing barber clears relationship/date/time/slots/errors while preserving add-ons/products. Changing service clears date/time/slots while preserving barber/add-ons/products.
 
-```ts
-import { describe, expect, it } from 'vitest'
-import { resetForBarberChange } from '@/app/booking/[slug]/booking-selection'
+- [ ] **Step 2: Implement DTOs and immutable helpers GREEN**
 
-describe('barber-first booking selection', () => {
-  it('clears service and schedule dependencies but preserves optional purchases', () => {
-    expect(resetForBarberChange({
-      barberId: 'old',
-      barberServiceId: 'relationship',
-      selectedDate: '2026-07-21',
-      selectedTime: '10:00',
-      slots: ['10:00'],
-      error: 'old error',
-      addOnIds: ['beard-oil'],
-      productQuantities: { pomade: 1 },
-    }, 'new')).toEqual({
-      barberId: 'new',
-      barberServiceId: '',
-      selectedDate: '',
-      selectedTime: '',
-      slots: [],
-      error: '',
-      addOnIds: ['beard-oil'],
-      productQuantities: { pomade: 1 },
-    })
-  })
-})
-```
+Use `configurationVersion`, never `updated_at`. Keep receipt money as strings until formatting.
 
-- [ ] **Step 2: Run the test and verify RED**
+- [ ] **Step 3: Replace text-only action tests with behavior plus wiring**
 
-Run: `npm test -- tests/unit/booking-selection.test.ts`
+Keep source assertions only for RPC/query wiring. Add mocked behavior tests for nested relationship mapping, receipt parsing, and `CONFIG_CHANGED`, `INVALID_BARBER_SERVICE`, `SLOT_UNAVAILABLE`, `INSUFFICIENT_STOCK` mapping.
 
-Expected: FAIL because `booking-selection.ts` does not exist.
+- [ ] **Step 4: Implement relationship actions and receipt mapping**
 
-- [ ] **Step 3: Implement the pure selection helper and booking DTOs**
+Stop loading global services. Query relationships with explicit barbershop/barber/availability filters and active inner service join. Call new slot/booking RPCs. Use receipt data for notification and return it unchanged to the client.
 
-Add `BarberServiceOption`, `CreatePublicBookingInput`, and structured result types to `booking-types.ts`. Implement `resetForBarberChange` as a pure immutable object transformation matching the test exactly.
+- [ ] **Step 5: Add timezone regression behavior tests**
 
-- [ ] **Step 4: Run the selection test and verify GREEN**
+Cover current minute, `23:45`, midnight, past date, and next date in `America/Sao_Paulo`. Keep existing UTC request payload construction.
 
-Run: `npm test -- tests/unit/booking-selection.test.ts`
-
-Expected: PASS.
-
-- [ ] **Step 5: Update the booking action contract test before production actions**
-
-Change `tests/unit/booking-actions-contract.test.ts` to assert:
-
-```ts
-expect(source).toContain(".from('barber_services')")
-expect(source).toContain("services!inner")
-expect(source).toContain(".eq('barber_id', barberId)")
-expect(source).toContain(".eq('is_available', true)")
-expect(source).toContain("'get_public_available_slots_for_service'")
-expect(source).toContain('p_barber_service_id: input.barberServiceId')
-expect(source).toContain('p_configuration_updated_at: input.configurationUpdatedAt')
-expect(source).toContain("'create_public_appointment_with_barber_service_and_products'")
-expect(source).toContain("code: 'CONFIG_CHANGED'")
-expect(source).not.toContain("input.barberId === 'any'")
-```
-
-- [ ] **Step 6: Run the action contract and verify RED**
-
-Run: `npm test -- tests/unit/booking-actions-contract.test.ts`
-
-Expected: FAIL on the relationship query and new RPC names.
-
-- [ ] **Step 7: Implement server actions**
-
-In `getBookingPageData`, stop selecting global services. Add `getBarberServicesAction` using an explicit barbershop/barber/available filter and an inner service join filtered to `services.is_active = true`. Map database snake_case fields to `BarberServiceOption`.
-
-Change slots to call `get_public_available_slots_for_service` with barbershop, relationship, and date. Remove all “any barber” union logic.
-
-Change booking input to carry `barberServiceId` and `configurationUpdatedAt`; call `create_public_appointment_with_barber_service_and_products`. Map `CONFIG_CHANGED`, `INVALID_BARBER_SERVICE`, `SLOT_UNAVAILABLE`, and `INSUFFICIENT_STOCK` to structured client results. Notification lookups derive barber/service names from the inserted appointment or relationship, not browser IDs.
-
-- [ ] **Step 8: Run focused tests and commit**
-
-Run:
+- [ ] **Step 6: Verify and commit**
 
 ```powershell
 npm test -- tests/unit/booking-selection.test.ts tests/unit/booking-actions-contract.test.ts tests/unit/booking-availability.test.ts tests/unit/booking-utils.test.ts
-```
-
-Expected: PASS.
-
-Commit:
-
-```powershell
-git add src/app/booking tests/unit/booking-selection.test.ts tests/unit/booking-actions-contract.test.ts
-git commit -m "feat: add barber scoped booking actions"
+git add src/app/booking tests/unit
+git commit -m "feat: add authoritative barber service booking actions"
 ```
 
 ---
 
-### Task 4: Rebuild the public wizard as barber-first with safe reload behavior
+### Task 5: Make the public wizard barber-first and success receipt-only
 
 **Files:**
-- Modify: `src/app/booking/[slug]/page.tsx`
 - Modify: `src/app/booking/[slug]/booking-client.tsx`
 - Modify: `src/app/booking/[slug]/booking-summary-bar.tsx`
 - Modify: `src/app/booking/[slug]/booking-success.tsx`
@@ -556,81 +434,36 @@ git commit -m "feat: add barber scoped booking actions"
 - Modify: `tests/unit/booking-ui.test.ts`
 
 **Interfaces:**
-- Consumes `BarberServiceOption`, `getBarberServicesAction`, `getPublicSlotsAction`, `createPublicBooking`, and `resetForBarberChange` from Task 3.
-- Produces a seven-step public flow: Profissional, Serviço, Adicionais, Produtos, Data e Hora, Dados, Confirmação.
+- Steps: Profissional, Serviço, Adicionais, Produtos, Data e Hora, Dados, Confirmação.
+- Success consumes only `CreatedBookingReceipt` for all displayed created-booking facts.
 
-- [ ] **Step 1: Update wizard/UI tests first**
+- [ ] **Step 1: Write wizard and receipt-rendering tests RED**
 
-Require this label order in `booking-wizard-contract.test.ts`:
+Require barber-first order, no “any”, scoped loading/empty/retry states, stale-request protection, dependency reset, and `BookingSuccess receipt={receipt}`. Assert success has no selected date/time, client subtotal, or product-state props.
 
-```ts
-const labels = [
-  'Profissional',
-  'Serviço',
-  'Adicionais',
-  'Produtos',
-  'Data e Hora',
-  'Dados',
-  'Confirmação',
-]
-```
+- [ ] **Step 2: Implement scoped async loading**
 
-Also assert source contains `getBarberServicesAction`, `resetForBarberChange`, `servicesRequestRef`, `CONFIG_CHANGED`, `setCurrentStep(2)`, and does not contain `selectedBarber === 'any'` or `Qualquer profissional`.
+Use a monotonic request ref plus current barber comparison before applying responses. Clear dependent state immediately on barber change, then reload.
 
-Update `booking-ui.test.ts` to require explicit labels `Preço do serviço`, `Duração`, `Adicionais`, `Produtos`, and `Total do atendimento` across summary/success files.
+- [ ] **Step 3: Implement service-aware slots and recovery**
 
-- [ ] **Step 2: Run both tests and verify RED**
+On stale configuration or invalid relationship, return to Serviço, reload, clear date/time, and require reconfirmation. Preserve stock-conflict recovery at Produtos.
 
-Run: `npm test -- tests/unit/booking-wizard-contract.test.ts tests/unit/booking-ui.test.ts`
+- [ ] **Step 4: Render authoritative success**
 
-Expected: FAIL on order, reload behavior, and explicit summary fields.
+Pre-confirmation summary may show current selections. After creation, render barber/service names, service price/duration, add-on/product totals, attendance total, total at shop, and timestamps only from the receipt.
 
-- [ ] **Step 3: Remove global services from the page contract**
-
-Delete `services={data.services}` from `page.tsx` and the `services` prop from `BookingClientProps`. Keep barbers, add-ons, and products in initial server data.
-
-- [ ] **Step 4: Implement barber selection and scoped loading**
-
-In `booking-client.tsx`:
-
-- replace `selectedService` with `selectedBarberServiceId`;
-- add `availableServices`, `loadingServices`, and `servicesError` state;
-- on barber selection, apply `resetForBarberChange`, increment `servicesRequestRef`, and call `getBarberServicesAction`;
-- apply a response only when its request number and barber ID still match the current selection;
-- show loading cards, retryable error state, and empty state with a “Escolher outro profissional” action;
-- render relationship price and duration on service cards;
-- require barber on step 1 and relationship on step 2.
-
-- [ ] **Step 5: Make slots and confirmation relationship-based**
-
-Fetch slots only when relationship and date are selected. Submit `barberServiceId` and `configurationUpdatedAt`. On `CONFIG_CHANGED`, clear relationship/date/time/slots, refetch services for the current barber, set step 2, and show “O preço ou a duração deste serviço mudou. Revise os dados antes de confirmar.”
-
-On `INVALID_BARBER_SERVICE`, follow the same recovery path with an unavailable-service message. Keep stock conflict recovery at step 4.
-
-- [ ] **Step 6: Render explicit selected values**
-
-Pass service price and duration separately into `BookingSummaryBar` and `BookingSuccess`. Confirmation must show barber name, service name, duration, service price, add-ons, products, attendance subtotal, and total at the shop. Do not use current catalog data after success; the successful configuration version guarantees the selected values match the snapshots.
-
-- [ ] **Step 7: Run public booking tests and commit**
-
-Run:
+- [ ] **Step 5: Verify and commit**
 
 ```powershell
-npm test -- tests/unit/booking-wizard-contract.test.ts tests/unit/booking-ui.test.ts tests/unit/booking-selection.test.ts tests/unit/booking-actions-contract.test.ts tests/unit/booking-utils.test.ts tests/unit/booking-availability.test.ts
-```
-
-Expected: PASS.
-
-Commit:
-
-```powershell
-git add src/app/booking tests/unit/booking-wizard-contract.test.ts tests/unit/booking-ui.test.ts
-git commit -m "feat: make public booking barber first"
+npm test -- tests/unit/booking-wizard-contract.test.ts tests/unit/booking-ui.test.ts tests/unit/booking-selection.test.ts tests/unit/booking-actions-contract.test.ts tests/unit/booking-availability.test.ts tests/unit/booking-utils.test.ts
+git add src/app/booking tests/unit
+git commit -m "feat: make booking barber first with authoritative receipt"
 ```
 
 ---
 
-### Task 5: Add transactional per-barber service management
+### Task 6: Implement exact per-barber service administration rules
 
 **Files:**
 - Create: `src/app/dashboard/servicos/service-types.ts`
@@ -644,99 +477,37 @@ git commit -m "feat: make public booking barber first"
 - Modify: `src/components/dashboard/service-form.tsx`
 
 **Interfaces:**
-- Produces `parseServiceFormData(formData, allowedBarberIds)` returning a discriminated success/error result with `ServiceAssignmentInput[]`.
-- Produces `saveService(serviceId: string | null, formData: FormData)` calling `save_service_with_barbers`.
-- Produces cards with professional count and price/duration ranges.
+- `parseServiceFormData(formData, allowedBarberIds, mode)` with mode `'create' | 'edit'`.
+- Create requires one available relationship; edit permits zero.
+- SQL and TypeScript enforce price `>= 0`, duration 5..720, and unique same-tenant IDs.
 
-- [ ] **Step 1: Write failing parser and range tests**
+- [ ] **Step 1: Write validation tests RED**
 
-Create `tests/unit/service-assignments.test.ts` covering:
+Test: create-zero rejected; edit-zero accepted; duplicate/foreign IDs rejected; zero price accepted; negative/empty price rejected; durations 5/720 accepted; 4/721 rejected; price/duration ranges formatted correctly.
 
-```ts
-it('requires one available assignment for a new service')
-it('rejects duplicate or foreign barber ids')
-it('accepts zero price and positive duration')
-it('rejects negative price and non-positive duration')
-it('formats one price or a min-max price range')
-it('formats one duration or a min-max duration range')
-```
+- [ ] **Step 2: Implement validation/types GREEN**
 
-Use real `FormData` with an `assignments` JSON field and explicit expected Portuguese error messages.
+Return field-specific Portuguese errors. Do not coerce empty price to zero. Keep unavailable assignment values for reactivation.
 
-- [ ] **Step 2: Run parser tests and verify RED**
+- [ ] **Step 3: Write UI/action wiring tests RED**
 
-Run: `npm test -- tests/unit/service-assignments.test.ts`
+Verify nested relationship loading, transactional RPC use, editor labels, and “Sem profissionais” card. Treat these as supplemental to Release A pgTAP.
 
-Expected: FAIL because types and validation helpers do not exist.
+- [ ] **Step 4: Implement page, action, editor, and cards**
 
-- [ ] **Step 3: Implement focused admin types and validation**
+Load all same-shop barbers and relationships. Submit assignment JSON once to `save_service_with_barbers`. The database performs distinct-only updates, version increments, and compatibility-column sync.
 
-Define `ServiceAssignmentInput`, `ManagedService`, and `BarberOption` in `service-types.ts`. Implement parsing that trims name/description, parses the JSON array, checks allowed/unique barber IDs, requires at least one `isAvailable`, accepts numeric price `>= 0`, and requires integer duration `> 0`. Export pure `formatPriceRange` and `formatDurationRange` helpers used by cards.
-
-- [ ] **Step 4: Run parser tests and verify GREEN**
-
-Run: `npm test -- tests/unit/service-assignments.test.ts`
-
-Expected: PASS.
-
-- [ ] **Step 5: Write the admin source contract test**
-
-Create `tests/unit/service-admin-contract.test.ts` asserting:
-
-```ts
-expect(pageSource).toContain('barber_services')
-expect(pageSource).toContain('barbers')
-expect(actionSource).toContain("'save_service_with_barbers'")
-expect(actionSource).toContain('parseServiceFormData')
-expect(formSource).toContain('ServiceAssignmentsEditor')
-expect(editorSource).toContain('Preço (R$)')
-expect(editorSource).toContain('Duração')
-expect(editorSource).toContain('Disponível')
-expect(clientSource).toContain('profissionais')
-```
-
-- [ ] **Step 6: Run the source contract and verify RED**
-
-Run: `npm test -- tests/unit/service-admin-contract.test.ts`
-
-Expected: FAIL on relationship loading, RPC save, and editor rendering.
-
-- [ ] **Step 7: Load catalog and assignments on the server page**
-
-Fetch all barbers in the authenticated barbershop and services with nested `barber_services(id, barber_id, price, duration_minutes, is_available)`. Map them to `ManagedService[]` and `BarberOption[]`; pass both to `ServicesClient`.
-
-- [ ] **Step 8: Replace create/update actions with one validated transactional save**
-
-`saveService` obtains `{ supabase, barbershopId }`, loads allowed barber IDs for that tenant, calls `parseServiceFormData`, then invokes `save_service_with_barbers` with the validated name, description, global status, and assignment JSON. It revalidates `/dashboard/servicos`, `/dashboard/agenda`, `/dashboard`, and the public booking path as supported by the current route data.
-
-Keep global toggle and delete actions tenant-filtered. Delete errors continue recommending deactivation when history exists.
-
-- [ ] **Step 9: Build the assignment editor and cards**
-
-`ServiceAssignmentsEditor` renders one accessible fieldset per barber with an availability checkbox, price number input (`min=0`, `step=0.01`), and duration select. Disabled relationships retain values but submit `isAvailable: false`. `ServiceForm` serializes editor state into the `assignments` FormData field and calls `saveService`.
-
-Cards use available assignments only and show “N profissionais”, price range, and duration range. A service with zero available assignments displays “Sem profissionais” and never invents a global price.
-
-- [ ] **Step 10: Run service administration tests and commit**
-
-Run:
+- [ ] **Step 5: Verify and commit**
 
 ```powershell
 npm test -- tests/unit/service-assignments.test.ts tests/unit/service-admin-contract.test.ts
-```
-
-Expected: PASS.
-
-Commit:
-
-```powershell
-git add src/app/dashboard/servicos src/components/dashboard/service-form.tsx src/components/dashboard/service-assignments-editor.tsx tests/unit/service-assignments.test.ts tests/unit/service-admin-contract.test.ts
-git commit -m "feat: manage services per barber"
+git add src/app/dashboard/servicos src/components/dashboard/service-form.tsx src/components/dashboard/service-assignments-editor.tsx tests/unit
+git commit -m "feat: manage prices and durations per barber"
 ```
 
 ---
 
-### Task 6: Make manual agenda creation and administrative details use relationship snapshots
+### Task 7: Migrate manual agenda creation, status safety, and historical details
 
 **Files:**
 - Modify: `src/app/dashboard/agenda/page.tsx`
@@ -745,176 +516,187 @@ git commit -m "feat: manage services per barber"
 - Modify: `src/app/dashboard/reservas/page.tsx`
 - Modify: `src/app/dashboard/reservas/reservas-client.tsx`
 - Modify: `tests/unit/booking-reservations-dashboard.test.ts`
+- Modify: `tests/unit/appointment-writers-audit.test.ts`
 
 **Interfaces:**
-- Produces `getAdminBarberServices(barberId)` and `getAdminAvailableSlots(barberServiceId, dateStr)` under the authenticated tenant.
-- Changes `CreateAdminBookingInput` to `barberServiceId`, `configurationUpdatedAt`, client fields, start time, and notes.
-- Appointment detail DTOs include `service_price`, `service_duration_minutes`, and `appointment_add_ons(price, add_ons(name))`.
+- Produces authenticated barber-service and slot actions.
+- Manual creation submits relation/version and receives a receipt.
+- Status action permits only reviewed transitions; database trigger guards any transition that starts blocking time.
 
-- [ ] **Step 1: Expand the dashboard contract test first**
+- [ ] **Step 1: Write dashboard/writer tests RED**
 
-Require source to contain:
+Require no global service-price query, barber-first manual form, service-aware slots, snapshot fields/add-ons, no hard-coded 30 minutes, and explicit transition rules. Re-run repository writer inventory.
+
+- [ ] **Step 2: Implement authenticated relationship actions**
+
+Derive tenant via `getBarbershopId`, filter explicitly, call new functions, return receipt/error codes.
+
+- [ ] **Step 3: Rebuild manual form**
+
+Order Barber → Service → Available time. Barber change clears service/time; service change clears time. Show relationship price/duration and loading/empty/error states.
+
+- [ ] **Step 4: Harden status transitions**
 
 ```ts
-expect(agendaActions).toContain('getAdminBarberServices')
-expect(agendaActions).toContain('getAdminAvailableSlots')
-expect(agendaActions).toContain('p_barber_service_id')
-expect(agendaPage).not.toContain(".select('id, name, price')")
-expect(agendaClient).toContain('service_duration_minutes')
-expect(agendaClient).toContain('service_price')
-expect(reservasPage).toContain('appointment_add_ons')
-expect(reservasClient).toContain('Preço do serviço')
-expect(reservasClient).toContain('Duração')
+const ALLOWED_STATUS_TRANSITIONS = {
+  confirmed: ['completed', 'cancelled', 'no_show'],
+  pending: ['confirmed', 'cancelled'],
+  completed: [],
+  cancelled: [],
+  no_show: [],
+} as const
 ```
 
-- [ ] **Step 2: Run the test and verify RED**
+Allow `pending -> confirmed` only with a behavioral database test proving the Release A trigger takes the advisory lock and invokes the interval guard before the status update completes. Reject all other unlisted transitions. Current UI does not reactivate cancelled/no-show appointments.
 
-Run: `npm test -- tests/unit/booking-reservations-dashboard.test.ts`
+- [ ] **Step 5: Render historical snapshots**
 
-Expected: FAIL on global price queries and missing snapshots.
+Query service price/duration, add-on snapshots/names, product snapshots, and current barber/service names. Display service, add-ons, attendance total, product subtotal, and total at shop separately. Names intentionally reflect current cadastro in this delivery.
 
-- [ ] **Step 3: Implement authenticated relationship/slot actions**
-
-`getAdminBarberServices` derives `barbershopId` with `getBarbershopId`, filters `barber_services` by that tenant and barber, and maps the same `BarberServiceOption` fields. `getAdminAvailableSlots` verifies the relationship belongs to the tenant and calls `get_public_available_slots_for_service`.
-
-`createAdminAppointment` accepts relationship/version, calls `create_public_appointment_with_barber_service_and_products` with an empty product array, and maps stable configuration/slot errors. Notification data comes from the created appointment relationship.
-
-- [ ] **Step 4: Rebuild the manual form in dependency order**
-
-Remove the global `services` prop from `AgendaPage` and `AgendaClient`. In the creation sheet:
-
-1. select barber;
-2. load that barber's services;
-3. select a relationship showing price and duration;
-4. load full-duration-safe slots for the current agenda date;
-5. submit relationship ID and configuration version.
-
-Changing barber clears service and time. Changing service clears time. Loading, empty, and error states prevent submission.
-
-- [ ] **Step 5: Query and render historical snapshots**
-
-Add `service_price`, `service_duration_minutes`, `barbers(name)`, and `appointment_add_ons(price, add_ons(name))` to Agenda and Reservas appointment queries. Detail drawers display service price separately from add-ons, duration from the snapshot, barber and service names, product subtotal, attendance total, and combined pay-at-shop total where applicable. Remove hard-coded “30 minutos”.
-
-- [ ] **Step 6: Run dashboard tests and commit**
-
-Run:
+- [ ] **Step 6: Verify and commit**
 
 ```powershell
-npm test -- tests/unit/booking-reservations-dashboard.test.ts tests/unit/actions.test.ts tests/unit/booking-actions-contract.test.ts
+npm test -- tests/unit/appointment-writers-audit.test.ts tests/unit/booking-reservations-dashboard.test.ts tests/unit/booking-actions-contract.test.ts tests/unit/actions.test.ts
+git add src/app/dashboard/agenda src/app/dashboard/reservas tests/unit
+git commit -m "feat: migrate booking administration to barber services"
 ```
-
-Expected: PASS.
-
-Commit:
-
-```powershell
-git add src/app/dashboard/agenda src/app/dashboard/reservas tests/unit/booking-reservations-dashboard.test.ts
-git commit -m "feat: use service snapshots in booking admin"
-```
-
 ---
 
-### Task 7: Add the two-barber end-to-end journey and complete regression verification
+### Task 8: Prove complete journey, concurrency, history, and Release B readiness
 
 **Files:**
 - Create: `tests/e2e/barber-service-booking.spec.ts`
+- Create: `tests/e2e/barber-service-concurrency.spec.ts`
 - Modify: `tests/e2e/fluxo-principal.spec.ts`
-- Modify only if verification exposes a regression: files already listed in Tasks 1–6.
 
 **Interfaces:**
-- Consumes accessible labels from `ServiceAssignmentsEditor` and public booking cards.
-- Proves two barbers can expose the same service with different prices and that changing barber clears the selected relationship.
+- Proves actual creation with per-barber configuration and immutable snapshots.
+- Proves simultaneous confirmations cannot both reserve the same interval.
 
-- [ ] **Step 1: Write the failing Playwright journey**
+- [ ] **Step 1: Write full-history E2E RED**
 
-The test must:
+Authenticate, create two unique barbers, create one service assigned at R$40/30 min and R$50/45 min, open the public link, verify filtering/reset, choose a real slot, submit and confirm. Validate all receipt values. Open Agenda/Reservas and validate saved barber/service/price/duration. Change current relationship price, reopen the old appointment, and assert the original snapshot remains.
 
-1. authenticate using the existing resilient login/onboarding pattern;
-2. create two uniquely named barbers;
-3. create one uniquely named service;
-4. explicitly enable both barbers with prices `40` and `50`, and durations `30` and `45`;
-5. obtain the current barbershop booking link from the dashboard;
-6. select barber A and assert only linked services plus `R$ 40,00` and `30 min`;
-7. select the service, go back, choose barber B, and assert the previous service is no longer selected;
-8. assert the reloaded service shows `R$ 50,00` and `45 min`;
-9. advance to confirmation and assert barber, service, price, and duration are all present.
+- [ ] **Step 2: Write real concurrency E2E RED**
 
-Use roles and labels; add a stable `data-testid` only when an accessible selector cannot identify the relationship row.
+Use two isolated browser contexts and different phones. Drive both to the same barber/service/start and release confirmation clicks with `Promise.all`. Assert exactly one success receipt, exactly one occupied/`SLOT_UNAVAILABLE` result, and only one admin appointment.
 
-- [ ] **Step 2: Run the focused E2E test and verify RED**
-
-Run: `npx playwright test tests/e2e/barber-service-booking.spec.ts`
-
-Expected before the completed implementation: FAIL on missing assignment controls or barber-first behavior.
-
-- [ ] **Step 3: Update the existing principal flow for explicit service assignment**
-
-If `fluxo-principal.spec.ts` creates a service, choose at least one barber and provide relationship price/duration before submitting. Preserve all existing product and finance assertions.
-
-- [ ] **Step 4: Run the complete unit suite**
-
-Run: `npm test`
-
-Expected: all Vitest files pass with 0 failures.
-
-- [ ] **Step 5: Run lint and fix only in-scope issues**
-
-Run: `npm run lint`
-
-Expected: exit code 0, with no errors or warnings introduced by this feature.
-
-- [ ] **Step 6: Run the production build**
-
-Run: `npm run build`
-
-Expected: Next.js 16.2.6 production build exits 0 with all routes compiled.
-
-- [ ] **Step 7: Run focused and complete E2E suites**
-
-Run:
+- [ ] **Step 3: Run focused E2E**
 
 ```powershell
 npx playwright test tests/e2e/barber-service-booking.spec.ts
-npm run test:e2e
+npx playwright test tests/e2e/barber-service-concurrency.spec.ts
 ```
 
-Expected: the new journey passes; existing principal and alternative journeys remain green.
-
-- [ ] **Step 8: Run Supabase verification and advisors**
-
-Discover available commands first:
+- [ ] **Step 4: Run mandatory local database verification**
 
 ```powershell
-npx supabase db --help
-npx supabase migration list --help
+npx supabase start
+npx supabase db reset --local
+npx supabase test db --local
+npx supabase db lint --local
+npx supabase migration list --local
 ```
 
-Use supported local reset/query/advisor commands, or Supabase MCP equivalents, to verify migrations apply from zero, both new migrations are listed, RLS/grants match the contract, valid booking SQL stores relationship snapshots, and invalid cross-tenant/configuration cases fail. Fix every advisor finding caused by these migrations.
+No database completion claim is allowed if local Supabase is unavailable.
 
-- [ ] **Step 9: Review the implementation against every acceptance criterion**
-
-Check the design spec line by line: barber-first public flow, filtered services, per-barber values, reset on barber change, duration-aware slots, database authority, historical snapshots, admin configuration, backfill, summaries, and regression coverage. Record any unmet criterion as a failing test before changing production code.
-
-- [ ] **Step 10: Commit E2E and verification adjustments**
-
-```powershell
-git add tests/e2e src tests/unit supabase/migrations
-git commit -m "test: cover barber specific booking flow"
-```
-
----
-
-## Final Verification Commands
-
-Run fresh, in this order, immediately before reporting completion:
+- [ ] **Step 5: Run full application verification**
 
 ```powershell
 npm test
 npm run lint
 npm run build
-npx playwright test tests/e2e/barber-service-booking.spec.ts
 npm run test:e2e
-git status --short
 ```
 
-Expected: all commands exit 0; `git status --short` is empty after the final commit. If local Supabase or browser dependencies are unavailable, report the exact failing command and environment blocker without claiming those checks passed.
+- [ ] **Step 6: Re-audit all appointment writers**
+
+```powershell
+rg -n "from\('appointments'\)|insert into public\.appointments|update public\.appointments" src supabase tests
+npm test -- tests/unit/appointment-writers-audit.test.ts
+```
+
+Any new interval writer blocks completion until it uses the interval guard and has behavioral tests.
+
+- [ ] **Step 7: Commit Release B verification**
+
+```powershell
+git add tests/e2e tests/unit src supabase/tests
+git commit -m "test: verify barber service booking end to end"
+```
+
+---
+
+### Task 9: Begin the Release B observation window
+
+**Files:**
+- Modify: `docs/runbooks/barber-service-rollout.md`
+
+- [ ] **Step 1: Record deployed UTC timestamp and full Git SHA**
+
+Use ISO-8601 UTC and immutable SHA.
+
+- [ ] **Step 2: Run production read-only gates daily for 14 consecutive days**
+
+Run the exact owner-only SQL Editor queries from Task 3 and record null snapshot count and legacy calls. A nonzero result restarts the clock after remediation. Never grant application roles access to private telemetry to automate this check.
+
+- [ ] **Step 3: Stop and request explicit Release C authorization**
+
+Do not create the contract migration until evidence shows zero nulls and zero calls for the full window.
+
+---
+
+# Release C — Contract (Separate Authorized Execution)
+
+### Task 10: Enforce snapshots and retire legacy RPCs
+
+**Hard gate:** Execute only after Task 9 evidence and explicit operator authorization.
+
+**Files:**
+- Create via CLI after authorization: migration ending `_barber_service_contract.sql`
+- Create via CLI after authorization: `supabase/tests/database/barber_service_contract.test.sql`
+
+- [ ] **Step 1: Re-run production preconditions**
+
+Abort on any null snapshot or legacy call in the prior 14 days.
+
+- [ ] **Step 2: Write pgTAP RED**
+
+Assert snapshot columns are non-null, new functions keep intended privileges, old signatures are not executable by anon/authenticated, and internal functions remain private.
+
+- [ ] **Step 3: Create contract migration through CLI**
+
+Apply `NOT NULL`, revoke/drop legacy signatures, and retain legacy service columns for rollback during one more release cycle.
+
+- [ ] **Step 4: Verify GREEN and commit separately**
+
+```powershell
+npx supabase db reset --local
+npx supabase test db --local
+npx supabase db lint --local
+git add supabase/migrations supabase/tests/database docs/runbooks/barber-service-rollout.md
+git commit -m "chore: contract barber service booking schema"
+```
+
+---
+
+# Release D — Cleanup (Future Separate Authorized Execution)
+
+After one additional stable production release cycle, verify `rg` finds no reader of `services.price`/`services.duration_minutes`, production logs show no legacy use, and old application rollback is retired. Then create a CLI-generated cleanup migration that removes compatibility writes and drops both columns. Run full pgTAP, Vitest, lint, build, and E2E before committing `chore: remove legacy service pricing columns`.
+
+---
+
+## Completion Definition for Initial Implementation
+
+The initial implementation is complete through Release B only when:
+
+- Release A migrations reset cleanly and all pgTAP tests pass locally.
+- Legacy RPCs remain compatible and populate snapshots.
+- New public/admin flows exclusively use `barber_services`.
+- Success uses the authoritative receipt.
+- Composite integrity prevents mismatched appointment identity.
+- Writer audit finds no unguarded interval mutation.
+- Full E2E creates a reservation and proves historical price after current price change.
+- Concurrency E2E proves only one reservation wins.
+- Vitest, lint, build, pgTAP, database lint, focused E2E, and full E2E all exit 0.
+- Runbook starts the 14-day window; Releases C/D remain unapplied.
