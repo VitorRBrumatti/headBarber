@@ -55,6 +55,16 @@ const scheduleMigration = readFileSync(
   'utf8',
 )
 
+const rpcExpandMigration = readFileSync(
+  join(
+    process.cwd(),
+    'supabase',
+    'migrations',
+    '20260723001610_barber_service_rpc_expand.sql',
+  ),
+  'utf8',
+)
+
 const productReservationMigration = readFileSync(
   join(
     process.cwd(),
@@ -71,15 +81,24 @@ describe('appointment writer inventory', () => {
       .split(/\r?\n/)
       .filter((line) => /insert into public\.appointments/i.test(line))
 
-    expect(appointmentInsertMatches).toHaveLength(1)
-    expect(appointmentInsertMatches[0]).toContain(
-      '20240522_phase4_booking_schedule.sql',
+    expect(appointmentInsertMatches).toHaveLength(2)
+    expect(appointmentInsertMatches).toEqual(
+      expect.arrayContaining([
+        expect.stringContaining('20240522_phase4_booking_schedule.sql'),
+        expect.stringContaining('20260723001610_barber_service_rpc_expand.sql'),
+      ]),
     )
     expect(scheduleMigration).toMatch(
       /create or replace function public\.create_public_appointment_with_client[\s\S]+insert into public\.appointments/i,
     )
     expect(productReservationMigration).toMatch(
       /create or replace function public\.create_public_appointment_with_products[\s\S]+public\.create_public_appointment_with_client/i,
+    )
+    expect(rpcExpandMigration).toMatch(
+      /create or replace function private\.create_appointment_from_barber_service[\s\S]+insert into public\.appointments/i,
+    )
+    expect(rpcExpandMigration).toMatch(
+      /create trigger guard_appointment_interval[\s\S]+private\.guard_appointment_interval/i,
     )
     expect(publicBookingActions).not.toMatch(
       /\.from\('appointments'\)[\s\S]{0,160}\.(?:insert|upsert)\(/,
