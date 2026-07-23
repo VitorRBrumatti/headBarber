@@ -5,9 +5,13 @@ until its gate is satisfied.
 
 ## Release A
 
-Deploy the database changes that add appointment snapshots and compatibility
-paths. Release A is application-rollback-safe: the previous application may be
-redeployed without a database rollback.
+Before deploying Release A, run a fresh local reset and execute the legacy
+pgTAP compatibility cases; they must be green. Prove that legacy signatures
+create snapshots using relationship pricing from `public.barber_services`.
+Do not deploy Release A until this gate passes. Deploy the database changes that
+add appointment snapshots and compatibility paths. Release A is
+application-rollback-safe: the previous application may be redeployed without
+a database rollback.
 
 ## Release B
 

@@ -5,6 +5,15 @@ import { describe, expect, it } from 'vitest'
 const runbookPath = resolve(process.cwd(), 'docs/runbooks/barber-service-rollout.md')
 const runbook = existsSync(runbookPath) ? readFileSync(runbookPath, 'utf8') : ''
 
+
+function releaseSection(release: string) {
+  const heading = `## Release ${release}`
+  const start = runbook.indexOf(heading)
+  const nextHeading = runbook.indexOf('\n## ', start + heading.length)
+
+  return start === -1 ? '' : runbook.slice(start, nextHeading === -1 ? undefined : nextHeading)
+}
+
 describe('barber service rollout runbook contract', () => {
   it('exists and defines releases A through D', () => {
     expect(existsSync(runbookPath)).toBe(true)
@@ -36,10 +45,26 @@ describe('barber service rollout runbook contract', () => {
     expect(runbook).toContain('group by function_name')
   })
 
-  it('defines the rollback boundaries for releases A, B, and C', () => {
-    expect(runbook).toMatch(/Release A[\s\S]*application-rollback-safe/i)
-    expect(runbook).toMatch(/Release B[\s\S]*roll back[\s\S]*legacy functions remain/i)
-    expect(runbook).toMatch(/Release C[\s\S]*zero null snapshots[\s\S]*zero legacy calls[\s\S]*14 consecutive days/i)
-    expect(runbook).toMatch(/Release C[\s\S]*ends old-application rollback support/i)
+  it('requires Release A to pass the local reset and pgTAP gate before deployment', () => {
+    const releaseA = releaseSection('A')
+
+    expect(releaseA).toMatch(/before deploy/i)
+    expect(releaseA).toMatch(/local reset/i)
+    expect(releaseA).toMatch(/pgTAP[\s\S]*green/i)
+  })
+
+  it('requires Release A to prove legacy signatures preserve snapshots and relationship pricing', () => {
+    const releaseA = releaseSection('A')
+
+    expect(releaseA).toMatch(/fresh local reset/i)
+    expect(releaseA).toMatch(/legacy signatures?[\s\S]*create snapshots/i)
+    expect(releaseA).toMatch(/relationship pricing/i)
+  })
+
+  it('defines rollback boundaries within the release A, B, and C sections', () => {
+    expect(releaseSection('A')).toMatch(/application-rollback-safe/i)
+    expect(releaseSection('B')).toMatch(/roll back[\s\S]*legacy functions remain/i)
+    expect(releaseSection('C')).toMatch(/zero null snapshots[\s\S]*zero legacy calls[\s\S]*14 consecutive days/i)
+    expect(releaseSection('C')).toMatch(/ends old-application rollback support/i)
   })
 })
