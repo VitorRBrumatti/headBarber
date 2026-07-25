@@ -5,6 +5,14 @@ import { describe, expect, it } from 'vitest'
 const runbookPath = resolve(process.cwd(), 'docs/runbooks/barber-service-rollout.md')
 const runbook = existsSync(runbookPath) ? readFileSync(runbookPath, 'utf8') : ''
 
+function releaseSection(release: string) {
+  const heading = `## Release ${release}`
+  const start = runbook.indexOf(heading)
+  const nextHeading = runbook.indexOf('\n## ', start + heading.length)
+
+  return start === -1 ? '' : runbook.slice(start, nextHeading === -1 ? undefined : nextHeading)
+}
+
 describe('barber service rollout runbook contract', () => {
   it('exists and defines releases A through D', () => {
     expect(existsSync(runbookPath)).toBe(true)
@@ -14,13 +22,20 @@ describe('barber service rollout runbook contract', () => {
     }
   })
 
-  it('requires Release A database verification before deployment', () => {
-    expect(runbook).toMatch(
-      /Release A[\s\S]*fresh local database reset[\s\S]*legacy pgTAP cases are green/i,
-    )
-    expect(runbook).toMatch(
-      /Release A[\s\S]*legacy signatures create snapshots using relationship pricing/i,
-    )
+  it('blocks Release A until the local reset and pgTAP compatibility gate pass', () => {
+    const releaseA = releaseSection('A')
+
+    expect(releaseA).toMatch(/before deploy/i)
+    expect(releaseA).toMatch(/fresh local database reset/i)
+    expect(releaseA).toMatch(/legacy pgTAP[\s\S]*green/i)
+    expect(releaseA).toMatch(/do not deploy Release A until this gate passes/i)
+  })
+
+  it('requires legacy signatures to preserve snapshots and relationship pricing', () => {
+    const releaseA = releaseSection('A')
+
+    expect(releaseA).toMatch(/legacy signatures?[\s\S]*create snapshots/i)
+    expect(releaseA).toMatch(/relationship pricing/i)
   })
 
   it('requires owner-only telemetry checks for fourteen consecutive days', () => {
@@ -28,7 +43,7 @@ describe('barber service rollout runbook contract', () => {
     expect(runbook).toMatch(/database owner/i)
     expect(runbook).toMatch(/Supabase SQL Editor/i)
     expect(runbook).toMatch(
-      /application, `anon`, and `authenticated` roles must not receive access/i,
+      /application,\s+`anon`,\s+and\s+`authenticated` roles must not receive access/i,
     )
   })
 
@@ -38,7 +53,6 @@ describe('barber service rollout runbook contract', () => {
     expect(runbook).toContain('where barber_service_id is null')
     expect(runbook).toContain('or service_price is null')
     expect(runbook).toContain('or service_duration_minutes is null')
-
     expect(runbook).toContain(
       'select function_name, count(*) as calls, max(called_at) as last_call',
     )
@@ -47,12 +61,12 @@ describe('barber service rollout runbook contract', () => {
     expect(runbook).toContain('group by function_name')
   })
 
-  it('defines the rollback boundaries for releases A, B, and C', () => {
-    expect(runbook).toMatch(/Release A[\s\S]*application-rollback-safe/i)
-    expect(runbook).toMatch(/Release B[\s\S]*roll back[\s\S]*legacy functions remain/i)
-    expect(runbook).toMatch(
-      /Release C[\s\S]*zero null snapshots[\s\S]*zero legacy calls[\s\S]*14 consecutive days/i,
+  it('defines rollback boundaries inside releases A, B, and C', () => {
+    expect(releaseSection('A')).toMatch(/application-rollback-safe/i)
+    expect(releaseSection('B')).toMatch(/roll back[\s\S]*legacy functions remain/i)
+    expect(releaseSection('C')).toMatch(
+      /zero null snapshots[\s\S]*zero legacy calls[\s\S]*14 consecutive days/i,
     )
-    expect(runbook).toMatch(/Release C[\s\S]*ends old-application rollback support/i)
+    expect(releaseSection('C')).toMatch(/ends old-application rollback support/i)
   })
 })
