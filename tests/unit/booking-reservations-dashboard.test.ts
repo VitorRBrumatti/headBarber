@@ -70,6 +70,7 @@ describe('historical appointment details', () => {
       expect(file).toContain('service_price')
       expect(file).toContain('service_duration_minutes')
       expect(file).toContain('appointment_add_ons')
+      expect(file).toContain('duration_minutes')
       expect(file).toContain('appointment_products')
     }
   })
@@ -82,6 +83,8 @@ describe('historical appointment details', () => {
       const file = source(path)
       expect(file).toContain('Preço do serviço')
       expect(file).toContain('Adicionais')
+      expect(file).toContain('item.durationMinutes')
+      expect(file).toContain('totalDurationMinutes')
       expect(file).toContain('Total do atendimento')
       expect(file).toContain('Subtotal dos produtos')
       expect(file).toContain('Total na barbearia')

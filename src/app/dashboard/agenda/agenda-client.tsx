@@ -58,7 +58,7 @@ function AppointmentFinancialDetails({
       <div className="rounded-xl border p-4">
         <p className="font-bold">{appointment.serviceName}</p>
         <p className="text-zinc-600">
-          {appointment.barberName} · {appointment.serviceDurationMinutes} min
+          {appointment.barberName} · {appointment.totalDurationMinutes} min
         </p>
         <dl className="mt-4 space-y-2">
           <div className="flex justify-between">
@@ -76,7 +76,9 @@ function AppointmentFinancialDetails({
                     className="flex justify-between"
                     key={`${item.name}-${index}`}
                   >
-                    <span>{item.name}</span>
+                    <span>
+                      {item.name} (+{item.durationMinutes} min)
+                    </span>
                     <span>{money(item.price)}</span>
                   </span>
                 ))

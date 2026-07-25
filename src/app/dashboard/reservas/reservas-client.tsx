@@ -116,7 +116,7 @@ export function ReservasClient({
             <div className="rounded-xl border p-4">
               <p className="font-bold">{selected.serviceName}</p>
               <p className="text-zinc-600">
-                {selected.barberName} · {selected.serviceDurationMinutes} min
+                {selected.barberName} · {selected.totalDurationMinutes} min
               </p>
               <dl className="mt-4 space-y-2">
                 <div className="flex justify-between">
@@ -134,7 +134,9 @@ export function ReservasClient({
                           className="flex justify-between"
                           key={`${item.name}-${index}`}
                         >
-                          <span>{item.name}</span>
+                          <span>
+                            {item.name} (+{item.durationMinutes} min)
+                          </span>
                           <span>{money(item.price)}</span>
                         </span>
                       ))

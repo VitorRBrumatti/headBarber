@@ -43,6 +43,7 @@ export async function getAgendaAppointments(dateStr: string) {
         barbers ( name ),
         appointment_add_ons (
           price,
+          duration_minutes,
           add_ons ( name )
         ),
         appointment_products (
