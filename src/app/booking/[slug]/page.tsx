@@ -8,26 +8,29 @@ interface BookingPageProps {
   }>
 }
 
-export default async function BookingPage({ params }: BookingPageProps) {
-  const resolvedParams = await params
-  const { slug } = resolvedParams
-
+async function loadBookingPageData(slug: string) {
   try {
-    const data = await getBookingPageData(slug)
-    
-    return (
-      <div className="min-h-screen bg-[#1A1A1D] text-white">
-        <BookingClient 
-          barbershop={data.barbershop}
-          services={data.services}
-          barbers={data.barbers}
-          addOns={data.addOns}
-          products={data.products}
-        />
-      </div>
-    )
+    return await getBookingPageData(slug)
   } catch (error) {
     console.error('Error loading booking page:', error)
-    return notFound()
+    return null
   }
+}
+
+export default async function BookingPage({ params }: BookingPageProps) {
+  const { slug } = await params
+  const data = await loadBookingPageData(slug)
+
+  if (!data) notFound()
+
+  return (
+    <div className="min-h-screen bg-[#1A1A1D] text-white">
+      <BookingClient
+        barbershop={data.barbershop}
+        barbers={data.barbers}
+        addOns={data.addOns}
+        products={data.products}
+      />
+    </div>
+  )
 }

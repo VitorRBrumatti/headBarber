@@ -1,53 +1,75 @@
 'use client'
 
 import { useState, useTransition } from 'react'
+import { createService, updateService } from '@/app/dashboard/servicos/actions'
+import type {
+  ServiceAssignmentDraft,
+  ServiceBarber,
+  ServiceCatalogItem,
+} from '@/app/dashboard/servicos/service-types'
+import { ServiceAssignmentsEditor } from '@/components/dashboard/service-assignments-editor'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
-import { Select } from '@/components/ui/select'
-import { createService, updateService } from '@/app/dashboard/servicos/actions'
-
-interface Service {
-  id: string
-  name: string
-  description: string | null
-  price: number
-  duration_minutes: number
-  is_active: boolean
-}
 
 interface ServiceFormProps {
-  service?: Service
+  service?: ServiceCatalogItem
+  barbers: ServiceBarber[]
   onSuccess: () => void
 }
 
-const DURATION_OPTIONS = [
-  { value: '15', label: '15 min' },
-  { value: '30', label: '30 min' },
-  { value: '45', label: '45 min' },
-  { value: '60', label: '1 hora' },
-  { value: '90', label: '1h30' },
-  { value: '120', label: '2 horas' },
-]
+function errorMessage(error: unknown) {
+  return error instanceof Error ? error.message : 'Não foi possível salvar.'
+}
 
-export function ServiceForm({ service, onSuccess }: ServiceFormProps) {
+export function ServiceForm({
+  service,
+  barbers,
+  onSuccess,
+}: ServiceFormProps) {
   const [isPending, startTransition] = useTransition()
   const [error, setError] = useState('')
+  const [isActive, setIsActive] = useState(service?.isActive ?? true)
+  const [assignments, setAssignments] = useState<ServiceAssignmentDraft[]>(
+    () =>
+      barbers.map((barber) => {
+        const current = service?.assignments.find(
+          (assignment) => assignment.barberId === barber.id,
+        )
+        return {
+          barberId: barber.id,
+          barberName: barber.name,
+          price: current?.price ?? '',
+          durationMinutes: current?.durationMinutes ?? 30,
+          isAvailable: current?.isAvailable ?? false,
+        }
+      }),
+  )
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
+  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault()
     setError('')
-    const formData = new FormData(e.currentTarget)
+    const formData = new FormData(event.currentTarget)
+    formData.set('is_active', String(isActive))
+    formData.set(
+      'assignments',
+      JSON.stringify(
+        assignments.map((assignment) => ({
+          barberId: assignment.barberId,
+          price: assignment.price,
+          durationMinutes: assignment.durationMinutes,
+          isAvailable: assignment.isAvailable,
+        })),
+      ),
+    )
+
     startTransition(async () => {
       try {
-        if (service) {
-          await updateService(service.id, formData)
-        } else {
-          await createService(formData)
-        }
+        if (service) await updateService(service.id, formData)
+        else await createService(formData)
         onSuccess()
-      } catch (err: any) {
-        setError(err.message)
+      } catch (submitError) {
+        setError(errorMessage(submitError))
       }
     })
   }
@@ -74,40 +96,33 @@ export function ServiceForm({ service, onSuccess }: ServiceFormProps) {
         />
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-1.5">
-          <label className="text-sm font-medium">Preço (R$) *</label>
-          <Input
-            name="price"
-            type="number"
-            step="0.01"
-            min="0"
-            defaultValue={service?.price ?? ''}
-            placeholder="0,00"
-            required
-          />
-        </div>
-        <div className="space-y-1.5">
-          <label className="text-sm font-medium">Duração *</label>
-          <Select
-            name="duration_minutes"
-            defaultValue={String(service?.duration_minutes ?? '30')}
-            required
-          >
-            {DURATION_OPTIONS.map((opt) => (
-              <option key={opt.value} value={opt.value}>{opt.label}</option>
-            ))}
-          </Select>
-        </div>
-      </div>
+      <label className="flex items-center gap-2 text-sm font-medium">
+        <input
+          type="checkbox"
+          checked={isActive}
+          onChange={(event) => setIsActive(event.target.checked)}
+        />
+        Serviço ativo no catálogo
+      </label>
 
-      {error && <p className="text-sm text-red-500">{error}</p>}
+      <ServiceAssignmentsEditor
+        assignments={assignments}
+        onChange={setAssignments}
+      />
 
-      <div className="flex gap-3 pt-2">
-        <Button type="submit" disabled={isPending} className="flex-1">
-          {isPending ? 'Salvando...' : service ? 'Salvar alterações' : 'Criar serviço'}
-        </Button>
-      </div>
+      {error && (
+        <p role="alert" className="text-sm text-red-600">
+          {error}
+        </p>
+      )}
+
+      <Button type="submit" disabled={isPending} className="w-full">
+        {isPending
+          ? 'Salvando...'
+          : service
+            ? 'Salvar alterações'
+            : 'Criar serviço'}
+      </Button>
     </form>
   )
 }

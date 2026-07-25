@@ -1,107 +1,150 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
-import { getBarbershopId } from '@/utils/get-barbershop'
 import { sendWhatsAppNotification } from '@/lib/whatsapp'
+import { getBarbershopId } from '@/utils/get-barbershop'
+import {
+  mapBarberServiceRows,
+  mapBookingRpcError,
+  parseCreatedBookingReceipt,
+} from '@/app/booking/[slug]/booking-action-mappers'
+import {
+  canTransitionAppointmentStatus,
+  type AppointmentStatus,
+} from './agenda-rules'
+import { mapAppointmentRows } from './appointment-mappers'
 
-/**
- * Fetches all necessary agenda data for a specific date in the dashboard.
- * Auto-creates default barbershop settings if they don't exist yet.
- */
 export async function getAgendaAppointments(dateStr: string) {
   const { supabase, barbershopId } = await getBarbershopId()
-
-  // 1. Fetch active barbers
-  const { data: barbers } = await supabase
-    .from('barbers')
-    .select('id, name, bio, avatar_url')
-    .eq('barbershop_id', barbershopId)
-    .eq('is_active', true)
-    .order('name')
-
-  // 2. Fetch or auto-create barbershop settings
-  let { data: settings } = await supabase
-    .from('barbershop_settings')
-    .select('*')
-    .eq('barbershop_id', barbershopId)
-    .single()
-
-  if (!settings) {
-    const { data: newSettings, error: insertError } = await supabase
-      .from('barbershop_settings')
-      .insert({
-        barbershop_id: barbershopId,
-        whatsapp_reminder_hours: 2,
-        slot_interval_minutes: 30,
-        default_start_time: '09:00:00',
-        default_end_time: '19:00:00',
-        default_lunch_start: '12:00:00',
-        default_lunch_end: '13:00:00',
-      })
-      .select()
-      .single()
-
-    if (!insertError && newSettings) {
-      settings = newSettings
-    }
-  }
-
-  // 3. Fetch appointments for target date (start_at fits in the target date)
-  // Construct UTC boundaries
   const startOfDay = `${dateStr}T00:00:00.000Z`
   const endOfDay = `${dateStr}T23:59:59.999Z`
 
-  const { data: appointments } = await supabase
-    .from('appointments')
-    .select(`
-      id,
-      barber_id,
-      client_id,
-      service_id,
-      start_at,
-      end_at,
-      status,
-      total_price,
-      notes,
-      clients ( name, phone, email ),
-      services ( name ),
-      appointment_products (
-        quantity,
-        unit_price,
+  const [barbersResult, appointmentsResult] = await Promise.all([
+    supabase
+      .from('barbers')
+      .select('id, name, bio, avatar_url')
+      .eq('barbershop_id', barbershopId)
+      .eq('is_active', true)
+      .order('name'),
+    supabase
+      .from('appointments')
+      .select(`
+        id,
+        barber_id,
+        start_at,
+        end_at,
         status,
-        products ( name, image_url )
-      )
-    `)
-    .eq('barbershop_id', barbershopId)
-    .gte('start_at', startOfDay)
-    .lte('start_at', endOfDay)
-    .order('start_at')
+        service_price,
+        service_duration_minutes,
+        total_price,
+        notes,
+        clients ( name, phone, email ),
+        services ( name ),
+        barbers ( name ),
+        appointment_add_ons (
+          price,
+          add_ons ( name )
+        ),
+        appointment_products (
+          quantity,
+          unit_price,
+          status,
+          products ( name, image_url )
+        )
+      `)
+      .eq('barbershop_id', barbershopId)
+      .gte('start_at', startOfDay)
+      .lte('start_at', endOfDay)
+      .order('start_at'),
+  ])
 
-  // 4. Fetch work shifts for active barbers on this weekday
-  // Javascript getDay() returns 0 for Sunday, 1 for Monday, ..., 6 for Saturday
-  const dateObj = new Date(dateStr + 'T00:00:00')
-  const dayOfWeek = dateObj.getDay()
-
-  const { data: workHours } = await supabase
-    .from('barber_work_hours')
-    .select('id, barber_id, day_of_week, start_time, end_time, lunch_start_time, lunch_end_time, is_active')
-    .eq('barbershop_id', barbershopId)
-    .eq('day_of_week', dayOfWeek)
-    .eq('is_active', true)
+  if (barbersResult.error) throw new Error(barbersResult.error.message)
+  if (appointmentsResult.error) {
+    throw new Error(appointmentsResult.error.message)
+  }
 
   return {
-    barbers: barbers || [],
-    settings: settings || { slot_interval_minutes: 30 },
-    appointments: (appointments || []) as any[],
-    workHours: workHours || [],
+    barbers: (barbersResult.data ?? []).map((barber) => ({
+      id: barber.id,
+      name: barber.name,
+      bio: barber.bio,
+      avatarUrl: barber.avatar_url,
+    })),
+    appointments: mapAppointmentRows(appointmentsResult.data ?? []),
   }
 }
 
-/**
- * Updates the status of an appointment in the dashboard (confirmed, completed, cancelled, no_show).
- */
-export async function updateAppointmentStatus(appointmentId: string, status: string) {
+export async function getAdminBarberServicesAction(barberId: string) {
   const { supabase, barbershopId } = await getBarbershopId()
+  const { data, error } = await supabase
+    .from('barber_services')
+    .select(
+      'id, barber_id, service_id, price, duration_minutes, configuration_version, services!inner(name, description)',
+    )
+    .eq('barbershop_id', barbershopId)
+    .eq('barber_id', barberId)
+    .eq('is_available', true)
+    .eq('services.is_active', true)
+
+  if (error) {
+    return {
+      success: false as const,
+      error: 'Não foi possível carregar os serviços do profissional.',
+    }
+  }
+  return {
+    success: true as const,
+    services: mapBarberServiceRows(data ?? []),
+  }
+}
+
+export async function getAdminSlotsAction(
+  barberServiceId: string,
+  dateStr: string,
+) {
+  const { supabase, barbershopId } = await getBarbershopId()
+  const { data, error } = await supabase.rpc(
+    'get_public_available_slots_for_service',
+    {
+      p_barbershop_id: barbershopId,
+      p_barber_service_id: barberServiceId,
+      p_date: dateStr,
+    },
+  )
+  if (error) {
+    return {
+      success: false as const,
+      error: 'Não foi possível carregar os horários disponíveis.',
+    }
+  }
+  return {
+    success: true as const,
+    slots: ((data ?? []) as { available_time: string }[]).map((slot) =>
+      slot.available_time.substring(0, 5),
+    ),
+  }
+}
+
+export async function updateAppointmentStatus(
+  appointmentId: string,
+  status: AppointmentStatus,
+) {
+  const { supabase, barbershopId } = await getBarbershopId()
+  const { data: appointment, error: loadError } = await supabase
+    .from('appointments')
+    .select('status')
+    .eq('id', appointmentId)
+    .eq('barbershop_id', barbershopId)
+    .single()
+
+  if (loadError || !appointment) {
+    throw new Error('Agendamento não encontrado.')
+  }
+
+  const currentStatus = appointment.status as AppointmentStatus
+  if (!canTransitionAppointmentStatus(currentStatus, status)) {
+    throw new Error('Transição de status não permitida.')
+  }
 
   const { error } = await supabase
     .from('appointments')
@@ -109,35 +152,29 @@ export async function updateAppointmentStatus(appointmentId: string, status: str
     .eq('id', appointmentId)
     .eq('barbershop_id', barbershopId)
 
-  if (error) {
-    throw new Error(`Erro ao atualizar status: ${error.message}`)
-  }
+  if (error) throw new Error(`Erro ao atualizar status: ${error.message}`)
 
-  // Trigger hypothetical notification update or mock logs if cancelled
   if (status === 'cancelled') {
     try {
-      const { data: appt } = await supabase
+      const { data: cancelled } = await supabase
         .from('appointments')
-        .select(`
-          start_at,
-          clients ( name, phone ),
-          barbershops ( name )
-        `)
+        .select('start_at, clients(name, phone), barbershops(name)')
         .eq('id', appointmentId)
         .single()
-
-      if (appt) {
-        const clientPhone = (appt.clients as any)?.phone
-        const clientName = (appt.clients as any)?.name
-        const barbershopName = (appt.barbershops as any)?.name
-
-        if (clientPhone) {
-          const cancelMessage = `Olá, *${clientName}*! Seu agendamento na *${barbershopName || 'Barbearia'}* para o dia ${new Date(appt.start_at).toLocaleDateString('pt-BR')} foi *cancelado* pelo estabelecimento. Caso tenha dúvidas, entre em contato.`
-          await sendWhatsAppNotification(clientPhone, cancelMessage)
-        }
+      const client = Array.isArray(cancelled?.clients)
+        ? cancelled.clients[0]
+        : cancelled?.clients
+      const barbershop = Array.isArray(cancelled?.barbershops)
+        ? cancelled.barbershops[0]
+        : cancelled?.barbershops
+      if (client?.phone && cancelled?.start_at) {
+        await sendWhatsAppNotification(
+          client.phone,
+          `Olá, *${client.name}*! Seu agendamento na *${barbershop?.name || 'Barbearia'}* para ${new Date(cancelled.start_at).toLocaleDateString('pt-BR')} foi cancelado pelo estabelecimento.`,
+        )
       }
-    } catch (err) {
-      console.error('Failed to dispatch cancellation log:', err)
+    } catch (notificationError) {
+      console.error('Failed to dispatch cancellation log:', notificationError)
     }
   }
 
@@ -149,96 +186,61 @@ export type CreateAdminBookingInput = {
   clientName: string
   clientPhone: string
   clientEmail?: string
-  barberId: string
-  serviceId: string
+  barberServiceId: string
+  configurationVersion: number
   startAt: string
   notes?: string
   addOnIds?: string[]
 }
 
-/**
- * Creates an appointment manually inside the admin dashboard.
- * Leverages the atomic transactional Postgres RPC to reuse validation and lock logic.
- */
 export async function createAdminAppointment(input: CreateAdminBookingInput) {
   const { supabase, barbershopId } = await getBarbershopId()
-
-  // Invoke RPC (since it's a security definer, it works atomic)
-  const { data: appointmentId, error } = await supabase.rpc(
-    'create_public_appointment_with_client',
+  const { data, error } = await supabase.rpc(
+    'create_public_appointment_with_barber_service_and_products',
     {
       p_barbershop_id: barbershopId,
       p_client_name: input.clientName,
       p_client_phone: input.clientPhone,
       p_client_email: input.clientEmail || null,
-      p_barber_id: input.barberId,
-      p_service_id: input.serviceId,
+      p_barber_service_id: input.barberServiceId,
+      p_configuration_version: input.configurationVersion,
       p_start_at: input.startAt,
       p_notes: input.notes || null,
       p_add_on_ids: input.addOnIds || null,
-    }
+      p_products: [],
+    },
   )
 
-  if (error) {
-    return { error: error.message }
-  }
+  if (error) return mapBookingRpcError(error)
+  const receipt = parseCreatedBookingReceipt(data)
 
-  // Trigger WhatsApp Mock log in admin booking
   try {
-    const { data: service } = await supabase
-      .from('services')
-      .select('name')
-      .eq('id', input.serviceId)
-      .single()
+    const formattedDate = new Date(receipt.startAt).toLocaleDateString(
+      'pt-BR',
+      { dateStyle: 'long', timeZone: 'UTC' },
+    )
+    await sendWhatsAppNotification(
+      input.clientPhone,
+      `Olá, *${input.clientName}*! Seu agendamento foi criado pelo estabelecimento. ✅
 
-    const { data: barber } = await supabase
-      .from('barbers')
-      .select('name')
-      .eq('id', input.barberId)
-      .single()
-
-    const formattedTime = input.startAt.substring(11, 16)
-    const localDate = new Date(input.startAt)
-    const formattedDate = localDate.toLocaleDateString('pt-BR', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      timeZone: 'UTC',
-    })
-
-    const { data: appt } = await supabase
-      .from('appointments')
-      .select('total_price')
-      .eq('id', appointmentId)
-      .single()
-
-    const totalPrice = appt?.total_price || 0
-
-    const whatsappMessage = 
-`Olá, *${input.clientName}*! Seu agendamento foi realizado pelo administrador do estabelecimento! ✅
-
-📅 *Data:* ${formattedDate}
-⏰ *Horário:* ${formattedTime}
-💈 *Profissional:* ${barber?.name || 'Barbeiro'}
-✂ *Serviço:* ${service?.name || 'Serviço'}
-💰 *Valor Total:* R$ ${totalPrice}
-
-Agradecemos a preferência! 💈✂`
-
-    await sendWhatsAppNotification(input.clientPhone, whatsappMessage)
-
+Data: ${formattedDate}
+Horário: ${receipt.startAt.substring(11, 16)}
+Profissional: ${receipt.barberName}
+Serviço: ${receipt.serviceName} (${receipt.serviceDurationMinutes} min)
+Total do atendimento: R$ ${receipt.attendanceTotal.replace('.', ',')}`,
+    )
     await supabase
       .from('appointments')
       .update({ whatsapp_confirmation_sent: true })
-      .eq('id', appointmentId)
-
-  } catch (err) {
-    console.error('Failed to dispatch manual WhatsApp mock confirmation:', err)
+      .eq('id', receipt.appointmentId)
+  } catch (notificationError) {
+    console.error(
+      'Failed to dispatch manual WhatsApp confirmation:',
+      notificationError,
+    )
   }
 
   revalidatePath('/dashboard/agenda')
   revalidatePath('/dashboard/reservas')
-
-  return { success: true, appointmentId }
+  return { success: true as const, receipt }
 }
