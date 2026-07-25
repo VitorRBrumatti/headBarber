@@ -1,50 +1,43 @@
-import { createClient } from '@/utils/supabase/server'
+import { getBarbershopId } from '@/utils/get-barbershop'
+import { mapAppointmentRows } from '../agenda/appointment-mappers'
 import { ReservasClient } from './reservas-client'
 
 export default async function ReservasPage() {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const { supabase, barbershopId } = await getBarbershopId()
+  const { data, error } = await supabase
+    .from('appointments')
+    .select(`
+      id,
+      barber_id,
+      start_at,
+      end_at,
+      status,
+      service_price,
+      service_duration_minutes,
+      total_price,
+      notes,
+      clients ( name, phone, email ),
+      services ( name ),
+      barbers ( name ),
+      appointment_add_ons (
+        price,
+        add_ons ( name )
+      ),
+      appointment_products (
+        quantity,
+        unit_price,
+        status,
+        products ( name, image_url )
+      )
+    `)
+    .eq('barbershop_id', barbershopId)
+    .order('start_at', { ascending: false })
 
-  let appointments: any[] = []
-
-  if (user) {
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('barbershop_id')
-      .eq('id', user.id)
-      .single()
-
-    if (profile?.barbershop_id) {
-      // Query all appointments (upcoming & history)
-      const { data } = await supabase
-        .from('appointments')
-        .select(`
-          id,
-          start_at,
-          end_at,
-          status,
-          total_price,
-          notes,
-          clients ( name, phone, email ),
-          services ( name ),
-          barbers ( name ),
-          appointment_products (
-            quantity,
-            unit_price,
-            status,
-            products ( name, image_url )
-          )
-        `)
-        .eq('barbershop_id', profile.barbershop_id)
-        .order('start_at', { ascending: false })
-
-      appointments = data || []
-    }
-  }
+  if (error) throw new Error(error.message)
 
   return (
     <div className="space-y-6">
-      <ReservasClient initialAppointments={appointments} />
+      <ReservasClient initialAppointments={mapAppointmentRows(data ?? [])} />
     </div>
   )
 }
