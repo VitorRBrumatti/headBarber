@@ -1,53 +1,74 @@
 'use client'
 
 import { useState, useTransition } from 'react'
+import { createAddOn, updateAddOn } from '@/app/dashboard/adicionais/actions'
+import type {
+  AddOnAssignmentDraft,
+  AddOnBarber,
+  AddOnCatalogItem,
+} from '@/app/dashboard/adicionais/add-on-types'
+import { AddOnAssignmentsEditor } from './add-on-assignments-editor'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Select } from '@/components/ui/select'
-import { createAddOn, updateAddOn } from '@/app/dashboard/adicionais/actions'
-
-interface AddOn {
-  id: string
-  name: string
-  price: number
-  duration_minutes: number
-  is_active: boolean
-}
 
 interface AddOnFormProps {
-  addOn?: AddOn
+  addOn?: AddOnCatalogItem
+  barbers: AddOnBarber[]
   onSuccess: () => void
 }
 
-const DURATION_OPTIONS = [
-  { value: '0', label: 'Sem duração extra' },
-  { value: '5', label: '5 min' },
-  { value: '10', label: '10 min' },
-  { value: '15', label: '15 min' },
-  { value: '20', label: '20 min' },
-  { value: '30', label: '30 min' },
-  { value: '45', label: '45 min' },
-  { value: '60', label: '1 hora' },
-]
+function errorMessage(error: unknown) {
+  return error instanceof Error ? error.message : 'Não foi possível salvar.'
+}
 
-export function AddOnForm({ addOn, onSuccess }: AddOnFormProps) {
+export function AddOnForm({
+  addOn,
+  barbers,
+  onSuccess,
+}: AddOnFormProps) {
   const [isPending, startTransition] = useTransition()
   const [error, setError] = useState('')
+  const [isActive, setIsActive] = useState(addOn?.isActive ?? true)
+  const [assignments, setAssignments] = useState<AddOnAssignmentDraft[]>(
+    () =>
+      barbers.map((barber) => {
+        const current = addOn?.assignments.find(
+          (assignment) => assignment.barberId === barber.id,
+        )
+        return {
+          barberId: barber.id,
+          barberName: barber.name,
+          price: current?.price ?? '',
+          durationMinutes: current?.durationMinutes ?? 0,
+          isAvailable: current?.isAvailable ?? false,
+        }
+      }),
+  )
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
+  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault()
     setError('')
-    const formData = new FormData(e.currentTarget)
+    const formData = new FormData(event.currentTarget)
+    formData.set('is_active', String(isActive))
+    formData.set(
+      'assignments',
+      JSON.stringify(
+        assignments.map((assignment) => ({
+          barberId: assignment.barberId,
+          price: assignment.price,
+          durationMinutes: assignment.durationMinutes,
+          isAvailable: assignment.isAvailable,
+        })),
+      ),
+    )
+
     startTransition(async () => {
       try {
-        if (addOn) {
-          await updateAddOn(addOn.id, formData)
-        } else {
-          await createAddOn(formData)
-        }
+        if (addOn) await updateAddOn(addOn.id, formData)
+        else await createAddOn(formData)
         onSuccess()
-      } catch (err: any) {
-        setError(err.message)
+      } catch (submitError) {
+        setError(errorMessage(submitError))
       }
     })
   }
@@ -59,48 +80,43 @@ export function AddOnForm({ addOn, onSuccess }: AddOnFormProps) {
         <Input
           name="name"
           defaultValue={addOn?.name}
-          placeholder="Ex: Sobrancelha, Hidratação, Selagem"
+          placeholder="Ex: Sobrancelha, hidratação, selagem"
           required
         />
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-1.5">
-          <label className="text-sm font-medium">Preço (R$) *</label>
-          <Input
-            name="price"
-            type="number"
-            step="0.01"
-            min="0"
-            defaultValue={addOn?.price ?? ''}
-            placeholder="0,00"
-            required
-          />
-        </div>
-        <div className="space-y-1.5">
-          <label className="text-sm font-medium">Duração extra</label>
-          <Select
-            name="duration_minutes"
-            defaultValue={String(addOn?.duration_minutes ?? '0')}
-          >
-            {DURATION_OPTIONS.map((opt) => (
-              <option key={opt.value} value={opt.value}>{opt.label}</option>
-            ))}
-          </Select>
-        </div>
-      </div>
+      <label className="flex items-center gap-2 text-sm font-medium">
+        <input
+          type="checkbox"
+          checked={isActive}
+          onChange={(event) => setIsActive(event.target.checked)}
+        />
+        Adicional ativo no catálogo
+      </label>
+
+      <AddOnAssignmentsEditor
+        assignments={assignments}
+        onChange={setAssignments}
+      />
 
       <p className="text-xs text-zinc-500">
-        Adicionais são extras que o cliente pode escolher durante o agendamento, como sobrancelha, hidratação, pigmentação, etc.
+        Defina quais profissionais oferecem este adicional e o preço e a
+        duração de cada um.
       </p>
 
-      {error && <p className="text-sm text-red-500">{error}</p>}
+      {error && (
+        <p role="alert" className="text-sm text-red-600">
+          {error}
+        </p>
+      )}
 
-      <div className="flex gap-3 pt-2">
-        <Button type="submit" disabled={isPending} className="flex-1">
-          {isPending ? 'Salvando...' : addOn ? 'Salvar alterações' : 'Criar adicional'}
-        </Button>
-      </div>
+      <Button type="submit" disabled={isPending} className="w-full">
+        {isPending
+          ? 'Salvando...'
+          : addOn
+            ? 'Salvar alterações'
+            : 'Criar adicional'}
+      </Button>
     </form>
   )
 }
