@@ -20,6 +20,11 @@ import {
   getBarberServicesAction,
   getPublicSlotsAction,
 } from './actions'
+import { getBarberAddOnsAction } from './booking-add-on-actions'
+import {
+  toggleAddOnSelection,
+  type BarberAddOnOption,
+} from './booking-add-ons'
 import type {
   BarberServiceOption,
   BookingProduct,
@@ -44,16 +49,9 @@ type Barber = {
   avatar_url: string | null
 }
 
-type AddOn = {
-  id: string
-  name: string
-  price: number
-}
-
 type BookingClientProps = {
   barbershop: { id: string; name: string; slug: string }
   barbers: Barber[]
-  addOns: AddOn[]
   products: BookingProduct[]
 }
 
@@ -123,11 +121,11 @@ function SectionHeading({
 export function BookingClient({
   barbershop,
   barbers,
-  addOns,
   products,
 }: BookingClientProps) {
   const router = useRouter()
   const serviceRequestRef = useRef(0)
+  const addOnRequestRef = useRef(0)
   const slotRequestRef = useRef(0)
   const selectedBarberRef = useRef('')
   const [currentStep, setCurrentStep] = useState(1)
@@ -138,6 +136,11 @@ export function BookingClient({
   const [selectedServiceId, setSelectedServiceId] = useState('')
   const [loadingServices, setLoadingServices] = useState(false)
   const [servicesError, setServicesError] = useState('')
+  const [barberAddOns, setBarberAddOns] = useState<BarberAddOnOption[]>(
+    [],
+  )
+  const [loadingAddOns, setLoadingAddOns] = useState(false)
+  const [addOnsError, setAddOnsError] = useState('')
   const [selectedAddOns, setSelectedAddOns] = useState<string[]>([])
   const [selectedProducts, setSelectedProducts] =
     useState<ProductSelection>({})
@@ -172,7 +175,7 @@ export function BookingClient({
     (item) => item.id === selectedServiceId,
   )
   const barber = barbers.find((item) => item.id === selectedBarber)
-  const selectedAddOnItems = addOns.filter((item) =>
+  const selectedAddOnItems = barberAddOns.filter((item) =>
     selectedAddOns.includes(item.id),
   )
   const selectedProductItems = products.filter(
@@ -207,6 +210,28 @@ export function BookingClient({
     setBarberServices(response.services)
   }
 
+  async function loadBarberAddOns(barberId: string) {
+    const requestId = ++addOnRequestRef.current
+    setLoadingAddOns(true)
+    setAddOnsError('')
+
+    const response = await getBarberAddOnsAction(barbershop.id, barberId)
+    if (
+      requestId !== addOnRequestRef.current ||
+      selectedBarberRef.current !== barberId
+    ) {
+      return
+    }
+
+    setLoadingAddOns(false)
+    if (!response.success) {
+      setBarberAddOns([])
+      setAddOnsError(response.error)
+      return
+    }
+    setBarberAddOns(response.addOns)
+  }
+
   async function loadSlots(date: string, barberServiceId = selectedServiceId) {
     if (!date || !barberServiceId) return
     const requestId = ++slotRequestRef.current
@@ -231,15 +256,20 @@ export function BookingClient({
   function chooseBarber(barberId: string) {
     selectedBarberRef.current = barberId
     slotRequestRef.current += 1
+    addOnRequestRef.current += 1
     setSelectedBarber(barberId)
     setSelectedServiceId('')
     setBarberServices([])
+    setBarberAddOns([])
+    setSelectedAddOns([])
     setSelectedDate('')
     setSelectedTime('')
     setSlots([])
     setSlotsError('')
+    setAddOnsError('')
     setError('')
     void loadBarberServices(barberId)
+    void loadBarberAddOns(barberId)
   }
 
   function chooseService(item: BarberServiceOption) {
@@ -306,11 +336,22 @@ export function BookingClient({
   }
 
   function toggleAddOn(id: string) {
-    setSelectedAddOns((items) =>
-      items.includes(id)
-        ? items.filter((item) => item !== id)
-        : [...items, id],
+    const next = toggleAddOnSelection(
+      {
+        selectedIds: selectedAddOns,
+        date: selectedDate,
+        time: selectedTime,
+        slots,
+      },
+      id,
     )
+    setSelectedAddOns(next.selectedIds)
+    slotRequestRef.current += 1
+    setSelectedDate(next.date)
+    setSelectedTime(next.time)
+    setSlots(next.slots)
+    setSlotsError('')
+    setError('')
   }
 
   function updateProduct(productId: string, quantity: number) {
@@ -329,13 +370,17 @@ export function BookingClient({
 
   function resetBooking() {
     serviceRequestRef.current += 1
+    addOnRequestRef.current += 1
     slotRequestRef.current += 1
     selectedBarberRef.current = ''
     setCurrentStep(1)
     setSelectedBarber('')
     setSelectedServiceId('')
     setBarberServices([])
+    setBarberAddOns([])
     setSelectedAddOns([])
+    setLoadingAddOns(false)
+    setAddOnsError('')
     setSelectedProducts({})
     setUnavailableProducts(new Set())
     setSelectedDate('')
@@ -364,7 +409,7 @@ export function BookingClient({
         configurationVersion: service.configurationVersion,
         startAt: `${selectedDate}T${selectedTime}:00.000Z`,
         notes: notes.trim() || undefined,
-        addOnIds: selectedAddOns,
+        addOnIds: selectedAddOnItems.map((item) => item.addOnId),
         products: toSelectedProducts(selectedProducts),
       })
 
@@ -589,13 +634,21 @@ export function BookingClient({
               title="Quer complementar o serviço?"
               description="Adicione quantos itens quiser ou continue sem adicionais."
             />
-            {addOns.length === 0 ? (
+            {loadingAddOns ? (
+              <div className="rounded-2xl border border-white/10 p-8 text-center text-sm text-white/45">
+                Carregando adicionais deste profissional...
+              </div>
+            ) : addOnsError ? (
+              <div className="rounded-2xl border border-red-400/25 bg-red-400/10 p-4 text-sm text-red-100">
+                {addOnsError}
+              </div>
+            ) : barberAddOns.length === 0 ? (
               <div className="rounded-2xl border border-dashed border-white/15 p-8 text-center text-sm text-white/45">
                 Nenhum adicional disponível para este agendamento.
               </div>
             ) : (
               <div className="space-y-3">
-                {addOns.map((item) => {
+                {barberAddOns.map((item) => {
                   const selected = selectedAddOns.includes(item.id)
                   return (
                     <button
@@ -612,8 +665,14 @@ export function BookingClient({
                       <span className="flex-1 text-sm font-semibold">
                         {item.name}
                       </span>
-                      <span className="text-sm text-[#C79A4A]">
-                        + {formatCurrency(item.price)}
+                      <span className="flex flex-col items-end gap-1 text-sm">
+                        <span className="text-[#C79A4A]">
+                          + {formatCurrency(item.price)}
+                        </span>
+                        <span className="flex items-center gap-1 text-xs text-white/45">
+                          <Clock3 className="size-3" />
+                          + {item.durationMinutes} min
+                        </span>
                       </span>
                       <SelectionMark selected={selected} />
                     </button>
