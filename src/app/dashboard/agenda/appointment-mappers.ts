@@ -23,6 +23,7 @@ interface AppointmentRow {
   appointment_add_ons:
     | {
         price: number | string
+        duration_minutes: number
         add_ons: { name: string } | { name: string }[] | null
       }[]
     | null
@@ -48,6 +49,11 @@ export function mapAppointmentRows(rows: AppointmentRow[] | null) {
     const client = one(row.clients)
     const service = one(row.services)
     const barber = one(row.barbers)
+    const addOns = (row.appointment_add_ons ?? []).map((item) => ({
+      name: one(item.add_ons)?.name ?? 'Adicional',
+      price: Number(item.price),
+      durationMinutes: Number(item.duration_minutes),
+    }))
 
     return {
       id: row.id,
@@ -57,15 +63,15 @@ export function mapAppointmentRows(rows: AppointmentRow[] | null) {
       status: row.status,
       servicePrice: Number(row.service_price ?? 0),
       serviceDurationMinutes: Number(row.service_duration_minutes ?? 0),
+      totalDurationMinutes:
+        Number(row.service_duration_minutes ?? 0) +
+        addOns.reduce((total, item) => total + item.durationMinutes, 0),
       attendanceTotal: Number(row.total_price),
       notes: row.notes,
       client: client ?? { name: 'Cliente', phone: '', email: null },
       serviceName: service?.name ?? 'Serviço',
       barberName: barber?.name ?? 'Profissional',
-      addOns: (row.appointment_add_ons ?? []).map((item) => ({
-        name: one(item.add_ons)?.name ?? 'Adicional',
-        price: Number(item.price),
-      })),
+      addOns,
       products: (row.appointment_products ?? []).map(
         (item): AppointmentProductSnapshot => ({
           name: one(item.products)?.name ?? 'Produto',

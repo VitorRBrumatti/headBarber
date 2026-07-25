@@ -10,6 +10,7 @@ export interface AgendaBarber {
 export interface AppointmentAddOnSnapshot {
   name: string
   price: number
+  durationMinutes: number
 }
 
 export interface AppointmentProductSnapshot {
@@ -28,6 +29,7 @@ export interface AppointmentDetails {
   status: AppointmentStatus
   servicePrice: number
   serviceDurationMinutes: number
+  totalDurationMinutes: number
   attendanceTotal: number
   notes: string | null
   client: {

@@ -14,8 +14,14 @@ must show that legacy signatures create snapshots using relationship pricing
 from `public.barber_services`. Do not deploy Release A until this gate passes.
 
 Release A is application-rollback-safe. It adds nullable snapshots, the
-barber/service relationship, compatible legacy functions, and owner-only
-telemetry. It does not remove legacy functions or compatibility columns.
+barber/service and barber/add-on relationships, compatible legacy functions,
+and owner-only telemetry. It does not remove legacy functions or compatibility
+columns. Before deploy, confirm `barber_add_ons` RLS is enabled and its grants
+allow `anon` to select available catalog rows while only authenticated tenant
+members can write. Record the database advisor output with the release.
+
+A rollback must revert the application only. Preserve the expanded
+`barber_add_ons` schema and all appointment snapshots.
 
 ## Release B
 
@@ -35,14 +41,22 @@ where barber_service_id is null
 ```
 
 ```sql
+select count(*) as null_add_on_snapshots
+from public.appointment_add_ons
+where barber_add_on_id is null
+   or duration_minutes is null;
+```
+
+```sql
 select function_name, count(*) as calls, max(called_at) as last_call
 from private.legacy_booking_rpc_calls
 where called_at >= now() - interval '14 days'
 group by function_name;
 ```
 
-Keep the raw daily results with the release record. Any null snapshot or legacy
-call resets the observation clock after the cause is remediated.
+Keep the raw daily results, RLS/grant inspection, and advisor report with the
+release record. Any null service snapshot, null add-on snapshot, or legacy call
+resets the observation clock after the cause is remediated.
 
 ## Release C
 

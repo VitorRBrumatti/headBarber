@@ -74,7 +74,7 @@ export function BookingSuccess({
           <SummaryRow
             icon={Clock}
             label="Duração"
-            value={`${receipt.serviceDurationMinutes} min`}
+            value={`${receipt.serviceDurationMinutes + receipt.addOnDurationMinutes} min`}
           />
           <SummaryRow
             icon={CalendarDays}

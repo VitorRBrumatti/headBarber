@@ -9,6 +9,7 @@ import {
   parseCreatedBookingReceipt,
 } from './booking-action-mappers'
 import type { SelectedBookingProduct } from './booking-types'
+import type { SelectedBookingAddOn } from './booking-add-ons'
 
 export async function getBookingPageData(slug: string) {
   const supabase = await createClient()
@@ -22,16 +23,10 @@ export async function getBookingPageData(slug: string) {
     throw new Error('Barbearia não encontrada')
   }
 
-  const [barbersResult, addOnsResult, productsResult] = await Promise.all([
+  const [barbersResult, productsResult] = await Promise.all([
     supabase
       .from('barbers')
       .select('id, name, bio, avatar_url')
-      .eq('barbershop_id', barbershop.id)
-      .eq('is_active', true)
-      .order('name'),
-    supabase
-      .from('add_ons')
-      .select('id, name, price')
       .eq('barbershop_id', barbershop.id)
       .eq('is_active', true)
       .order('name'),
@@ -55,7 +50,6 @@ export async function getBookingPageData(slug: string) {
   return {
     barbershop,
     barbers: barbersResult.data || [],
-    addOns: addOnsResult.data || [],
     products: productsResult.data || [],
   }
 }
@@ -92,22 +86,39 @@ export async function getBarberServicesAction(
 export async function getPublicSlotsAction(
   barbershopId: string,
   barberServiceId: string,
+  selectedAddOns: SelectedBookingAddOn[],
   dateStr: string,
 ) {
   const supabase = await createClient()
   const { data, error } = await supabase.rpc(
-    'get_public_available_slots_for_service',
+    'get_public_available_slots_for_service_and_add_ons',
     {
       p_barbershop_id: barbershopId,
       p_barber_service_id: barberServiceId,
+      p_add_ons: selectedAddOns,
       p_date: dateStr,
     },
   )
 
   if (error) {
     console.error('Error fetching public slots:', error.message)
+    if (error.message.includes('CONFIG_CHANGED')) {
+      return {
+        success: false as const,
+        code: 'CONFIG_CHANGED' as const,
+        error: 'Um adicional mudou. Revise os adicionais e tente novamente.',
+      }
+    }
+    if (error.message.includes('INVALID_ADD_ON')) {
+      return {
+        success: false as const,
+        code: 'INVALID_ADD_ON' as const,
+        error: 'O adicional selecionado ficou indisponível.',
+      }
+    }
     return {
       success: false as const,
+      code: 'UNKNOWN' as const,
       error: 'Não foi possível carregar os horários disponíveis.',
     }
   }
@@ -131,14 +142,14 @@ export type CreatePublicBookingInput = {
   configurationVersion: number
   startAt: string
   notes?: string
-  addOnIds?: string[]
+  addOns?: SelectedBookingAddOn[]
   products?: SelectedBookingProduct[]
 }
 
 export async function createPublicBooking(input: CreatePublicBookingInput) {
   const supabase = await createClient()
   const { data, error } = await supabase.rpc(
-    'create_public_appointment_with_barber_service_and_products',
+    'create_public_booking_with_barber_add_ons',
     {
       p_barbershop_id: input.barbershopId,
       p_client_name: input.clientName,
@@ -148,7 +159,7 @@ export async function createPublicBooking(input: CreatePublicBookingInput) {
       p_configuration_version: input.configurationVersion,
       p_start_at: input.startAt,
       p_notes: input.notes || null,
-      p_add_on_ids: input.addOnIds || null,
+      p_add_ons: input.addOns ?? [],
       p_products: input.products || [],
     },
   )
@@ -164,7 +175,8 @@ export async function createPublicBooking(input: CreatePublicBookingInput) {
   } catch (receiptError) {
     console.error('Invalid authoritative booking receipt:', receiptError)
     return {
-      error: 'O agendamento foi criado, mas o comprovante não pôde ser carregado.',
+      error:
+        'O agendamento foi criado, mas o comprovante não pôde ser carregado.',
       code: 'INVALID_RECEIPT' as const,
     }
   }

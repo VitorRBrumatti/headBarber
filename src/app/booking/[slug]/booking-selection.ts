@@ -25,6 +25,7 @@ export function selectBarber(
     time: '',
     slots: [],
     error: '',
+    addOnIds: [],
   }
 }
 

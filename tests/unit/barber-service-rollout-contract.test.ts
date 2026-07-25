@@ -53,6 +53,10 @@ describe('barber service rollout runbook contract', () => {
     expect(runbook).toContain('where barber_service_id is null')
     expect(runbook).toContain('or service_price is null')
     expect(runbook).toContain('or service_duration_minutes is null')
+    expect(runbook).toContain('from public.appointment_add_ons')
+    expect(runbook).toContain('where barber_add_on_id is null')
+    expect(runbook).toContain('or duration_minutes is null')
+    expect(runbook).toMatch(/barber_add_ons[\s\S]*RLS[\s\S]*grants/i)
     expect(runbook).toContain(
       'select function_name, count(*) as calls, max(called_at) as last_call',
     )

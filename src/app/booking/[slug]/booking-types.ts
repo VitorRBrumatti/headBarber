@@ -17,6 +17,7 @@ export interface CreatedBookingReceipt {
   serviceName: string
   servicePrice: string
   serviceDurationMinutes: number
+  addOnDurationMinutes: number
   addOnTotal: string
   productSubtotal: string
   attendanceTotal: string

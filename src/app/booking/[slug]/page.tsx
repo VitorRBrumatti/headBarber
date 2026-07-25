@@ -28,7 +28,6 @@ export default async function BookingPage({ params }: BookingPageProps) {
       <BookingClient
         barbershop={data.barbershop}
         barbers={data.barbers}
-        addOns={data.addOns}
         products={data.products}
       />
     </div>

@@ -21,6 +21,7 @@ export default async function ReservasPage() {
       barbers ( name ),
       appointment_add_ons (
         price,
+        duration_minutes,
         add_ons ( name )
       ),
       appointment_products (

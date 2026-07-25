@@ -120,7 +120,7 @@ function AppointmentFinancialDetails({
         />
         <DetailItem
           label="Duração"
-          value={`${appointment.serviceDurationMinutes} min`}
+          value={`${appointment.totalDurationMinutes} min`}
         />
       </div>
 
@@ -144,7 +144,9 @@ function AppointmentFinancialDetails({
                     className="flex justify-between"
                     key={`${item.name}-${index}`}
                   >
-                    <span>{item.name}</span>
+                    <span>
+                      {item.name} (+{item.durationMinutes} min)
+                    </span>
                     <span>{money(item.price)}</span>
                   </span>
                 ))
