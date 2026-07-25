@@ -22,6 +22,7 @@ import {
 } from './actions'
 import { getBarberAddOnsAction } from './booking-add-on-actions'
 import {
+  selectedAddOnPayload,
   toggleAddOnSelection,
   type BarberAddOnOption,
 } from './booking-add-ons'
@@ -77,9 +78,7 @@ function formatDate(date: Date) {
 
 function isoDate(date: Date) {
   const offset = date.getTimezoneOffset()
-  return new Date(date.getTime() - offset * 60_000)
-    .toISOString()
-    .slice(0, 10)
+  return new Date(date.getTime() - offset * 60_000).toISOString().slice(0, 10)
 }
 
 function SelectionMark({ selected }: { selected: boolean }) {
@@ -130,20 +129,17 @@ export function BookingClient({
   const selectedBarberRef = useRef('')
   const [currentStep, setCurrentStep] = useState(1)
   const [selectedBarber, setSelectedBarber] = useState('')
-  const [barberServices, setBarberServices] = useState<
-    BarberServiceOption[]
-  >([])
+  const [barberServices, setBarberServices] = useState<BarberServiceOption[]>(
+    [],
+  )
   const [selectedServiceId, setSelectedServiceId] = useState('')
   const [loadingServices, setLoadingServices] = useState(false)
   const [servicesError, setServicesError] = useState('')
-  const [barberAddOns, setBarberAddOns] = useState<BarberAddOnOption[]>(
-    [],
-  )
+  const [barberAddOns, setBarberAddOns] = useState<BarberAddOnOption[]>([])
   const [loadingAddOns, setLoadingAddOns] = useState(false)
   const [addOnsError, setAddOnsError] = useState('')
   const [selectedAddOns, setSelectedAddOns] = useState<string[]>([])
-  const [selectedProducts, setSelectedProducts] =
-    useState<ProductSelection>({})
+  const [selectedProducts, setSelectedProducts] = useState<ProductSelection>({})
   const [unavailableProducts, setUnavailableProducts] = useState<Set<string>>(
     new Set(),
   )
@@ -171,9 +167,7 @@ export function BookingClient({
     [],
   )
 
-  const service = barberServices.find(
-    (item) => item.id === selectedServiceId,
-  )
+  const service = barberServices.find((item) => item.id === selectedServiceId)
   const barber = barbers.find((item) => item.id === selectedBarber)
   const selectedAddOnItems = barberAddOns.filter((item) =>
     selectedAddOns.includes(item.id),
@@ -240,6 +234,7 @@ export function BookingClient({
     const response = await getPublicSlotsAction(
       barbershop.id,
       barberServiceId,
+      selectedAddOnPayload(selectedAddOns, barberAddOns),
       date,
     )
     if (requestId !== slotRequestRef.current) return
@@ -248,6 +243,16 @@ export function BookingClient({
     if (!response.success) {
       setSlots([])
       setSlotsError(response.error)
+      if (
+        response.code === 'CONFIG_CHANGED' ||
+        response.code === 'INVALID_ADD_ON'
+      ) {
+        setSelectedAddOns([])
+        setSelectedDate('')
+        setSelectedTime('')
+        setCurrentStep(3)
+        void loadBarberAddOns(selectedBarber)
+      }
       return
     }
     setSlots(response.slots)
@@ -549,10 +554,7 @@ export function BookingClient({
               description={`Veja os serviços configurados para ${barber?.name || 'o profissional selecionado'}.`}
             />
             {loadingServices ? (
-              <div
-                aria-live="polite"
-                className="grid gap-3 sm:grid-cols-2"
-              >
+              <div aria-live="polite" className="grid gap-3 sm:grid-cols-2">
                 <span className="sr-only">Carregando serviços</span>
                 {Array.from({ length: 4 }, (_, index) => (
                   <div
@@ -670,8 +672,8 @@ export function BookingClient({
                           + {formatCurrency(item.price)}
                         </span>
                         <span className="flex items-center gap-1 text-xs text-white/45">
-                          <Clock3 className="size-3" />
-                          + {item.durationMinutes} min
+                          <Clock3 className="size-3" />+ {item.durationMinutes}{' '}
+                          min
                         </span>
                       </span>
                       <SelectionMark selected={selected} />

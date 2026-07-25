@@ -82,9 +82,7 @@ describe('booking action behavior', () => {
       error:
         'Alguns produtos tiveram o estoque alterado. Ajuste as quantidades para continuar.',
       code: 'INSUFFICIENT_STOCK',
-      unavailableProducts: [
-        { productId: 'pomade', availableQuantity: 1 },
-      ],
+      unavailableProducts: [{ productId: 'pomade', availableQuantity: 1 }],
     })
   })
 })
@@ -99,7 +97,10 @@ describe('booking action wiring', () => {
   })
 
   it('uses the service-aware slot and receipt RPCs', () => {
-    expect(source).toContain("'get_public_available_slots_for_service'")
+    expect(source).toContain(
+      "'get_public_available_slots_for_service_and_add_ons'",
+    )
+    expect(source).toContain('p_add_ons: selectedAddOns')
     expect(source).toContain(
       "'create_public_appointment_with_barber_service_and_products'",
     )

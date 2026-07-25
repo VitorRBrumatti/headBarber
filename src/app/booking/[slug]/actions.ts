@@ -9,6 +9,7 @@ import {
   parseCreatedBookingReceipt,
 } from './booking-action-mappers'
 import type { SelectedBookingProduct } from './booking-types'
+import type { SelectedBookingAddOn } from './booking-add-ons'
 
 export async function getBookingPageData(slug: string) {
   const supabase = await createClient()
@@ -92,22 +93,39 @@ export async function getBarberServicesAction(
 export async function getPublicSlotsAction(
   barbershopId: string,
   barberServiceId: string,
+  selectedAddOns: SelectedBookingAddOn[],
   dateStr: string,
 ) {
   const supabase = await createClient()
   const { data, error } = await supabase.rpc(
-    'get_public_available_slots_for_service',
+    'get_public_available_slots_for_service_and_add_ons',
     {
       p_barbershop_id: barbershopId,
       p_barber_service_id: barberServiceId,
+      p_add_ons: selectedAddOns,
       p_date: dateStr,
     },
   )
 
   if (error) {
     console.error('Error fetching public slots:', error.message)
+    if (error.message.includes('CONFIG_CHANGED')) {
+      return {
+        success: false as const,
+        code: 'CONFIG_CHANGED' as const,
+        error: 'Um adicional mudou. Revise os adicionais e tente novamente.',
+      }
+    }
+    if (error.message.includes('INVALID_ADD_ON')) {
+      return {
+        success: false as const,
+        code: 'INVALID_ADD_ON' as const,
+        error: 'O adicional selecionado ficou indisponível.',
+      }
+    }
     return {
       success: false as const,
+      code: 'UNKNOWN' as const,
       error: 'Não foi possível carregar os horários disponíveis.',
     }
   }
@@ -164,7 +182,8 @@ export async function createPublicBooking(input: CreatePublicBookingInput) {
   } catch (receiptError) {
     console.error('Invalid authoritative booking receipt:', receiptError)
     return {
-      error: 'O agendamento foi criado, mas o comprovante não pôde ser carregado.',
+      error:
+        'O agendamento foi criado, mas o comprovante não pôde ser carregado.',
       code: 'INVALID_RECEIPT' as const,
     }
   }
