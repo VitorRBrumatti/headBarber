@@ -27,6 +27,8 @@ const expectedErrorMessages = {
     'O preço ou a duração mudou. Revise o serviço e confirme novamente.',
   INVALID_BARBER_SERVICE:
     'Este serviço não está mais disponível para o profissional escolhido.',
+  INVALID_ADD_ON:
+    'Um adicional selecionado mudou ou não está mais disponível.',
   SLOT_UNAVAILABLE:
     'Este horário acabou de ficar indisponível. Escolha outro horário.',
 } as const
@@ -92,6 +94,10 @@ export function parseCreatedBookingReceipt(
     serviceDurationMinutes: requiredNumber(
       receipt.serviceDurationMinutes,
       'serviceDurationMinutes',
+    ),
+    addOnDurationMinutes: requiredNumber(
+      receipt.addOnDurationMinutes,
+      'addOnDurationMinutes',
     ),
     addOnTotal: requiredString(receipt.addOnTotal, 'addOnTotal'),
     productSubtotal: requiredString(

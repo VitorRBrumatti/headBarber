@@ -149,14 +149,14 @@ export type CreatePublicBookingInput = {
   configurationVersion: number
   startAt: string
   notes?: string
-  addOnIds?: string[]
+  addOns?: SelectedBookingAddOn[]
   products?: SelectedBookingProduct[]
 }
 
 export async function createPublicBooking(input: CreatePublicBookingInput) {
   const supabase = await createClient()
   const { data, error } = await supabase.rpc(
-    'create_public_appointment_with_barber_service_and_products',
+    'create_public_booking_with_barber_add_ons',
     {
       p_barbershop_id: input.barbershopId,
       p_client_name: input.clientName,
@@ -166,7 +166,7 @@ export async function createPublicBooking(input: CreatePublicBookingInput) {
       p_configuration_version: input.configurationVersion,
       p_start_at: input.startAt,
       p_notes: input.notes || null,
-      p_add_on_ids: input.addOnIds || null,
+      p_add_ons: input.addOns ?? [],
       p_products: input.products || [],
     },
   )

@@ -52,6 +52,7 @@ describe('booking action behavior', () => {
       serviceName: 'Corte',
       servicePrice: '40.00',
       serviceDurationMinutes: 30,
+      addOnDurationMinutes: 15,
       addOnTotal: '10.00',
       productSubtotal: '25.00',
       attendanceTotal: '50.00',
@@ -67,6 +68,7 @@ describe('booking action behavior', () => {
   it.each([
     ['CONFIG_CHANGED', 'CONFIG_CHANGED'],
     ['INVALID_BARBER_SERVICE', 'INVALID_BARBER_SERVICE'],
+    ['INVALID_ADD_ON', 'INVALID_ADD_ON'],
     ['SLOT_UNAVAILABLE', 'SLOT_UNAVAILABLE'],
   ] as const)('maps %s to a stable structured error', (message, code) => {
     expect(mapBookingRpcError({ message })).toMatchObject({ code })
@@ -102,8 +104,9 @@ describe('booking action wiring', () => {
     )
     expect(source).toContain('p_add_ons: selectedAddOns')
     expect(source).toContain(
-      "'create_public_appointment_with_barber_service_and_products'",
+      "'create_public_booking_with_barber_add_ons'",
     )
+    expect(source).toContain('p_add_ons: input.addOns ?? []')
     expect(source).toContain('p_barber_service_id: input.barberServiceId')
     expect(source).toContain(
       'p_configuration_version: input.configurationVersion',

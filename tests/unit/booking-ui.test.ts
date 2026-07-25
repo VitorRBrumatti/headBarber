@@ -36,6 +36,7 @@ describe('booking visual contract', () => {
     expect(source).toContain('receipt.serviceName')
     expect(source).toContain('receipt.servicePrice')
     expect(source).toContain('receipt.serviceDurationMinutes')
+    expect(source).toContain('receipt.addOnDurationMinutes')
     expect(source).toContain('receipt.addOnTotal')
     expect(source).toContain('receipt.productSubtotal')
     expect(source).toContain('receipt.attendanceTotal')

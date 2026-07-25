@@ -414,7 +414,7 @@ export function BookingClient({
         configurationVersion: service.configurationVersion,
         startAt: `${selectedDate}T${selectedTime}:00.000Z`,
         notes: notes.trim() || undefined,
-        addOnIds: selectedAddOnItems.map((item) => item.addOnId),
+        addOns: selectedAddOnPayload(selectedAddOns, barberAddOns),
         products: toSelectedProducts(selectedProducts),
       })
 
@@ -430,14 +430,21 @@ export function BookingClient({
           setCurrentStep(4)
         } else if (
           response.code === 'CONFIG_CHANGED' ||
-          response.code === 'INVALID_BARBER_SERVICE'
+          response.code === 'INVALID_BARBER_SERVICE' ||
+          response.code === 'INVALID_ADD_ON'
         ) {
-          setSelectedServiceId('')
           setSelectedDate('')
           setSelectedTime('')
           setSlots([])
-          setCurrentStep(2)
-          if (selectedBarber) void loadBarberServices(selectedBarber)
+          if (response.code === 'INVALID_BARBER_SERVICE') {
+            setSelectedServiceId('')
+            setCurrentStep(2)
+            if (selectedBarber) void loadBarberServices(selectedBarber)
+          } else {
+            setSelectedAddOns([])
+            setCurrentStep(3)
+            if (selectedBarber) void loadBarberAddOns(selectedBarber)
+          }
         } else if (response.code === 'SLOT_UNAVAILABLE') {
           setSelectedTime('')
           setCurrentStep(5)
