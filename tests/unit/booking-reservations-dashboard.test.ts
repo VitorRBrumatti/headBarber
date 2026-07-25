@@ -32,13 +32,13 @@ describe('manual appointment administration', () => {
   })
 
   it('renders a barber-first, service-aware manual form', () => {
-    const client = source('src/app/dashboard/agenda/agenda-client.tsx')
-    expect(client.indexOf('Profissional')).toBeLessThan(
-      client.indexOf('Serviço'),
+    const sheet = source(
+      'src/app/dashboard/agenda/manual-booking-sheet.tsx',
     )
-    expect(client).toContain('setSelectedServiceId')
-    expect(client).toContain('getAdminSlotsAction')
-    expect(client).not.toContain('Duração: 30 minutos')
+    expect(sheet.indexOf('Profissional')).toBeLessThan(sheet.indexOf('Serviço'))
+    expect(sheet).toContain('setSelectedServiceId')
+    expect(sheet).toContain('getAdminSlotsAction')
+    expect(sheet).not.toContain('Duração: 30 minutos')
   })
 })
 

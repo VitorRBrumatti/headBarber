@@ -55,6 +55,7 @@ export function Sheet({ open, onClose, title, description, children }: SheetProp
             {description && <p className="mt-1 text-xs text-[#47464b] font-medium leading-normal">{description}</p>}
           </div>
           <button
+            aria-label="Fechar"
             onClick={onClose}
             className="rounded-md p-1.5 text-[#47464b] hover:bg-[#eceef4] hover:text-black transition-colors"
           >

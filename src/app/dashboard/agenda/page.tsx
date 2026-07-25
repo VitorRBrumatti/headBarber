@@ -1,5 +1,6 @@
 import { AgendaClient } from './agenda-client'
 import { getAgendaAppointments } from './actions'
+import { getAgendaSchedule } from './agenda-data'
 
 interface PageProps {
   searchParams: Promise<{
@@ -17,15 +18,19 @@ function localIsoDate(date: Date) {
 export default async function AgendaPage({ searchParams }: PageProps) {
   const { date } = await searchParams
   const targetDate = date || localIsoDate(new Date())
-  const data = await getAgendaAppointments(targetDate)
+  const [appointmentData, scheduleData] = await Promise.all([
+    getAgendaAppointments(targetDate),
+    getAgendaSchedule(targetDate),
+  ])
 
   return (
-    <div className="space-y-6">
-      <AgendaClient
-        initialBarbers={data.barbers}
-        initialAppointments={data.appointments}
-        currentDate={targetDate}
-      />
-    </div>
+    <AgendaClient
+      initialBarbers={appointmentData.barbers}
+      initialAppointments={appointmentData.appointments}
+      initialSettings={scheduleData.settings}
+      initialWorkHours={scheduleData.workHours}
+      initialBlocks={scheduleData.blocks}
+      currentDate={targetDate}
+    />
   )
 }

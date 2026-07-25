@@ -1,15 +1,25 @@
 'use client'
 
-import { useRef, useState, useTransition } from 'react'
+import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
-import type { BarberServiceOption } from '@/app/booking/[slug]/booking-types'
-import { Sheet } from '@/components/ui/sheet'
 import {
-  createAdminAppointment,
-  getAdminBarberServicesAction,
-  getAdminSlotsAction,
-  updateAppointmentStatus,
-} from './actions'
+  CalendarDays,
+  ChevronLeft,
+  ChevronRight,
+  Plus,
+} from 'lucide-react'
+import { Sheet } from '@/components/ui/sheet'
+import { AgendaGrid } from './agenda-grid'
+import type {
+  AgendaBlock,
+  AgendaWorkHour,
+} from './agenda-grid-utils'
+import type { AgendaSettings } from './agenda-schedule-mappers'
+import {
+  ManualBookingSheet,
+  type ManualBookingSelection,
+} from './manual-booking-sheet'
+import { updateAppointmentStatus } from './actions'
 import {
   getAllowedAppointmentTransitions,
   type AppointmentStatus,
@@ -19,6 +29,9 @@ import type { AgendaBarber, AppointmentDetails } from './agenda-types'
 interface AgendaClientProps {
   initialBarbers: AgendaBarber[]
   initialAppointments: AppointmentDetails[]
+  initialSettings: AgendaSettings
+  initialWorkHours: AgendaWorkHour[]
+  initialBlocks: AgendaBlock[]
   currentDate: string
 }
 
@@ -30,11 +43,37 @@ const statusLabels: Record<AppointmentStatus, string> = {
   no_show: 'Não compareceu',
 }
 
+const statusActionClassNames: Record<AppointmentStatus, string> = {
+  pending: 'border-[#d8dae0] bg-white text-[#47464b] hover:bg-[#f1f3fa]',
+  confirmed:
+    'border-[#d7b77d] bg-[#fff7e8] text-[#795506] hover:bg-[#ffefcf]',
+  completed:
+    'border-emerald-700 bg-emerald-700 text-white hover:bg-emerald-800',
+  cancelled: 'border-red-700 bg-red-700 text-white hover:bg-red-800',
+  no_show: 'border-orange-700 bg-orange-700 text-white hover:bg-orange-800',
+}
+
 const money = (value: number) =>
   new Intl.NumberFormat('pt-BR', {
     style: 'currency',
     currency: 'BRL',
   }).format(value)
+
+function dateWithOffset(dateStr: string, offset: number) {
+  const date = new Date(`${dateStr}T12:00:00`)
+  date.setDate(date.getDate() + offset)
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
+}
+
+function localIsoDate(date: Date) {
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
+}
 
 function AppointmentFinancialDetails({
   appointment,
@@ -49,27 +88,56 @@ function AppointmentFinancialDetails({
     )
 
   return (
-    <div className="space-y-5 text-sm">
-      <div>
-        <p className="text-xs font-semibold uppercase text-zinc-500">Cliente</p>
-        <p className="font-bold">{appointment.client.name}</p>
-        <p className="text-zinc-600">{appointment.client.phone}</p>
+    <div className="space-y-6 text-sm">
+      <div className="flex items-center gap-4">
+        <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-[#fff4dc] font-montserrat text-lg font-bold text-[#795506]">
+          {appointment.client.name
+            .split(' ')
+            .slice(0, 2)
+            .map((part) => part[0])
+            .join('')
+            .toUpperCase()}
+        </div>
+        <div className="min-w-0">
+          <p className="truncate font-montserrat text-lg font-bold text-[#181c21]">
+            {appointment.client.name}
+          </p>
+          <p className="text-[#77767b]">{appointment.client.phone}</p>
+          {appointment.client.email && (
+            <p className="truncate text-xs text-[#9a989d]">
+              {appointment.client.email}
+            </p>
+          )}
+        </div>
       </div>
-      <div className="rounded-xl border p-4">
-        <p className="font-bold">{appointment.serviceName}</p>
-        <p className="text-zinc-600">
-          {appointment.barberName} · {appointment.serviceDurationMinutes} min
+
+      <div className="grid grid-cols-2 gap-x-6 gap-y-5 border-y border-[#eceef4] py-5">
+        <DetailItem label="Serviço" value={appointment.serviceName} />
+        <DetailItem label="Barbeiro" value={appointment.barberName} />
+        <DetailItem
+          label="Horário"
+          value={`${appointment.startAt.substring(11, 16)}–${appointment.endAt.substring(11, 16)}`}
+        />
+        <DetailItem
+          label="Duração"
+          value={`${appointment.serviceDurationMinutes} min`}
+        />
+      </div>
+
+      <div className="rounded-xl border border-[#e0e2e9] bg-[#f8f9ff] p-4">
+        <p className="font-montserrat text-sm font-bold text-[#181c21]">
+          Atendimento
         </p>
-        <dl className="mt-4 space-y-2">
-          <div className="flex justify-between">
+        <dl className="mt-4 space-y-2.5">
+          <div className="flex justify-between text-[#47464b]">
             <dt>Preço do serviço</dt>
             <dd>{money(appointment.servicePrice)}</dd>
           </div>
           <div>
-            <dt className="font-semibold">Adicionais</dt>
-            <dd className="mt-1 space-y-1">
+            <dt className="font-semibold text-[#47464b]">Adicionais</dt>
+            <dd className="mt-1.5 space-y-1 text-[#47464b]">
               {appointment.addOns.length === 0 ? (
-                <span className="text-zinc-500">Nenhum</span>
+                <span className="text-[#9a989d]">Nenhum</span>
               ) : (
                 appointment.addOns.map((item, index) => (
                   <span
@@ -83,21 +151,24 @@ function AppointmentFinancialDetails({
               )}
             </dd>
           </div>
-          <div className="flex justify-between border-t pt-2 font-bold">
+          <div className="flex justify-between border-t border-[#e0e2e9] pt-2.5 font-bold text-[#181c21]">
             <dt>Total do atendimento</dt>
             <dd>{money(appointment.attendanceTotal)}</dd>
           </div>
         </dl>
       </div>
-      <div className="rounded-xl border p-4">
-        <p className="font-semibold">Produtos</p>
+
+      <div className="rounded-xl border border-[#e0e2e9] p-4">
+        <p className="font-montserrat text-sm font-bold text-[#181c21]">
+          Produtos
+        </p>
         {appointment.products.length === 0 ? (
-          <p className="mt-1 text-zinc-500">Nenhum produto reservado.</p>
+          <p className="mt-2 text-[#9a989d]">Nenhum produto reservado.</p>
         ) : (
-          <div className="mt-2 space-y-1">
+          <div className="mt-3 space-y-2 text-[#47464b]">
             {appointment.products.map((product, index) => (
               <div
-                className="flex justify-between"
+                className="flex justify-between gap-4"
                 key={`${product.name}-${index}`}
               >
                 <span>
@@ -108,15 +179,35 @@ function AppointmentFinancialDetails({
             ))}
           </div>
         )}
-        <div className="mt-3 flex justify-between border-t pt-2 font-bold">
+        <div className="mt-3 flex justify-between border-t border-[#eceef4] pt-3 font-bold text-[#47464b]">
           <span>Subtotal dos produtos</span>
           <span>{money(productSubtotal)}</span>
         </div>
-        <div className="mt-2 flex justify-between text-base font-extrabold">
+        <div className="mt-3 flex justify-between text-base font-extrabold text-[#181c21]">
           <span>Total na barbearia</span>
           <span>{money(appointment.attendanceTotal + productSubtotal)}</span>
         </div>
       </div>
+
+      {appointment.notes && (
+        <div className="rounded-xl bg-[#f1f3fa] p-4">
+          <p className="text-[10px] font-bold uppercase tracking-[0.08em] text-[#77767b]">
+            Observações
+          </p>
+          <p className="mt-2 leading-6 text-[#47464b]">{appointment.notes}</p>
+        </div>
+      )}
+    </div>
+  )
+}
+
+function DetailItem({ label, value }: { label: string; value: string }) {
+  return (
+    <div>
+      <p className="text-[10px] font-bold uppercase tracking-[0.08em] text-[#9a989d]">
+        {label}
+      </p>
+      <p className="mt-1 font-semibold text-[#181c21]">{value}</p>
     </div>
   )
 }
@@ -124,104 +215,43 @@ function AppointmentFinancialDetails({
 export function AgendaClient({
   initialBarbers,
   initialAppointments,
+  initialSettings,
+  initialWorkHours,
+  initialBlocks,
   currentDate,
 }: AgendaClientProps) {
   const router = useRouter()
-  const [selectedBarberId, setSelectedBarberId] = useState('')
-  const [selectedServiceId, setSelectedServiceId] = useState('')
-  const [services, setServices] = useState<BarberServiceOption[]>([])
-  const [slots, setSlots] = useState<string[]>([])
-  const [selectedTime, setSelectedTime] = useState('')
-  const [clientName, setClientName] = useState('')
-  const [clientPhone, setClientPhone] = useState('')
-  const [clientEmail, setClientEmail] = useState('')
-  const [message, setMessage] = useState('')
   const [selectedAppointment, setSelectedAppointment] =
     useState<AppointmentDetails | null>(null)
+  const [createSelection, setCreateSelection] =
+    useState<ManualBookingSelection | null>(null)
+  const [isCreateOpen, setIsCreateOpen] = useState(false)
+  const [message, setMessage] = useState('')
   const [isPending, startTransition] = useTransition()
-  const serviceRequest = useRef(0)
-  const slotRequest = useRef(0)
 
-  const loadServices = async (barberId: string) => {
-    const request = ++serviceRequest.current
-    setServices([])
-    setSelectedServiceId('')
-    setSlots([])
-    setSelectedTime('')
-    if (!barberId) return
-    const result = await getAdminBarberServicesAction(barberId)
-    if (request !== serviceRequest.current) return
-    if (!result.success) {
-      setMessage(result.error)
-      return
-    }
-    setServices(result.services)
-    if (result.services.length === 0) {
-      setMessage('Este profissional não possui serviços disponíveis.')
-    }
+  const navigateToDate = (date: string) => {
+    router.push(`/dashboard/agenda?date=${date}`, { scroll: false })
   }
 
-  const loadSlots = async (barberServiceId: string) => {
-    const request = ++slotRequest.current
-    setSlots([])
-    setSelectedTime('')
-    if (!barberServiceId) return
-    const result = await getAdminSlotsAction(barberServiceId, currentDate)
-    if (request !== slotRequest.current) return
-    if (!result.success) {
-      setMessage(result.error)
-      return
-    }
-    setSlots(result.slots)
-    if (result.slots.length === 0) {
-      setMessage('Não há horários disponíveis nesta data.')
-    }
+  const openCreateForSlot = (barberId: string, time: string) => {
+    setCreateSelection({ barberId, time })
+    setIsCreateOpen(true)
   }
 
-  const handleCreate = () => {
-    const service = services.find((item) => item.id === selectedServiceId)
-    if (!service || !selectedTime || !clientName || !clientPhone) {
-      setMessage('Preencha profissional, serviço, horário, nome e telefone.')
-      return
-    }
-
-    setMessage('')
-    startTransition(async () => {
-      const result = await createAdminAppointment({
-        clientName,
-        clientPhone,
-        clientEmail,
-        barberServiceId: service.id,
-        configurationVersion: service.configurationVersion,
-        startAt: `${currentDate}T${selectedTime}:00.000Z`,
-      })
-
-      if ('error' in result) {
-        setMessage(result.error)
-        if (
-          result.code === 'CONFIG_CHANGED' ||
-          result.code === 'INVALID_BARBER_SERVICE'
-        ) {
-          await loadServices(selectedBarberId)
-        } else if (result.code === 'SLOT_UNAVAILABLE') {
-          await loadSlots(selectedServiceId)
-        }
-        return
-      }
-
-      setClientName('')
-      setClientPhone('')
-      setClientEmail('')
-      setSelectedTime('')
-      setMessage(
-        `Reserva criada: ${result.receipt.serviceName} com ${result.receipt.barberName}.`,
-      )
-      await loadSlots(selectedServiceId)
-      router.refresh()
-    })
+  const openBlankCreate = () => {
+    setCreateSelection({ barberId: '', time: '' })
+    setIsCreateOpen(true)
   }
 
-  const changeStatus = (appointment: AppointmentDetails, status: AppointmentStatus) => {
+  const closeCreate = () => {
+    setIsCreateOpen(false)
+    setCreateSelection(null)
+  }
+
+  const changeStatus = (
+    appointment: AppointmentDetails,
+    status: AppointmentStatus,
+  ) => {
     setMessage('')
     startTransition(async () => {
       try {
@@ -230,184 +260,152 @@ export function AgendaClient({
         router.refresh()
       } catch (error) {
         setMessage(
-          error instanceof Error ? error.message : 'Não foi possível atualizar.',
+          error instanceof Error
+            ? error.message
+            : 'Não foi possível atualizar o atendimento.',
         )
       }
     })
   }
 
+  const formattedDate = new Date(
+    `${currentDate}T00:00:00`,
+  ).toLocaleDateString('pt-BR', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  })
+  const displayDate = formattedDate.charAt(0).toUpperCase() + formattedDate.slice(1)
+  const activeAppointments = initialAppointments.filter(
+    (appointment) => appointment.status !== 'cancelled',
+  ).length
+
   return (
-    <div className="space-y-6 p-6 md:p-8">
-      <div className="flex flex-wrap items-end justify-between gap-4">
+    <div className="space-y-6 p-5 sm:p-6 lg:p-8">
+      <header className="flex flex-col gap-5 border-b border-[#e0e2e9] pb-6 xl:flex-row xl:items-end xl:justify-between">
         <div>
-          <h1 className="text-3xl font-extrabold">Agenda</h1>
-          <p className="text-sm text-zinc-600">
-            Crie e acompanhe os atendimentos do dia.
+          <div className="flex items-center gap-2 text-[#C79A4A]">
+            <CalendarDays className="h-4 w-4" aria-hidden="true" />
+            <span className="text-xs font-bold uppercase tracking-[0.1em]">
+              Agenda
+            </span>
+          </div>
+          <h1 className="mt-2 font-montserrat text-2xl font-extrabold tracking-tight text-[#181c21] sm:text-3xl">
+            {displayDate}
+          </h1>
+          <p className="mt-1 text-sm text-[#77767b]">
+            {activeAppointments}{' '}
+            {activeAppointments === 1
+              ? 'reserva agendada'
+              : 'reservas agendadas'}
           </p>
         </div>
-        <input
-          aria-label="Data da agenda"
-          className="rounded-lg border bg-white px-3 py-2"
-          onChange={(event) =>
-            router.push(`/dashboard/agenda?date=${event.target.value}`)
-          }
-          type="date"
-          value={currentDate}
-        />
-      </div>
 
-      <section className="rounded-2xl border bg-white p-5 shadow-sm">
-        <h2 className="text-lg font-bold">Nova reserva manual</h2>
-        <div className="mt-4 grid gap-4 md:grid-cols-3">
-          <label className="text-sm font-semibold">
-            Profissional
-            <select
-              className="mt-1 w-full rounded-lg border p-2.5"
-              onChange={(event) => {
-                const barberId = event.target.value
-                setMessage('')
-                setSelectedBarberId(barberId)
-                void loadServices(barberId)
-              }}
-              value={selectedBarberId}
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="flex items-center rounded-xl border border-[#d8dae0] bg-white p-1 shadow-sm">
+            <button
+              aria-label="Dia anterior"
+              className="flex h-9 items-center gap-1 rounded-lg px-2.5 text-xs font-semibold text-[#47464b] transition-colors hover:bg-[#f1f3fa] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C79A4A] active:scale-[0.98]"
+              onClick={() => navigateToDate(dateWithOffset(currentDate, -1))}
+              type="button"
             >
-              <option value="">Selecione</option>
-              {initialBarbers.map((barber) => (
-                <option key={barber.id} value={barber.id}>
-                  {barber.name}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label className="text-sm font-semibold">
-            Serviço
-            <select
-              className="mt-1 w-full rounded-lg border p-2.5"
-              disabled={!selectedBarberId}
-              onChange={(event) => {
-                const serviceId = event.target.value
-                setMessage('')
-                setSelectedServiceId(serviceId)
-                void loadSlots(serviceId)
-              }}
-              value={selectedServiceId}
+              <ChevronLeft className="h-4 w-4" aria-hidden="true" />
+              <span className="hidden sm:inline">Anterior</span>
+            </button>
+            <button
+              className="h-9 rounded-lg bg-[#f1f3fa] px-3 text-xs font-bold text-[#181c21] transition-colors hover:bg-[#e6e8ef] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C79A4A] active:scale-[0.98]"
+              onClick={() => navigateToDate(localIsoDate(new Date()))}
+              type="button"
             >
-              <option value="">Selecione</option>
-              {services.map((service) => (
-                <option key={service.id} value={service.id}>
-                  {service.name} · {money(service.price)} ·{' '}
-                  {service.durationMinutes} min
-                </option>
-              ))}
-            </select>
-          </label>
-          <label className="text-sm font-semibold">
-            Horário disponível
-            <select
-              className="mt-1 w-full rounded-lg border p-2.5"
-              disabled={!selectedServiceId}
-              onChange={(event) => setSelectedTime(event.target.value)}
-              value={selectedTime}
+              Hoje
+            </button>
+            <button
+              aria-label="Próximo dia"
+              className="flex h-9 items-center gap-1 rounded-lg px-2.5 text-xs font-semibold text-[#47464b] transition-colors hover:bg-[#f1f3fa] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C79A4A] active:scale-[0.98]"
+              onClick={() => navigateToDate(dateWithOffset(currentDate, 1))}
+              type="button"
             >
-              <option value="">Selecione</option>
-              {slots.map((slot) => (
-                <option key={slot} value={slot}>
-                  {slot}
-                </option>
-              ))}
-            </select>
-          </label>
-          <input
-            className="rounded-lg border p-2.5"
-            onChange={(event) => setClientName(event.target.value)}
-            placeholder="Nome do cliente"
-            value={clientName}
-          />
-          <input
-            className="rounded-lg border p-2.5"
-            onChange={(event) => setClientPhone(event.target.value)}
-            placeholder="Telefone"
-            value={clientPhone}
-          />
-          <input
-            className="rounded-lg border p-2.5"
-            onChange={(event) => setClientEmail(event.target.value)}
-            placeholder="E-mail (opcional)"
-            type="email"
-            value={clientEmail}
-          />
-        </div>
-        <button
-          className="mt-4 rounded-lg bg-zinc-950 px-5 py-3 text-sm font-bold text-white disabled:opacity-50"
-          disabled={isPending}
-          onClick={handleCreate}
-          type="button"
-        >
-          {isPending ? 'Salvando…' : 'Criar reserva'}
-        </button>
-        {message && (
-          <p className="mt-3 rounded-lg bg-zinc-100 p-3 text-sm">{message}</p>
-        )}
-      </section>
-
-      <section className="space-y-3">
-        <h2 className="text-lg font-bold">Atendimentos</h2>
-        {initialAppointments.length === 0 ? (
-          <div className="rounded-2xl border bg-white p-10 text-center text-zinc-500">
-            Nenhum atendimento nesta data.
+              <span className="hidden sm:inline">Próximo</span>
+              <ChevronRight className="h-4 w-4" aria-hidden="true" />
+            </button>
           </div>
-        ) : (
-          initialAppointments.map((appointment) => (
-            <article
-              className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border bg-white p-4"
-              key={appointment.id}
-            >
-              <div>
-                <p className="font-bold">
-                  {appointment.startAt.substring(11, 16)} ·{' '}
-                  {appointment.client.name}
-                </p>
-                <p className="text-sm text-zinc-600">
-                  {appointment.serviceName} com {appointment.barberName}
-                </p>
-              </div>
-              <div className="flex items-center gap-3">
-                <span className="rounded-full bg-zinc-100 px-3 py-1 text-xs font-bold">
-                  {statusLabels[appointment.status]}
-                </span>
-                <button
-                  className="rounded-lg border px-3 py-2 text-xs font-bold"
-                  onClick={() => setSelectedAppointment(appointment)}
-                  type="button"
-                >
-                  Detalhes
-                </button>
-              </div>
-            </article>
-          ))
-        )}
-      </section>
+
+          <label className="relative">
+            <span className="sr-only">Data da agenda</span>
+            <input
+              aria-label="Data da agenda"
+              className="h-11 rounded-xl border border-[#d8dae0] bg-white px-3 text-xs font-semibold text-[#47464b] outline-none transition-colors focus:border-[#C79A4A] focus:ring-2 focus:ring-[#C79A4A]/15"
+              onChange={(event) => navigateToDate(event.target.value)}
+              type="date"
+              value={currentDate}
+            />
+          </label>
+
+          <button
+            className="flex h-11 items-center gap-2 rounded-xl bg-[#1b1b1e] px-4 text-xs font-bold text-white transition-colors hover:bg-[#303034] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C79A4A] focus-visible:ring-offset-2 active:scale-[0.98]"
+            onClick={openBlankCreate}
+            type="button"
+          >
+            <Plus className="h-4 w-4" aria-hidden="true" />
+            Nova reserva
+          </button>
+        </div>
+      </header>
+
+      {message && (
+        <p
+          aria-live="polite"
+          className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-900"
+        >
+          {message}
+        </p>
+      )}
+
+      <AgendaGrid
+        appointments={initialAppointments}
+        barbers={initialBarbers}
+        blocks={initialBlocks}
+        currentDate={currentDate}
+        onSelectAppointment={setSelectedAppointment}
+        onSelectSlot={openCreateForSlot}
+        settings={initialSettings}
+        workHours={initialWorkHours}
+      />
+
+      <ManualBookingSheet
+        key={`${isCreateOpen}-${createSelection?.barberId}-${createSelection?.time}`}
+        barbers={initialBarbers}
+        currentDate={currentDate}
+        initialSelection={createSelection}
+        onClose={closeCreate}
+        onCreated={() => {
+          closeCreate()
+          router.refresh()
+        }}
+        open={isCreateOpen}
+      />
 
       <Sheet
-        description="Valores registrados no momento da reserva."
+        description="Dados registrados no momento da reserva."
         onClose={() => setSelectedAppointment(null)}
         open={Boolean(selectedAppointment)}
         title="Detalhes do atendimento"
       >
         {selectedAppointment && (
-          <div className="space-y-6">
+          <div className="space-y-6 pb-4">
             <AppointmentFinancialDetails appointment={selectedAppointment} />
-            <div className="flex flex-wrap gap-2 border-t pt-4">
+            <div className="flex flex-col gap-2 border-t border-[#eceef4] pt-5">
               {getAllowedAppointmentTransitions(selectedAppointment.status).map(
                 (status) => (
                   <button
-                    className="rounded-lg border px-3 py-2 text-xs font-bold"
+                    className={`rounded-xl border px-4 py-3 text-sm font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C79A4A] focus-visible:ring-offset-2 active:scale-[0.99] disabled:opacity-50 ${statusActionClassNames[status]}`}
                     disabled={isPending}
                     key={status}
                     onClick={() => changeStatus(selectedAppointment, status)}
                     type="button"
                   >
-                    {statusLabels[status]}
+                    Marcar como {statusLabels[status].toLowerCase()}
                   </button>
                 ),
               )}
