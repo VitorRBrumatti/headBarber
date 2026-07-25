@@ -196,7 +196,7 @@ export function AgendaClient({
         startAt: `${currentDate}T${selectedTime}:00.000Z`,
       })
 
-      if (!result.success) {
+      if ('error' in result) {
         setMessage(result.error)
         if (
           result.code === 'CONFIG_CHANGED' ||

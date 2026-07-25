@@ -47,7 +47,7 @@ export function parseServiceFormData(
   const assignments: ServiceAssignmentInput[] = []
   const seenBarberIds = new Set<string>()
 
-  for (const raw of rawAssignments) {
+  for (const raw of rawAssignments as unknown[]) {
     if (!raw || typeof raw !== 'object' || Array.isArray(raw)) {
       errors.assignments = 'A configuração dos profissionais é inválida.'
       continue

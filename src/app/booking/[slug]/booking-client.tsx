@@ -393,7 +393,10 @@ export function BookingClient({
           setCurrentStep(5)
           if (selectedDate) void loadSlots(selectedDate)
         }
-        setError(response.error)
+        setError(
+          response.error ??
+            'Não foi possível concluir o agendamento. Tente novamente.',
+        )
         return
       }
 

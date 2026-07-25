@@ -167,7 +167,7 @@ export async function updateAppointmentStatus(
       const barbershop = Array.isArray(cancelled?.barbershops)
         ? cancelled.barbershops[0]
         : cancelled?.barbershops
-      if (client?.phone) {
+      if (client?.phone && cancelled?.start_at) {
         await sendWhatsAppNotification(
           client.phone,
           `Olá, *${client.name}*! Seu agendamento na *${barbershop?.name || 'Barbearia'}* para ${new Date(cancelled.start_at).toLocaleDateString('pt-BR')} foi cancelado pelo estabelecimento.`,
