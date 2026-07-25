@@ -3,7 +3,10 @@ import { resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
 
 const read = (name: string) =>
-  readFileSync(resolve(process.cwd(), `src/app/booking/[slug]/${name}`), 'utf8')
+  readFileSync(
+    resolve(process.cwd(), `src/app/booking/[slug]/${name}`),
+    'utf8',
+  )
 
 describe('booking visual contract', () => {
   it('renders seven accessible steps in the approved palette', () => {
@@ -26,10 +29,20 @@ describe('booking visual contract', () => {
     )
   })
 
-  it('uses pay-at-shop copy in success state', () => {
+  it('renders authoritative receipt fields in the success state', () => {
     const source = read('booking-success.tsx')
     expect(source).toContain('Agendamento confirmado')
-    expect(source).toContain('Total a pagar na barbearia')
-    expect(source).not.toContain('Total Pago')
+    expect(source).toContain('receipt.barberName')
+    expect(source).toContain('receipt.serviceName')
+    expect(source).toContain('receipt.servicePrice')
+    expect(source).toContain('receipt.serviceDurationMinutes')
+    expect(source).toContain('receipt.addOnTotal')
+    expect(source).toContain('receipt.productSubtotal')
+    expect(source).toContain('receipt.attendanceTotal')
+    expect(source).toContain('receipt.totalAtShop')
+    expect(source).toContain('receipt.startAt')
+    expect(source).toContain('receipt.endAt')
+    expect(source).not.toContain('selectedDate')
+    expect(source).not.toContain('productQuantities')
   })
 })

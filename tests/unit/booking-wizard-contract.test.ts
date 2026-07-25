@@ -8,10 +8,10 @@ const source = readFileSync(
 )
 
 describe('booking wizard contract', () => {
-  it('uses the approved seven-step order', () => {
+  it('uses the approved barber-first seven-step order', () => {
     const labels = [
-      'Serviço',
       'Profissional',
+      'Serviço',
       'Adicionais',
       'Produtos',
       'Data e Hora',
@@ -19,19 +19,47 @@ describe('booking wizard contract', () => {
       'Confirmação',
     ]
 
-    labels.forEach((label) => expect(source).toContain(`name: '${label}'`))
+    const positions = labels.map((label) =>
+      source.indexOf(`name: '${label}'`),
+    )
+    expect(positions.every((position) => position >= 0)).toBe(true)
+    expect(positions).toEqual([...positions].sort((a, b) => a - b))
+    expect(source).not.toContain("selectedBarber === 'any'")
+    expect(source).not.toContain('Qualquer profissional')
   })
 
-  it('submits selected products and returns stock conflicts to step four', () => {
-    expect(source).toContain('products: toSelectedProducts(selectedProducts)')
+  it('loads scoped services with stale-request protection and recovery states', () => {
+    expect(source).toContain('getBarberServicesAction')
+    expect(source).toContain('serviceRequestRef')
+    expect(source).toContain('requestId !== serviceRequestRef.current')
+    expect(source).toContain('Carregando serviços')
+    expect(source).toContain('Tentar novamente')
+    expect(source).toContain('não possui serviços disponíveis')
+  })
+
+  it('clears dependent choices when barber or service changes', () => {
+    expect(source).toContain("setSelectedServiceId('')")
+    expect(source).toContain("setSelectedDate('')")
+    expect(source).toContain("setSelectedTime('')")
+    expect(source).toContain('setSlots([])')
+  })
+
+  it('uses service-aware slots and structured conflict recovery', () => {
+    expect(source).toContain('getPublicSlotsAction')
+    expect(source).toContain("response.code === 'CONFIG_CHANGED'")
+    expect(source).toContain("response.code === 'INVALID_BARBER_SERVICE'")
+    expect(source).toContain("response.code === 'SLOT_UNAVAILABLE'")
     expect(source).toContain("response.code === 'INSUFFICIENT_STOCK'")
     expect(source).toContain('setCurrentStep(4)')
   })
 
-  it('preserves current booking rules', () => {
-    expect(source).toContain('getPublicSlotsAction')
-    expect(source).toContain('createPublicBooking')
-    expect(source).toContain('Nome e celular são obrigatórios.')
-    expect(source).toContain("selectedBarber === 'any'")
+  it('renders success using only the authoritative receipt', () => {
+    const successCall = source.match(/<BookingSuccess[\s\S]*?\/>/)?.[0] ?? ''
+    expect(successCall).toContain('receipt={receipt}')
+    expect(successCall).not.toContain('selectedDate={selectedDate}')
+    expect(successCall).not.toContain('selectedTime={selectedTime}')
+    expect(successCall).not.toContain('serviceSubtotal')
+    expect(successCall).not.toContain('productSubtotal')
+    expect(successCall).not.toContain('total={totals.total}')
   })
 })
