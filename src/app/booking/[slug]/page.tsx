@@ -9,8 +9,7 @@ interface BookingPageProps {
 }
 
 export default async function BookingPage({ params }: BookingPageProps) {
-  const resolvedParams = await params
-  const { slug } = resolvedParams
+  const { slug } = await params
 
   try {
     const data = await getBookingPageData(slug)
@@ -19,7 +18,7 @@ export default async function BookingPage({ params }: BookingPageProps) {
       <div className="min-h-screen bg-[#1A1A1D] text-white">
         <BookingClient 
           barbershop={data.barbershop}
-          services={data.services}
+          services={[]}
           barbers={data.barbers}
           addOns={data.addOns}
           products={data.products}

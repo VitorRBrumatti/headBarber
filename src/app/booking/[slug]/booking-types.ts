@@ -1,3 +1,30 @@
+export interface BarberServiceOption {
+  id: string
+  barberId: string
+  serviceId: string
+  name: string
+  description: string | null
+  price: number
+  durationMinutes: number
+  configurationVersion: number
+}
+
+export interface CreatedBookingReceipt {
+  appointmentId: string
+  barberId: string
+  barberName: string
+  serviceId: string
+  serviceName: string
+  servicePrice: string
+  serviceDurationMinutes: number
+  addOnTotal: string
+  productSubtotal: string
+  attendanceTotal: string
+  totalAtShop: string
+  startAt: string
+  endAt: string
+}
+
 export interface BookingProduct {
   id: string
   name: string
@@ -20,4 +47,3 @@ export interface UnavailableProduct {
   productId: string
   availableQuantity: number
 }
-

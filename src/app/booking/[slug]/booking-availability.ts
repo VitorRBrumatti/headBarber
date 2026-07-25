@@ -11,7 +11,9 @@ function getZonedDateAndMinutes(date: Date, timeZone: string) {
     hourCycle: 'h23',
   }).formatToParts(date)
 
-  const values = Object.fromEntries(parts.map((part) => [part.type, part.value]))
+  const values = Object.fromEntries(
+    parts.map((part) => [part.type, part.value]),
+  )
 
   return {
     date: `${values.year}-${values.month}-${values.day}`,
@@ -26,7 +28,8 @@ export function filterBookableSlotsForDate(
 ) {
   const current = getZonedDateAndMinutes(now, BARBERSHOP_TIME_ZONE)
 
-  if (targetDate !== current.date) return slots
+  if (targetDate < current.date) return []
+  if (targetDate > current.date) return slots
 
   return slots.filter((slot) => {
     const [hour, minute] = slot.split(':').map(Number)
