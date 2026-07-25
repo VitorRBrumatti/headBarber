@@ -217,8 +217,8 @@ export default function LoginPage() {
           <Link href="/" className="inline-block mb-12 hover:opacity-90 transition-opacity">
             <img
               alt="HeadBarber Logo"
-              className="h-14 md:h-20 w-auto"
-              src="/brand/logo-white.png"
+              className="h-28 md:h-36 w-auto"
+              src="/brand/headbarber_logo_duas_cores_com_texto_transparente.png"
             />
           </Link>
 

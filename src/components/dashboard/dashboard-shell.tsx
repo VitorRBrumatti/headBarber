@@ -42,8 +42,8 @@ export function DashboardShell({ children, userEmail, barbershopName }: Dashboar
             </button>
             <Link href="/dashboard" className="flex items-center gap-1.5 hover:opacity-90">
               <img 
-                src="/brand/logo-symbol-gold.png" 
-                alt="HeadBarber Symbol" 
+                src="/brand/headbarber_simbolo_duas_cores_transparente.png"
+                alt="Símbolo HeadBarber"
                 className="h-6 w-auto object-contain"
               />
               <span className="font-montserrat font-extrabold tracking-tight text-black text-sm">HeadBarber</span>

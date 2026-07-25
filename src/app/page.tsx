@@ -129,7 +129,7 @@ export default function Home() {
       <nav className={`fixed top-0 left-0 right-0 z-50 h-16 px-6 flex justify-between items-center transition-all duration-300 ${scrolled ? "bg-[#1A1A1D] shadow-lg" : "bg-[#1A1A1D]/95 backdrop-blur-md shadow-sm"
         }`}>
         <Link href="/" className="flex items-center">
-          <Image src="/brand/logo-white.png" alt="HeadBarber" width={140} height={36} className="h-8 w-auto object-contain" priority />
+          <Image src="/brand/headbarber_logo_duas_cores_com_texto_transparente.png" alt="HeadBarber" width={1083} height={795} className="h-11 w-auto object-contain" priority />
         </Link>
 
         <div className="hidden md:flex gap-8 items-center">
@@ -482,7 +482,7 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
             <div className="md:col-span-1">
               <Link href="/" className="inline-block mb-6">
-                <Image src="/brand/logo-white.png" alt="HeadBarber" width={140} height={36} className="h-8 w-auto object-contain" />
+                <Image src="/brand/headbarber_logo_branca_com_texto_transparente.png" alt="HeadBarber" width={962} height={723} className="h-11 w-auto object-contain" />
               </Link>
               <p className="text-[#848481] text-sm leading-relaxed">A ferramenta definitiva para barbearias que buscam luxo, organização e escalabilidade.</p>
             </div>

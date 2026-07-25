@@ -67,7 +67,7 @@ export default function OnboardingPage() {
           <Link href="/" className="flex items-center gap-2.5 mb-6 hover:opacity-90 transition-opacity">
             <div className="w-9 h-9 bg-[#1D1C19] rounded-lg flex items-center justify-center shadow-sm">
               <img 
-                src="/brand/logo-symbol.png" 
+                src="/brand/headbarber_simbolo_duas_cores_transparente.png"
                 alt="Logo HeadBarber" 
                 className="w-5.5 h-5.5 object-contain"
               />

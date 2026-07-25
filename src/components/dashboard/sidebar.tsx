@@ -35,9 +35,9 @@ export function Sidebar({ onLinkClick }: SidebarProps) {
       <div className="mb-10 px-4 flex items-center justify-center">
         <Link href="/dashboard" className="block hover:opacity-90 transition-opacity">
           <img 
-            alt="HB Barber Logo" 
-            className="w-full max-w-[160px] h-auto object-contain mx-auto" 
-            src="/brand/logo-white.png"
+            alt="HeadBarber"
+            className="w-full max-w-[150px] h-auto object-contain mx-auto"
+            src="/brand/headbarber_logo_branca_com_texto_transparente.png"
           />
         </Link>
       </div>

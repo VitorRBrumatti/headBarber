@@ -46,7 +46,7 @@ export default async function PlansPage({
       <header className="border-b border-[#c8c5cb]/40 bg-white">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-5">
           <Link href="/" aria-label="HeadBarber" className="flex items-center gap-3">
-            <Image src="/brand/logo-horizontal.png" alt="HeadBarber" width={180} height={48} className="h-9 w-auto" priority />
+            <Image src="/brand/headbarber_logo_dourada_com_texto_transparente.png" alt="HeadBarber" width={1014} height={761} className="h-20 w-auto" priority />
           </Link>
           <form action="/auth/signout" method="post">
             <button className="flex cursor-pointer items-center gap-2 text-xs font-semibold uppercase tracking-wider text-[#47464b] transition-colors hover:text-[#1A1A1D]">
