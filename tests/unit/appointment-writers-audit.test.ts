@@ -75,17 +75,30 @@ const productReservationMigration = readFileSync(
   'utf8',
 )
 
+const barberAddOnConfirmationMigration = readFileSync(
+  join(
+    process.cwd(),
+    'supabase',
+    'migrations',
+    '20260725211743_barber_add_on_confirmation_expand.sql',
+  ),
+  'utf8',
+)
+
 describe('appointment writer inventory', () => {
-  it('keeps appointment creation inside the two reviewed booking RPC paths', () => {
+  it('keeps appointment creation inside the reviewed booking RPC paths', () => {
     const appointmentInsertMatches = repositoryMatches
       .split(/\r?\n/)
       .filter((line) => /insert into public\.appointments/i.test(line))
 
-    expect(appointmentInsertMatches).toHaveLength(2)
+    expect(appointmentInsertMatches).toHaveLength(3)
     expect(appointmentInsertMatches).toEqual(
       expect.arrayContaining([
         expect.stringContaining('20240522_phase4_booking_schedule.sql'),
         expect.stringContaining('20260723001610_barber_service_rpc_expand.sql'),
+        expect.stringContaining(
+          '20260725211743_barber_add_on_confirmation_expand.sql',
+        ),
       ]),
     )
     expect(scheduleMigration).toMatch(
@@ -99,6 +112,9 @@ describe('appointment writer inventory', () => {
     )
     expect(rpcExpandMigration).toMatch(
       /create trigger guard_appointment_interval[\s\S]+private\.guard_appointment_interval/i,
+    )
+    expect(barberAddOnConfirmationMigration).toMatch(
+      /create or replace function public\.create_public_booking_with_barber_add_ons[\s\S]+insert into public\.appointments/i,
     )
     expect(publicBookingActions).not.toMatch(
       /\.from\('appointments'\)[\s\S]{0,160}\.(?:insert|upsert)\(/,

@@ -1,6 +1,6 @@
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(22);
+select plan(24);
 
 select has_table('public', 'barber_add_ons', 'barber add-on relation exists');
 select has_column('public', 'barber_add_ons', 'barbershop_id', 'tenant column exists');
@@ -15,6 +15,7 @@ select ok(exists(select 1 from pg_catalog.pg_constraint where conrelid='public.b
 select ok(exists(select 1 from pg_catalog.pg_constraint where conrelid='public.barber_add_ons'::regclass and conname='barber_add_ons_add_on_tenant_fkey'), 'add-on tenant key');
 select ok((select relrowsecurity from pg_catalog.pg_class where oid='public.barber_add_ons'::regclass), 'RLS enabled');
 select ok(has_table_privilege('anon','public.barber_add_ons','SELECT'), 'anon reads');
+select ok(has_table_privilege('anon','public.add_ons','SELECT'), 'anon reads add-on names');
 select ok(not has_table_privilege('anon','public.barber_add_ons','INSERT'), 'anon cannot write');
 select has_column('public','appointment_add_ons','barber_add_on_id','snapshot relation exists');
 select has_column('public','appointment_add_ons','duration_minutes','snapshot duration exists');
@@ -57,6 +58,9 @@ select throws_ok(
 reset role;
 
 select is((select count(*) from public.barber_add_ons where add_on_id=(select id from public.add_ons where name='Finalização')),2::bigint,'both assignments stored');
+set local role anon;
+select is((select count(*) from public.add_ons where name='Finalização'),1::bigint,'anon reads active add-on catalog');
+reset role;
 
 select * from finish();
 rollback;

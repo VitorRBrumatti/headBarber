@@ -18,7 +18,7 @@ const state: BookingSelectionState = {
 }
 
 describe('booking selection resets', () => {
-  it('clears barber-dependent choices while preserving add-ons and products', () => {
+  it('clears barber-dependent choices and preserves products', () => {
     expect(selectBarber(state, 'barber-b')).toEqual({
       barberId: 'barber-b',
       barberServiceId: '',
@@ -27,7 +27,7 @@ describe('booking selection resets', () => {
       time: '',
       slots: [],
       error: '',
-      addOnIds: ['addon-a'],
+      addOnIds: [],
       productQuantities: { 'product-a': 2 },
     })
   })

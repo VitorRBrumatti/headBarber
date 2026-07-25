@@ -23,16 +23,10 @@ export async function getBookingPageData(slug: string) {
     throw new Error('Barbearia não encontrada')
   }
 
-  const [barbersResult, addOnsResult, productsResult] = await Promise.all([
+  const [barbersResult, productsResult] = await Promise.all([
     supabase
       .from('barbers')
       .select('id, name, bio, avatar_url')
-      .eq('barbershop_id', barbershop.id)
-      .eq('is_active', true)
-      .order('name'),
-    supabase
-      .from('add_ons')
-      .select('id, name, price')
       .eq('barbershop_id', barbershop.id)
       .eq('is_active', true)
       .order('name'),
@@ -56,7 +50,6 @@ export async function getBookingPageData(slug: string) {
   return {
     barbershop,
     barbers: barbersResult.data || [],
-    addOns: addOnsResult.data || [],
     products: productsResult.data || [],
   }
 }

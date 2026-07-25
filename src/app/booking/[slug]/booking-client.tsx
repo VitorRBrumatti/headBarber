@@ -663,6 +663,7 @@ export function BookingClient({
                     <button
                       type="button"
                       key={item.id}
+                      aria-pressed={selected}
                       onClick={() => toggleAddOn(item.id)}
                       className={`flex w-full items-center gap-4 rounded-2xl border p-4 text-left ${
                         selected

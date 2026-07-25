@@ -1,4 +1,5 @@
 import { execFileSync } from 'node:child_process'
+import { basename } from 'node:path'
 import { createClient } from '@supabase/supabase-js'
 import type { Page } from '@playwright/test'
 
@@ -29,11 +30,13 @@ const authAdmin = createClient(
 )
 
 export function executeLocalSql(sql: string) {
+  const projectName = basename(process.cwd()).toLowerCase()
+
   return execFileSync(
     'docker',
     [
       'exec',
-      'supabase_db_headbarber',
+      `supabase_db_${projectName}`,
       'psql',
       '-U',
       'postgres',
@@ -57,7 +60,9 @@ export interface BookingFixture {
   serviceId: string
   barberServiceIds: [string, string]
   barberNames: [string, string]
+  barberAddOnIds: [string, string]
   serviceName: string
+  addOnName: string
 }
 
 function isoDate(date: Date) {
@@ -73,6 +78,8 @@ export async function seedBookingFixture(): Promise<BookingFixture> {
     crypto.randomUUID(),
     crypto.randomUUID(),
   ]
+  const addOnId = crypto.randomUUID()
+  const barberAddOnIds: [string, string] = [crypto.randomUUID(), crypto.randomUUID()]
   const date = new Date()
   date.setUTCHours(12, 0, 0, 0)
   date.setUTCDate(date.getUTCDate() + 1)
@@ -86,6 +93,7 @@ export async function seedBookingFixture(): Promise<BookingFixture> {
     `Bia 45 ${suffix}`,
   ]
   const serviceName = `Corte E2E ${suffix}`
+  const addOnName = `Sobrancelha E2E ${suffix}`
 
   const { data: owner, error: ownerError } =
     await authAdmin.auth.admin.createUser({
@@ -122,6 +130,22 @@ export async function seedBookingFixture(): Promise<BookingFixture> {
         '${barberServiceIds[1]}','${barbershopId}','${barberIds[1]}',
         '${serviceId}',50,45
       );
+    insert into public.add_ons(
+      id,barbershop_id,name,price,duration_minutes
+    ) values(
+      '${addOnId}','${barbershopId}','${addOnName}',10,15
+    );
+    insert into public.barber_add_ons(
+      id,barbershop_id,barber_id,add_on_id,price,duration_minutes
+    ) values
+      (
+        '${barberAddOnIds[0]}','${barbershopId}','${barberIds[0]}',
+        '${addOnId}',10,15
+      ),
+      (
+        '${barberAddOnIds[1]}','${barbershopId}','${barberIds[1]}',
+        '${addOnId}',20,10
+      );
     insert into public.barbershop_settings(
       barbershop_id,slot_interval_minutes
     ) values('${barbershopId}',15);
@@ -148,7 +172,9 @@ export async function seedBookingFixture(): Promise<BookingFixture> {
     serviceId,
     barberServiceIds,
     barberNames,
+    barberAddOnIds,
     serviceName,
+    addOnName,
   }
 }
 
