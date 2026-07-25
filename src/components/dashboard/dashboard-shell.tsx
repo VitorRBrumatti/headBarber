@@ -29,7 +29,7 @@ export function DashboardShell({ children, userEmail, barbershopName }: Dashboar
       </aside>
 
       {/* Main Content Area */}
-      <div className="flex-1 md:pl-[260px] min-h-screen flex flex-col transition-all duration-300">
+      <div className="min-h-screen min-w-0 flex-1 md:pl-[260px] flex flex-col transition-all duration-300">
         {/* Top Navigation */}
         <header className="h-16 flex items-center justify-between px-6 bg-white border-b border-[#eceef4] sticky top-0 z-45 shadow-sm">
           {/* Mobile Menu Button & Brand Symbol */}
@@ -117,7 +117,7 @@ export function DashboardShell({ children, userEmail, barbershopName }: Dashboar
         </header>
 
         {/* Page Content */}
-        <main className="flex-1 overflow-x-hidden">
+        <main className="min-w-0 flex-1 overflow-x-hidden">
           {children}
         </main>
       </div>

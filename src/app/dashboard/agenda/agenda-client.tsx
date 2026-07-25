@@ -284,8 +284,8 @@ export function AgendaClient({
   ).length
 
   return (
-    <div className="space-y-6 p-5 sm:p-6 lg:p-8">
-      <header className="flex flex-col gap-5 border-b border-[#e0e2e9] pb-6 xl:flex-row xl:items-end xl:justify-between">
+    <div className="w-full min-w-0 space-y-5 p-4 sm:p-6 lg:p-8">
+      <header className="flex flex-col gap-4 border-b border-[#e0e2e9] pb-5 xl:flex-row xl:items-end xl:justify-between">
         <div>
           <div className="flex items-center gap-2 text-[#C79A4A]">
             <CalendarDays className="h-4 w-4" aria-hidden="true" />
@@ -304,8 +304,8 @@ export function AgendaClient({
           </p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2">
-          <div className="flex items-center rounded-xl border border-[#d8dae0] bg-white p-1 shadow-sm">
+        <div className="grid w-full grid-cols-1 gap-2 sm:flex sm:w-auto sm:flex-wrap sm:items-center">
+          <div className="flex w-full items-center justify-between rounded-xl border border-[#d8dae0] bg-white p-1 shadow-sm sm:w-auto sm:justify-start">
             <button
               aria-label="Dia anterior"
               className="flex h-9 items-center gap-1 rounded-lg px-2.5 text-xs font-semibold text-[#47464b] transition-colors hover:bg-[#f1f3fa] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C79A4A] active:scale-[0.98]"
@@ -333,11 +333,11 @@ export function AgendaClient({
             </button>
           </div>
 
-          <label className="relative">
+          <label className="relative block w-full sm:w-auto">
             <span className="sr-only">Data da agenda</span>
             <input
               aria-label="Data da agenda"
-              className="h-11 rounded-xl border border-[#d8dae0] bg-white px-3 text-xs font-semibold text-[#47464b] outline-none transition-colors focus:border-[#C79A4A] focus:ring-2 focus:ring-[#C79A4A]/15"
+              className="h-11 w-full rounded-xl border border-[#d8dae0] bg-white px-3 text-xs font-semibold text-[#47464b] outline-none transition-colors focus:border-[#C79A4A] focus:ring-2 focus:ring-[#C79A4A]/15 sm:w-auto"
               onChange={(event) => navigateToDate(event.target.value)}
               type="date"
               value={currentDate}
@@ -345,7 +345,7 @@ export function AgendaClient({
           </label>
 
           <button
-            className="flex h-11 items-center gap-2 rounded-xl bg-[#1b1b1e] px-4 text-xs font-bold text-white transition-colors hover:bg-[#303034] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C79A4A] focus-visible:ring-offset-2 active:scale-[0.98]"
+            className="flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#1b1b1e] px-4 text-xs font-bold text-white transition-colors hover:bg-[#303034] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C79A4A] focus-visible:ring-offset-2 active:scale-[0.98] sm:w-auto"
             onClick={openBlankCreate}
             type="button"
           >

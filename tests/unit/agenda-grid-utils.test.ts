@@ -3,6 +3,7 @@ import {
   generateAgendaSlots,
   getAgendaCellState,
   getAppointmentSpan,
+  shouldShowUnavailableLabel,
   type AgendaBlock,
   type AgendaWorkHour,
 } from '@/app/dashboard/agenda/agenda-grid-utils'
@@ -82,5 +83,21 @@ describe('agenda grid cell availability', () => {
     expect(
       getAgendaCellState({ ...baseInput, time: '10:00', workHour: undefined }),
     ).toBe('off')
+  })
+})
+
+describe('agenda unavailable labels', () => {
+  it('shows a label when an unavailable period starts', () => {
+    expect(shouldShowUnavailableLabel('lunch', 'available')).toBe(true)
+    expect(shouldShowUnavailableLabel('blocked', 'lunch')).toBe(true)
+  })
+
+  it('hides a repeated label inside the same unavailable period', () => {
+    expect(shouldShowUnavailableLabel('lunch', 'lunch')).toBe(false)
+    expect(shouldShowUnavailableLabel('off', 'off')).toBe(false)
+  })
+
+  it('does not show an unavailable label for an available slot', () => {
+    expect(shouldShowUnavailableLabel('available', 'off')).toBe(false)
   })
 })

@@ -105,3 +105,10 @@ export function getAgendaCellState({
 
   return isBlocked ? 'blocked' : 'available'
 }
+
+export function shouldShowUnavailableLabel(
+  currentState: AgendaCellState,
+  previousState?: AgendaCellState,
+) {
+  return currentState !== 'available' && currentState !== previousState
+}
