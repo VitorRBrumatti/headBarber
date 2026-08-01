@@ -83,6 +83,25 @@ const barberAddOnConfirmationMigration = readFileSync(
   'utf8',
 )
 
+const subscriptionSettlementMigration = readFileSync(
+  join(
+    process.cwd(),
+    'supabase',
+    'migrations',
+    '20260801190211_subscription_settlement.sql',
+  ),
+  'utf8',
+)
+
+const statusTransitionMigration = readFileSync(
+  join(
+    process.cwd(),
+    'supabase',
+    'migrations',
+    '20260801191540_appointment_status_transition.sql',
+  ),
+  'utf8',
+)
 const subscriptionBookingMigration = readFileSync(
   join(
     process.cwd(),
@@ -144,6 +163,19 @@ describe('appointment writer inventory', () => {
     ])
   })
 
+  it('keeps terminal states and automatic revenues behind reviewed RPCs', () => {
+    expect(agendaActions).toContain(".rpc('settle_appointment'")
+    expect(agendaActions).toContain(".rpc('transition_appointment_status'")
+    expect(subscriptionSettlementMigration).toMatch(
+      /create or replace function public\.settle_appointment/i,
+    )
+    expect(subscriptionSettlementMigration).toMatch(
+      /source[\s\S]+appointment_service[\s\S]+appointment_product/i,
+    )
+    expect(statusTransitionMigration).toMatch(
+      /client_subscriptions_settlement_enabled[\s\S]+USE_SETTLEMENT/i,
+    )
+  })
   it('has no direct agenda update for appointment identity or interval fields', () => {
     expect(agendaActions).not.toMatch(
       /\.update\(\{[^}]*(?:start_at|end_at|barber_id|service_id)[^}]*\}\)/,

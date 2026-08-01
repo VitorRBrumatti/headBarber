@@ -457,8 +457,11 @@ export function AgendaClient({
 
       <Sheet
         description="Dados registrados no momento da reserva."
-        onClose={() => setSelectedAppointment(null)}
-        open={Boolean(selectedAppointment)}
+        onClose={() => {
+          setSelectedAppointment(null)
+          setSettlementTarget(null)
+        }}
+        open={Boolean(selectedAppointment && !settlementTarget)}
         title="Detalhes do atendimento"
       >
         {selectedAppointment && (

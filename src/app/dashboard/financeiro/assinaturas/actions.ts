@@ -14,7 +14,8 @@ const errorMessages: Record<string, string> = {
   INVALID_PLAN_ITEM: 'Um dos benefícios do plano é inválido.',
   PLAN_NAME_EXISTS: 'Já existe um plano com esse nome.',
   INVALID_CLIENT: 'O cliente informado não pertence a esta barbearia.',
-  SUBSCRIPTION_ALREADY_EXISTS: 'Este cliente já possui uma assinatura ativa ou pausada.',
+  SUBSCRIPTION_ALREADY_EXISTS:
+    'Este cliente já possui uma assinatura ativa ou pausada.',
   INVALID_SUBSCRIPTION: 'A assinatura informada não está disponível.',
   INVALID_STATUS_TRANSITION: 'Essa mudança de status não é permitida.',
   INVALID_PAYMENT: 'Revise a data e a forma de pagamento.',
@@ -25,8 +26,9 @@ const errorMessages: Record<string, string> = {
 
 function failure<T>(message: string): SubscriptionActionResult<T> {
   const code =
-    Object.keys(errorMessages).find((knownCode) => message.includes(knownCode)) ??
-    'UNKNOWN'
+    Object.keys(errorMessages).find((knownCode) =>
+      message.includes(knownCode),
+    ) ?? 'UNKNOWN'
   return {
     success: false,
     code,
@@ -59,7 +61,19 @@ export async function saveSubscriptionPlanAction(
     p_name: input.name,
     p_description: input.description,
     p_monthly_price: input.monthlyPrice,
-    p_items: input.items,
+    p_items: input.items.map((item) =>
+      item.itemType === 'service'
+        ? {
+            itemType: item.itemType,
+            serviceId: item.serviceId,
+            monthlyLimit: item.monthlyLimit,
+          }
+        : {
+            itemType: item.itemType,
+            addOnId: item.addOnId,
+            monthlyLimit: item.monthlyLimit,
+          },
+    ),
   })
 }
 
@@ -101,10 +115,13 @@ export async function scheduleSubscriptionPlanAction(input: {
   subscriptionId: string
   planId: string
 }) {
-  return executeRpc<Record<string, unknown>>('schedule_client_subscription_plan', {
-    p_subscription_id: input.subscriptionId,
-    p_plan_id: input.planId,
-  })
+  return executeRpc<Record<string, unknown>>(
+    'schedule_client_subscription_plan',
+    {
+      p_subscription_id: input.subscriptionId,
+      p_plan_id: input.planId,
+    },
+  )
 }
 
 export async function registerSubscriptionPaymentAction(input: {

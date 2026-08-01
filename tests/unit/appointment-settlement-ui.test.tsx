@@ -21,5 +21,7 @@ describe('appointment settlement UI', () => {
     expect(rendered).toContain('libera os benefícios reservados')
     expect(rendered).toContain('consome os benefícios reservados')
     expect(rendered).toContain('disabled={isPending')
+    const agenda = read('src/app/dashboard/agenda/agenda-client.tsx')
+    expect(agenda).toContain('selectedAppointment && !settlementTarget')
   })
 })

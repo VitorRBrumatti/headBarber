@@ -46,14 +46,11 @@ describe('client subscription actions', () => {
     })
 
     expect(getBarbershopId).toHaveBeenCalledOnce()
-    expect(rpc).toHaveBeenCalledWith(
-      'register_client_subscription_payment',
-      {
-        p_subscription_id: 'sub-1',
-        p_period_start: '2026-09-01',
-        p_payment_method: 'pix',
-      },
-    )
+    expect(rpc).toHaveBeenCalledWith('register_client_subscription_payment', {
+      p_subscription_id: 'sub-1',
+      p_period_start: '2026-09-01',
+      p_payment_method: 'pix',
+    })
     expect(revalidatePath.mock.calls).toEqual([
       ['/dashboard/financeiro/assinaturas'],
       ['/dashboard/financeiro'],
@@ -107,7 +104,6 @@ describe('client subscription actions', () => {
         {
           itemType: 'service',
           serviceId: 'service-1',
-          addOnId: null,
           monthlyLimit: 2,
         },
       ],
