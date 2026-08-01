@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from 'react'
 import { Button } from '@/components/ui/button'
+import { ImageUpload } from '@/components/ui/image-upload'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Select } from '@/components/ui/select'
@@ -40,6 +41,7 @@ const CATEGORY_OPTIONS = [
 
 export function ProductForm({ product, onSuccess }: ProductFormProps) {
   const [isPending, startTransition] = useTransition()
+  const [isUploading, setIsUploading] = useState(false)
   const [error, setError] = useState('')
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -54,8 +56,8 @@ export function ProductForm({ product, onSuccess }: ProductFormProps) {
           await createProduct(formData)
         }
         onSuccess()
-      } catch (err: any) {
-        setError(err.message)
+      } catch (err: unknown) {
+        setError(err instanceof Error ? err.message : 'Não foi possível salvar.')
       }
     })
   }
@@ -119,34 +121,36 @@ export function ProductForm({ product, onSuccess }: ProductFormProps) {
           />
         </div>
       </div>
-
-      <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-1.5">
-          <label className="text-sm font-medium">Estoque</label>
-          <Input
-            name="stock_quantity"
-            type="number"
-            min="0"
-            defaultValue={product?.stock_quantity ?? 0}
-            placeholder="0"
-          />
-        </div>
-        <div className="space-y-1.5">
-          <label className="text-sm font-medium">Imagem (URL)</label>
-          <Input
-            name="image_url"
-            type="url"
-            defaultValue={product?.image_url ?? ''}
-            placeholder="https://..."
-          />
-        </div>
+      <div className="space-y-1.5">
+        <label className="text-sm font-medium">Estoque</label>
+        <Input
+          name="stock_quantity"
+          type="number"
+          min="0"
+          defaultValue={product?.stock_quantity ?? 0}
+          placeholder="0"
+        />
       </div>
+
+      <ImageUpload
+        key={product?.id ?? 'new-product'}
+        name="image_url"
+        label="Imagem do produto"
+        initialUrl={product?.image_url ?? null}
+        onUploadingChange={setIsUploading}
+      />
 
       {error && <p className="text-sm text-red-500">{error}</p>}
 
       <div className="flex gap-3 pt-2">
-        <Button type="submit" disabled={isPending} className="flex-1">
-          {isPending ? 'Salvando...' : product ? 'Salvar alterações' : 'Criar produto'}
+        <Button type="submit" disabled={isPending || isUploading} className="flex-1">
+          {isUploading
+            ? 'Enviando imagem...'
+            : isPending
+              ? 'Salvando...'
+              : product
+                ? 'Salvar alterações'
+                : 'Criar produto'}
         </Button>
       </div>
     </form>
