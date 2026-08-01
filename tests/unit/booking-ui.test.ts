@@ -27,6 +27,24 @@ describe('booking visual contract', () => {
     expect(markup).toBe('')
   })
 
+  it('renders the covered subscription label with Portuguese accents', () => {
+    const markup = renderToStaticMarkup(
+      createElement(BookingCoveragePreviewCard, {
+        preview: {
+          attendanceTotal: '24.99',
+          subscriptionCoveredTotal: '24.99',
+          amountDue: '0.00',
+          subscriptionCoverageStatus: 'covered',
+          subscriptionPlanName: 'Mensal',
+          productSubtotal: '0.00',
+          totalAtShop: '0.00',
+        },
+      }),
+    )
+
+    expect(markup).toContain('Benefício disponível')
+  })
+
   it('renders seven accessible steps in the approved palette', () => {
     const source = read('booking-progress.tsx')
     expect(source).toContain("aria-current={isActive ? 'step' : undefined}")
