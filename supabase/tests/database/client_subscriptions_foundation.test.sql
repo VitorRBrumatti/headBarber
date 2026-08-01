@@ -1,7 +1,7 @@
 begin;
 
 create extension if not exists pgtap with schema extensions;
-select plan(51);
+select plan(53);
 
 select has_table('public', 'subscription_plans', 'subscription plans exist');
 select has_table('public', 'subscription_plan_items', 'subscription plan items exist');
@@ -13,9 +13,30 @@ select has_table('public', 'appointment_subscription_allocations', 'appointment 
 select has_column('public', 'barbershop_settings', 'client_subscriptions_admin_enabled', 'admin feature flag exists');
 select has_column('public', 'barbershop_settings', 'client_subscriptions_booking_enabled', 'booking feature flag exists');
 select has_column('public', 'barbershop_settings', 'client_subscriptions_settlement_enabled', 'settlement feature flag exists');
-select col_default_is('public', 'barbershop_settings', 'client_subscriptions_admin_enabled', 'false', 'admin flag defaults off');
-select col_default_is('public', 'barbershop_settings', 'client_subscriptions_booking_enabled', 'false', 'booking flag defaults off');
-select col_default_is('public', 'barbershop_settings', 'client_subscriptions_settlement_enabled', 'false', 'settlement flag defaults off');
+select col_default_is('public', 'barbershop_settings', 'client_subscriptions_admin_enabled', 'true', 'admin flag defaults on');
+select col_default_is('public', 'barbershop_settings', 'client_subscriptions_booking_enabled', 'true', 'booking flag defaults on');
+select col_default_is('public', 'barbershop_settings', 'client_subscriptions_settlement_enabled', 'true', 'settlement flag defaults on');
+select ok(
+  not exists (
+    select 1
+    from public.barbershops as barbershop
+    left join public.barbershop_settings as settings
+      on settings.barbershop_id = barbershop.id
+    where settings.barbershop_id is null
+  ),
+  'every barbershop has a settings row'
+);
+
+select ok(
+  not exists (
+    select 1
+    from public.barbershop_settings
+    where not client_subscriptions_admin_enabled
+       or not client_subscriptions_booking_enabled
+       or not client_subscriptions_settlement_enabled
+  ),
+  'all client subscription feature flags are enabled'
+);
 
 select has_column('public', 'appointments', 'subscription_coverage_status', 'appointment coverage status exists');
 select has_column('public', 'appointments', 'subscription_covered_total', 'appointment covered total exists');

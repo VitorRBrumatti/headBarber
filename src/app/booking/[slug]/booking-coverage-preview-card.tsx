@@ -19,7 +19,7 @@ export function BookingCoveragePreviewCard({
       ? 'Aguardando disponibilidade'
       : preview.subscriptionCoverageStatus === 'awaiting_cycle'
         ? 'Aguardando pagamento'
-        : 'Benef?cio dispon?vel'
+        : 'Benefício disponível'
 
   return (
     <div className="rounded-xl border border-[#C79A4A]/25 bg-[#C79A4A]/10 p-3">

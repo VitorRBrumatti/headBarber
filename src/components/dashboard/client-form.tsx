@@ -56,7 +56,7 @@ export function ClientForm({ client, onSuccess }: ClientFormProps) {
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div className="space-y-1.5">
-          <label className="text-sm font-medium">Telefone / WhatsApp</label>
+          <label className="text-sm font-medium">Telefone</label>
           <Input
             name="phone"
             type="tel"

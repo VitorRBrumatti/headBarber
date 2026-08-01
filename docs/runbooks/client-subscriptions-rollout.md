@@ -1,30 +1,38 @@
 # Rollout de assinaturas de clientes
 
-Este procedimento ativa assinaturas por barbearia, em expansão gradual. Todas as flags começam desligadas. Nunca apague ciclos, alocações ou receitas para fazer rollback.
+As assinaturas ficam ativas automaticamente para todas as barbearias. As três flags continuam disponíveis somente como chaves de emergência: desligá-las preserva ciclos, alocações, receitas e todo o histórico.
 
-## Ordem obrigatória de ativação
+## Ativação automática
 
-1. Aplicar as migrações da Fase A com `client_subscriptions_admin_enabled`, `client_subscriptions_booking_enabled` e `client_subscriptions_settlement_enabled` em `false`.
-2. Verificar contagens nulas do backfill, RLS e os advisors disponíveis no ambiente.
-3. Ativar `client_subscriptions_admin_enabled` para uma única barbearia interna.
-4. Ativar `client_subscriptions_booking_enabled` somente depois de observar paridade entre prévia e confirmação.
-5. Ativar `client_subscriptions_settlement_enabled` somente quando a consulta de divergência de receitas retornar zero.
-6. Observar origens duplicadas, snapshots nulos, promoções de espera e divergência financeira durante toda a janela.
-7. Em rollback, desligar apenas a flag mais recente. Nunca apagar o histórico de assinaturas.
-8. Remover contratos legados somente em uma migração posterior e após a janela de observação.
+A migration `client_subscriptions_default_enabled` executa três ações:
 
-## Verificações antes da ativação
+1. cria a linha de `barbershop_settings` para qualquer barbearia que ainda não tenha configurações;
+2. liga `client_subscriptions_admin_enabled`, `client_subscriptions_booking_enabled` e `client_subscriptions_settlement_enabled` nas linhas existentes;
+3. define `true` como padrão das três colunas para novas barbearias.
+
+Não é necessário ativar as flags manualmente após cadastrar uma barbearia.
+
+## Verificações após a migration
 
 ```sql
 select
-  count(*) filter (where commissionable_total is null) as commissionable_nulls,
-  count(*) filter (where commission_percentage_snapshot is null) as percentage_nulls,
-  count(*) filter (where commission_amount is null) as commission_nulls,
-  count(*) filter (where amount_due is null) as amount_due_nulls
-from public.appointments;
+  count(*) filter (where not client_subscriptions_admin_enabled) as admin_disabled,
+  count(*) filter (where not client_subscriptions_booking_enabled) as booking_disabled,
+  count(*) filter (where not client_subscriptions_settlement_enabled) as settlement_disabled
+from public.barbershop_settings;
 ```
 
-O resultado esperado é zero em todas as colunas. Rode também os testes pgTAP, o lint do banco e os advisors suportados pela versão instalada da CLI.
+O resultado esperado é zero em todas as colunas. Confirme também que nenhuma barbearia está sem configurações:
+
+```sql
+select barbershop.id
+from public.barbershops as barbershop
+left join public.barbershop_settings as settings
+  on settings.barbershop_id = barbershop.id
+where settings.barbershop_id is null;
+```
+
+A consulta deve retornar zero linhas. Rode também os testes pgTAP, o lint do banco e os advisors suportados pela versão instalada da CLI.
 
 ## Monitoramento
 
