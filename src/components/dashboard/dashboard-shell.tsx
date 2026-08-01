@@ -62,11 +62,6 @@ export function DashboardShell({ children, userEmail, barbershopName }: Dashboar
 
           {/* Actions & Profile */}
           <div className="flex items-center gap-4 md:gap-6 ml-auto">
-            <button className="relative text-[#47464b] hover:text-[#C79A4A] transition-all p-1 cursor-pointer">
-              <span className="material-symbols-outlined text-xl">notifications</span>
-              <span className="absolute top-1 right-1 w-1.5 h-1.5 bg-[#ba1a1a] rounded-full"></span>
-            </button>
-            
             <button className="text-[#47464b] hover:text-[#C79A4A] transition-all p-1 cursor-pointer hidden sm:block">
               <span className="material-symbols-outlined text-xl">help_outline</span>
             </button>
