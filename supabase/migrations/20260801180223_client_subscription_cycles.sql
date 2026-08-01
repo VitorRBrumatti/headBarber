@@ -324,7 +324,6 @@ begin
   from public.subscription_plans as plan
   where plan.id = coalesce(v_subscription.pending_plan_id, v_subscription.plan_id)
     and plan.barbershop_id = v_tenant_id
-    and plan.is_active
   for share;
 
   if not found then

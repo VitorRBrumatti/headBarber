@@ -1,7 +1,7 @@
 begin;
 
 create extension if not exists pgtap with schema extensions;
-select plan(32);
+select plan(36);
 
 select function_returns(
   'public', 'save_subscription_plan',
@@ -22,6 +22,11 @@ select function_returns(
   'public', 'schedule_client_subscription_plan',
   array['uuid','uuid'], 'jsonb',
   'plan scheduling RPC has stable signature'
+);
+select function_returns(
+  'public', 'set_subscription_plan_active',
+  array['uuid','boolean'], 'jsonb',
+  'plan archival RPC has stable signature'
 );
 
 insert into public.barbershops(id,name,slug) values
@@ -220,6 +225,17 @@ select throws_ok(
   )$$,
   'P0001','INVALID_STATUS_TRANSITION','cancelled subscription cannot be reopened'
 );
+select lives_ok(
+  $$select public.set_subscription_plan_active(
+    'd1000000-0000-0000-0000-000000000051', false
+  )$$,
+  'plan with subscription history can be archived'
+);
+select is(
+  (select is_active from public.subscription_plans where id='d1000000-0000-0000-0000-000000000051'),
+  false,
+  'archival preserves the plan row and marks it inactive'
+);
 
 reset role;
 
@@ -246,6 +262,14 @@ select ok(
     'EXECUTE'
   ),
   'anonymous callers cannot create subscriptions'
+);
+select ok(
+  not has_function_privilege(
+    'anon',
+    'public.set_subscription_plan_active(uuid,boolean)',
+    'EXECUTE'
+  ),
+  'anonymous callers cannot archive plans'
 );
 
 select * from finish();

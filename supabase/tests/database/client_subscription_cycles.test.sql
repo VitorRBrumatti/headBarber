@@ -1,7 +1,7 @@
 begin;
 
 create extension if not exists pgtap with schema extensions;
-select plan(42);
+select plan(45);
 
 select function_returns(
   'public', 'register_client_subscription_payment',
@@ -257,8 +257,29 @@ select is(
   0::numeric, 'promoted appointment receives subscription pricing'
 );
 
+update public.subscription_plans
+set is_active=false
+where id='d2000000-0000-0000-0000-000000000052';
+
 set local role authenticated;
 set local "request.jwt.claim.sub"='d2000000-0000-0000-0000-000000000011';
+
+select lives_ok(
+  $$select public.register_client_subscription_payment(
+    'd2000000-0000-0000-0000-000000000071', date '2030-09-01', 'pix'
+  )$$,
+  'archived current plan remains billable for existing subscriber'
+);
+select is(
+  (select count(*) from public.subscription_cycles where client_subscription_id='d2000000-0000-0000-0000-000000000071'),
+  2::bigint,
+  'archived plan payment creates the next cycle'
+);
+select is(
+  (select count(*) from public.revenues where source='subscription_cycle'),
+  2::bigint,
+  'archived plan payment creates its revenue'
+);
 
 select throws_ok(
   $$select public.register_client_subscription_payment(
@@ -268,13 +289,13 @@ select throws_ok(
 );
 select throws_ok(
   $$select public.register_client_subscription_payment(
-    'd2000000-0000-0000-0000-000000000071', date '2030-10-01', 'pix'
+    'd2000000-0000-0000-0000-000000000071', date '2030-12-01', 'pix'
   )$$,
   'P0001', 'PAYMENT_CONFLICT', 'billing periods cannot be skipped'
 );
 select throws_ok(
   $$select public.register_client_subscription_payment(
-    'd2000000-0000-0000-0000-000000000071', date '2030-09-01', 'bitcoin'
+    'd2000000-0000-0000-0000-000000000071', date '2030-10-01', 'bitcoin'
   )$$,
   'P0001', 'INVALID_PAYMENT', 'unsupported payment method is rejected'
 );
