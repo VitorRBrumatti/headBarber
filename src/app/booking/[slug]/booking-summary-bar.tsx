@@ -1,4 +1,5 @@
 import { ArrowLeft, ArrowRight, Check } from 'lucide-react'
+import type { BookingCoveragePreview } from './booking-types'
 
 interface BookingSummaryBarProps {
   currentStep: number
@@ -8,13 +9,16 @@ interface BookingSummaryBarProps {
   serviceSubtotal: number
   productSubtotal: number
   total: number
+  coveragePreview: BookingCoveragePreview | null
   onBack: () => void
   onNext: () => void
   onConfirm: () => void
 }
 
 const formatCurrency = (value: number) =>
-  new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value)
+  new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(
+    value,
+  )
 
 export function BookingSummaryBar({
   currentStep,
@@ -24,6 +28,7 @@ export function BookingSummaryBar({
   serviceSubtotal,
   productSubtotal,
   total,
+  coveragePreview,
   onBack,
   onNext,
   onConfirm,
@@ -49,14 +54,27 @@ export function BookingSummaryBar({
 
         <div className="min-w-0 flex-1">
           <p className="font-inter text-[10px] font-semibold uppercase tracking-[0.1em] text-white/40">
-            {productSubtotal > 0 ? 'Total a pagar na barbearia' : 'Total do atendimento'}
+            {productSubtotal > 0
+              ? 'Total a pagar na barbearia'
+              : 'Total do atendimento'}
           </p>
           <p className="mt-0.5 truncate font-montserrat text-lg font-bold text-white">
             {formatCurrency(total)}
           </p>
+          {coveragePreview &&
+            Number(coveragePreview.subscriptionCoveredTotal) > 0 && (
+              <p className="font-inter text-[10px] text-emerald-300/80">
+                Coberto{' '}
+                {formatCurrency(
+                  Number(coveragePreview.subscriptionCoveredTotal),
+                )}{' '}
+                · A pagar {formatCurrency(Number(coveragePreview.amountDue))}
+              </p>
+            )}
           {productSubtotal > 0 && (
             <p className="hidden font-inter text-[10px] text-white/35 sm:block">
-              Atendimento {formatCurrency(serviceSubtotal)} · Produtos {formatCurrency(productSubtotal)}
+              Atendimento {formatCurrency(serviceSubtotal)} · Produtos{' '}
+              {formatCurrency(productSubtotal)}
             </p>
           )}
         </div>

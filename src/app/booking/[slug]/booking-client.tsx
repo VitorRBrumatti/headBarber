@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useRef, useState, useTransition } from 'react'
+import { useEffect, useMemo, useRef, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import {
   AlertTriangle,
@@ -18,6 +18,7 @@ import {
 import {
   createPublicBooking,
   getBarberServicesAction,
+  previewPublicBooking,
   getPublicSlotsAction,
 } from './actions'
 import { getBarberAddOnsAction } from './booking-add-on-actions'
@@ -28,6 +29,7 @@ import {
 } from './booking-add-ons'
 import type {
   BarberServiceOption,
+  BookingCoveragePreview,
   BookingProduct,
   CreatedBookingReceipt,
   ProductSelection,
@@ -126,6 +128,7 @@ export function BookingClient({
   const serviceRequestRef = useRef(0)
   const addOnRequestRef = useRef(0)
   const slotRequestRef = useRef(0)
+  const previewRequestRef = useRef(0)
   const selectedBarberRef = useRef('')
   const [currentStep, setCurrentStep] = useState(1)
   const [selectedBarber, setSelectedBarber] = useState('')
@@ -155,6 +158,8 @@ export function BookingClient({
   const [submitting, startSubmitting] = useTransition()
   const [error, setError] = useState('')
   const [receipt, setReceipt] = useState<CreatedBookingReceipt | null>(null)
+  const [coveragePreview, setCoveragePreview] =
+    useState<BookingCoveragePreview | null>(null)
 
   const calendarDays = useMemo(
     () =>
@@ -181,6 +186,52 @@ export function BookingClient({
     products,
     selectedProducts,
   )
+  const amountDue = coveragePreview
+    ? Number(coveragePreview.amountDue)
+    : totals.serviceSubtotal
+  const totalAtShop = amountDue + totals.productSubtotal
+
+  useEffect(() => {
+    if (
+      currentStep !== 7 ||
+      !service ||
+      !selectedDate ||
+      !selectedTime ||
+      !clientPhone.trim()
+    ) {
+      return
+    }
+
+    const requestId = ++previewRequestRef.current
+    void previewPublicBooking({
+      barbershopId: barbershop.id,
+      clientPhone: clientPhone.trim(),
+      barberServiceId: service.id,
+      configurationVersion: service.configurationVersion,
+      startAt: `${selectedDate}T${selectedTime}:00.000Z`,
+      addOns: selectedAddOnPayload(selectedAddOns, barberAddOns),
+      products: toSelectedProducts(selectedProducts),
+    }).then((response) => {
+      if (requestId !== previewRequestRef.current) return
+      setCoveragePreview(
+        'success' in response && response.success ? response.preview : null,
+      )
+    })
+
+    return () => {
+      previewRequestRef.current += 1
+    }
+  }, [
+    barberAddOns,
+    barbershop.id,
+    clientPhone,
+    currentStep,
+    selectedAddOns,
+    selectedDate,
+    selectedProducts,
+    selectedTime,
+    service,
+  ])
 
   async function loadBarberServices(barberId: string) {
     const requestId = ++serviceRequestRef.current
@@ -399,6 +450,7 @@ export function BookingClient({
     setSlotsError('')
     setError('')
     setReceipt(null)
+    setCoveragePreview(null)
   }
 
   function handleConfirm() {
@@ -946,6 +998,41 @@ export function BookingClient({
                   <span>Serviço e adicionais</span>
                   <span>{formatCurrency(totals.serviceSubtotal)}</span>
                 </div>
+                {coveragePreview && (
+                  <div className="rounded-xl border border-[#C79A4A]/25 bg-[#C79A4A]/10 p-3">
+                    <div className="flex justify-between text-sm font-semibold text-[#C79A4A]">
+                      <span>
+                        {coveragePreview.subscriptionPlanName
+                          ? `Assinatura ${coveragePreview.subscriptionPlanName}`
+                          : 'Assinatura'}
+                      </span>
+                      <span>
+                        {coveragePreview.subscriptionCoverageStatus ===
+                        'waiting'
+                          ? 'Aguardando disponibilidade'
+                          : coveragePreview.subscriptionCoverageStatus ===
+                              'awaiting_cycle'
+                            ? 'Aguardando pagamento'
+                            : 'Benefício disponível'}
+                      </span>
+                    </div>
+                    <div className="mt-2 flex justify-between text-sm text-emerald-300">
+                      <span>Coberto</span>
+                      <span>
+                        -{' '}
+                        {formatCurrency(
+                          Number(coveragePreview.subscriptionCoveredTotal),
+                        )}
+                      </span>
+                    </div>
+                    <div className="mt-1 flex justify-between text-sm font-semibold">
+                      <span>A pagar</span>
+                      <span>
+                        {formatCurrency(Number(coveragePreview.amountDue))}
+                      </span>
+                    </div>
+                  </div>
+                )}
                 <div className="flex justify-between text-sm text-white/50">
                   <span>Produtos</span>
                   <span>{formatCurrency(totals.productSubtotal)}</span>
@@ -953,7 +1040,7 @@ export function BookingClient({
                 <div className="flex justify-between border-t border-white/10 pt-4 text-lg font-semibold">
                   <span>Total na barbearia</span>
                   <span className="text-[#C79A4A]">
-                    {formatCurrency(totals.total)}
+                    {formatCurrency(totalAtShop)}
                   </span>
                 </div>
               </div>
@@ -980,7 +1067,8 @@ export function BookingClient({
         canContinue={canContinue}
         serviceSubtotal={totals.serviceSubtotal}
         productSubtotal={totals.productSubtotal}
-        total={totals.total}
+        total={totalAtShop}
+        coveragePreview={coveragePreview}
         onBack={handleBack}
         onNext={handleNext}
         onConfirm={handleConfirm}

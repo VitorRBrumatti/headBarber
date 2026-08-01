@@ -14,9 +14,7 @@ const money = (value: number) =>
     currency: 'BRL',
   }).format(value)
 
-export function ReservasClient({
-  initialAppointments,
-}: ReservasClientProps) {
+export function ReservasClient({ initialAppointments }: ReservasClientProps) {
   const [search, setSearch] = useState('')
   const [status, setStatus] = useState('all')
   const [selected, setSelected] = useState<AppointmentDetails | null>(null)
@@ -147,6 +145,25 @@ export function ReservasClient({
                   <dt>Total do atendimento</dt>
                   <dd>{money(selected.attendanceTotal)}</dd>
                 </div>
+                {(selected.subscriptionPlanName ||
+                  selected.subscriptionCoverageStatus !== 'none') && (
+                  <div className="flex justify-between rounded-lg bg-emerald-50 px-3 py-2 text-emerald-900">
+                    <dt>Assinatura {selected.subscriptionPlanName}</dt>
+                    <dd>
+                      {selected.subscriptionCoverageStatus === 'waiting'
+                        ? 'Aguardando disponibilidade'
+                        : 'Benefício aplicado'}
+                    </dd>
+                  </div>
+                )}
+                <div className="flex justify-between text-emerald-800">
+                  <dt>Coberto pela assinatura</dt>
+                  <dd>- {money(selected.subscriptionCoveredTotal)}</dd>
+                </div>
+                <div className="flex justify-between font-bold">
+                  <dt>A pagar pelo atendimento</dt>
+                  <dd>{money(selected.amountDue)}</dd>
+                </div>
               </dl>
             </div>
             <div className="rounded-xl border p-4">
@@ -167,7 +184,7 @@ export function ReservasClient({
               </div>
               <div className="mt-2 flex justify-between text-base font-extrabold">
                 <span>Total na barbearia</span>
-                <span>{money(selected.attendanceTotal + productSubtotal)}</span>
+                <span>{money(selected.amountDue + productSubtotal)}</span>
               </div>
             </div>
           </div>

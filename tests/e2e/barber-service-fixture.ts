@@ -1,15 +1,15 @@
 import { execFileSync } from 'node:child_process'
-import { basename } from 'node:path'
+import { readFileSync } from 'node:fs'
+import { join } from 'node:path'
 import { createClient } from '@supabase/supabase-js'
 import type { Page } from '@playwright/test'
 
 function localEnvironment() {
   const executable = process.platform === 'win32' ? 'npx.cmd' : 'npx'
-  const output = execFileSync(
-    executable,
-    ['supabase', 'status', '-o', 'env'],
-    { encoding: 'utf8', shell: process.platform === 'win32' },
-  )
+  const output = execFileSync(executable, ['supabase', 'status', '-o', 'env'], {
+    encoding: 'utf8',
+    shell: process.platform === 'win32',
+  })
   return Object.fromEntries(
     output
       .split(/\r?\n/)
@@ -30,7 +30,12 @@ const authAdmin = createClient(
 )
 
 export function executeLocalSql(sql: string) {
-  const projectName = basename(process.cwd()).toLowerCase()
+  const config = readFileSync(
+    join(process.cwd(), 'supabase', 'config.toml'),
+    'utf8',
+  )
+  const projectName =
+    config.match(/^project_id\s*=\s*"([^"]+)"/m)?.[1] ?? 'headbarber'
 
   return execFileSync(
     'docker',
@@ -79,7 +84,10 @@ export async function seedBookingFixture(): Promise<BookingFixture> {
     crypto.randomUUID(),
   ]
   const addOnId = crypto.randomUUID()
-  const barberAddOnIds: [string, string] = [crypto.randomUUID(), crypto.randomUUID()]
+  const barberAddOnIds: [string, string] = [
+    crypto.randomUUID(),
+    crypto.randomUUID(),
+  ]
   const date = new Date()
   date.setUTCHours(12, 0, 0, 0)
   date.setUTCDate(date.getUTCDate() + 1)
@@ -88,10 +96,7 @@ export async function seedBookingFixture(): Promise<BookingFixture> {
   const slug = `e2e-${suffix}`
   const ownerEmail = `owner-${suffix}@test.local`
   const ownerPassword = 'HeadBarber-E2E-123!'
-  const barberNames: [string, string] = [
-    `Ana 30 ${suffix}`,
-    `Bia 45 ${suffix}`,
-  ]
+  const barberNames: [string, string] = [`Ana 30 ${suffix}`, `Bia 45 ${suffix}`]
   const serviceName = `Corte E2E ${suffix}`
   const addOnName = `Sobrancelha E2E ${suffix}`
 
@@ -203,16 +208,14 @@ export async function prepareBookingConfirmation(
   await page.getByRole('button', { name: /Avançar/ }).click()
 }
 
-export async function loginOwner(
-  page: Page,
-  fixture: BookingFixture,
-) {
+export async function loginOwner(page: Page, fixture: BookingFixture) {
   await page.goto('/login')
   await page.locator('#login-email').fill(fixture.ownerEmail)
   await page.locator('#login-password').fill(fixture.ownerPassword)
   await page
     .locator('form')
     .filter({ has: page.locator('#login-email') })
-    .getByRole('button', { name: 'Entrar', exact: true }).click()
+    .getByRole('button', { name: 'Entrar', exact: true })
+    .click()
   await page.waitForURL(/\/dashboard/)
 }

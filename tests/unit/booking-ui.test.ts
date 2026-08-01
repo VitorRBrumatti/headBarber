@@ -3,10 +3,7 @@ import { resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
 
 const read = (name: string) =>
-  readFileSync(
-    resolve(process.cwd(), `src/app/booking/[slug]/${name}`),
-    'utf8',
-  )
+  readFileSync(resolve(process.cwd(), `src/app/booking/[slug]/${name}`), 'utf8')
 
 describe('booking visual contract', () => {
   it('renders seven accessible steps in the approved palette', () => {
@@ -40,6 +37,12 @@ describe('booking visual contract', () => {
     expect(source).toContain('receipt.addOnTotal')
     expect(source).toContain('receipt.productSubtotal')
     expect(source).toContain('receipt.attendanceTotal')
+    expect(source).toContain('receipt.subscriptionCoveredTotal')
+    expect(source).toContain('receipt.amountDue')
+    expect(source).toContain('Assinatura')
+    expect(source).toContain('Coberto')
+    expect(source).toContain('A pagar')
+    expect(source).toContain('Aguardando disponibilidade')
     expect(source).toContain('receipt.totalAtShop')
     expect(source).toContain('receipt.startAt')
     expect(source).toContain('receipt.endAt')

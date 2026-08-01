@@ -56,13 +56,43 @@ describe('booking action behavior', () => {
       addOnTotal: '10.00',
       productSubtotal: '25.00',
       attendanceTotal: '50.00',
-      totalAtShop: '75.00',
+      subscriptionCoveredTotal: '50.00',
+      amountDue: '0.00',
+      subscriptionCoverageStatus: 'covered',
+      subscriptionPlanName: 'Premium',
+      totalAtShop: '25.00',
       startAt: '2026-07-25T13:00:00+00:00',
       endAt: '2026-07-25T13:30:00+00:00',
     }
 
     expect(parseCreatedBookingReceipt(receipt)).toEqual(receipt)
-    expect(parseCreatedBookingReceipt(receipt).totalAtShop).toBe('75.00')
+    expect(parseCreatedBookingReceipt(receipt).totalAtShop).toBe('25.00')
+  })
+
+  it('defaults subscription fields for a legacy flag-off receipt', () => {
+    expect(
+      parseCreatedBookingReceipt({
+        appointmentId: 'legacy',
+        barberId: 'barber',
+        barberName: 'Ana',
+        serviceId: 'service',
+        serviceName: 'Corte',
+        servicePrice: '40.00',
+        serviceDurationMinutes: 30,
+        addOnDurationMinutes: 0,
+        addOnTotal: '0.00',
+        productSubtotal: '10.00',
+        attendanceTotal: '40.00',
+        totalAtShop: '50.00',
+        startAt: '2026-08-01T10:00:00+00:00',
+        endAt: '2026-08-01T10:30:00+00:00',
+      }),
+    ).toMatchObject({
+      subscriptionCoveredTotal: '0.00',
+      amountDue: '40.00',
+      subscriptionCoverageStatus: 'none',
+      subscriptionPlanName: null,
+    })
   })
 
   it.each([
@@ -103,10 +133,11 @@ describe('booking action wiring', () => {
       "'get_public_available_slots_for_service_and_add_ons'",
     )
     expect(source).toContain('p_add_ons: selectedAddOns')
-    expect(source).toContain(
-      "'create_public_booking_with_barber_add_ons'",
-    )
+    expect(source).toContain("'create_public_booking_with_barber_add_ons'")
     expect(source).toContain('p_add_ons: input.addOns ?? []')
+    expect(source).toContain("'create_public_booking_with_entitlements'")
+    expect(source).toContain("'preview_public_booking_with_entitlements'")
+    expect(source).toContain("'is_client_subscriptions_booking_enabled'")
     expect(source).toContain('p_barber_service_id: input.barberServiceId')
     expect(source).toContain(
       'p_configuration_version: input.configurationVersion',

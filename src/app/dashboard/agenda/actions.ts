@@ -28,7 +28,8 @@ export async function getAgendaAppointments(dateStr: string) {
       .order('name'),
     supabase
       .from('appointments')
-      .select(`
+      .select(
+        `
         id,
         barber_id,
         start_at,
@@ -37,6 +38,9 @@ export async function getAgendaAppointments(dateStr: string) {
         service_price,
         service_duration_minutes,
         total_price,
+        subscription_covered_total,
+        amount_due,
+        subscription_coverage_status,
         notes,
         clients ( name, phone, email ),
         services ( name ),
@@ -51,8 +55,16 @@ export async function getAgendaAppointments(dateStr: string) {
           unit_price,
           status,
           products ( name, image_url )
+        ),
+        appointment_subscription_allocations (
+          status,
+          subscription_cycle_entitlements (
+            item_name_snapshot,
+            subscription_cycles ( plan_name_snapshot )
+          )
         )
-      `)
+      `,
+      )
       .eq('barbershop_id', barbershopId)
       .gte('start_at', startOfDay)
       .lte('start_at', endOfDay)
@@ -196,21 +208,41 @@ export type CreateAdminBookingInput = {
 
 export async function createAdminAppointment(input: CreateAdminBookingInput) {
   const { supabase, barbershopId } = await getBarbershopId()
-  const { data, error } = await supabase.rpc(
-    'create_public_appointment_with_barber_service_and_products',
-    {
-      p_barbershop_id: barbershopId,
-      p_client_name: input.clientName,
-      p_client_phone: input.clientPhone,
-      p_client_email: input.clientEmail || null,
-      p_barber_service_id: input.barberServiceId,
-      p_configuration_version: input.configurationVersion,
-      p_start_at: input.startAt,
-      p_notes: input.notes || null,
-      p_add_on_ids: input.addOnIds || null,
-      p_products: [],
-    },
-  )
+  const { data: settings } = await supabase
+    .from('barbershop_settings')
+    .select('client_subscriptions_booking_enabled')
+    .eq('barbershop_id', barbershopId)
+    .maybeSingle()
+  const bookingCoverageEnabled =
+    settings?.client_subscriptions_booking_enabled === true
+  const bookingRpc = bookingCoverageEnabled
+    ? 'create_admin_booking_with_entitlements'
+    : 'create_public_appointment_with_barber_service_and_products'
+  const parameters = bookingCoverageEnabled
+    ? {
+        p_client_name: input.clientName,
+        p_client_phone: input.clientPhone,
+        p_client_email: input.clientEmail || null,
+        p_barber_service_id: input.barberServiceId,
+        p_configuration_version: input.configurationVersion,
+        p_start_at: input.startAt,
+        p_notes: input.notes || null,
+        p_add_ons: [],
+        p_products: [],
+      }
+    : {
+        p_barbershop_id: barbershopId,
+        p_client_name: input.clientName,
+        p_client_phone: input.clientPhone,
+        p_client_email: input.clientEmail || null,
+        p_barber_service_id: input.barberServiceId,
+        p_configuration_version: input.configurationVersion,
+        p_start_at: input.startAt,
+        p_notes: input.notes || null,
+        p_add_on_ids: input.addOnIds || null,
+        p_products: [],
+      }
+  const { data, error } = await supabase.rpc(bookingRpc, parameters)
 
   if (error) return mapBookingRpcError(error)
   const receipt = parseCreatedBookingReceipt(data)

@@ -6,6 +6,7 @@ import { filterBookableSlotsForDate } from './booking-availability'
 import {
   mapBarberServiceRows,
   mapBookingRpcError,
+  parseBookingCoveragePreview,
   parseCreatedBookingReceipt,
 } from './booking-action-mappers'
 import type { SelectedBookingProduct } from './booking-types'
@@ -133,6 +134,61 @@ export async function getPublicSlotsAction(
   }
 }
 
+async function isBookingCoverageEnabled(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  barbershopId: string,
+) {
+  const { data, error } = await supabase.rpc(
+    'is_client_subscriptions_booking_enabled',
+    { p_barbershop_id: barbershopId },
+  )
+  return !error && data === true
+}
+
+export type PreviewPublicBookingInput = Pick<
+  CreatePublicBookingInput,
+  | 'barbershopId'
+  | 'clientPhone'
+  | 'barberServiceId'
+  | 'configurationVersion'
+  | 'startAt'
+  | 'addOns'
+  | 'products'
+>
+
+export async function previewPublicBooking(input: PreviewPublicBookingInput) {
+  const supabase = await createClient()
+  if (!(await isBookingCoverageEnabled(supabase, input.barbershopId))) {
+    return { success: true as const, preview: null }
+  }
+
+  const { data, error } = await supabase.rpc(
+    'preview_public_booking_with_entitlements',
+    {
+      p_barbershop_id: input.barbershopId,
+      p_client_phone: input.clientPhone,
+      p_barber_service_id: input.barberServiceId,
+      p_configuration_version: input.configurationVersion,
+      p_start_at: input.startAt,
+      p_add_ons: input.addOns ?? [],
+      p_products: input.products ?? [],
+    },
+  )
+
+  if (error) return mapBookingRpcError(error)
+  try {
+    return {
+      success: true as const,
+      preview: parseBookingCoveragePreview(data),
+    }
+  } catch {
+    return {
+      error: 'Não foi possível calcular os valores da assinatura.',
+      code: 'INVALID_RECEIPT' as const,
+    }
+  }
+}
+
 export type CreatePublicBookingInput = {
   barbershopId: string
   clientName: string
@@ -148,21 +204,25 @@ export type CreatePublicBookingInput = {
 
 export async function createPublicBooking(input: CreatePublicBookingInput) {
   const supabase = await createClient()
-  const { data, error } = await supabase.rpc(
-    'create_public_booking_with_barber_add_ons',
-    {
-      p_barbershop_id: input.barbershopId,
-      p_client_name: input.clientName,
-      p_client_phone: input.clientPhone,
-      p_client_email: input.clientEmail || null,
-      p_barber_service_id: input.barberServiceId,
-      p_configuration_version: input.configurationVersion,
-      p_start_at: input.startAt,
-      p_notes: input.notes || null,
-      p_add_ons: input.addOns ?? [],
-      p_products: input.products || [],
-    },
+  const bookingCoverageEnabled = await isBookingCoverageEnabled(
+    supabase,
+    input.barbershopId,
   )
+  const bookingRpc = bookingCoverageEnabled
+    ? 'create_public_booking_with_entitlements'
+    : 'create_public_booking_with_barber_add_ons'
+  const { data, error } = await supabase.rpc(bookingRpc, {
+    p_barbershop_id: input.barbershopId,
+    p_client_name: input.clientName,
+    p_client_phone: input.clientPhone,
+    p_client_email: input.clientEmail || null,
+    p_barber_service_id: input.barberServiceId,
+    p_configuration_version: input.configurationVersion,
+    p_start_at: input.startAt,
+    p_notes: input.notes || null,
+    p_add_ons: input.addOns ?? [],
+    p_products: input.products || [],
+  })
 
   if (error) {
     console.error('Error invoking authoritative booking RPC:', error.message)

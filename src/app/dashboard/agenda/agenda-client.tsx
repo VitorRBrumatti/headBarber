@@ -2,18 +2,10 @@
 
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
-import {
-  CalendarDays,
-  ChevronLeft,
-  ChevronRight,
-  Plus,
-} from 'lucide-react'
+import { CalendarDays, ChevronLeft, ChevronRight, Plus } from 'lucide-react'
 import { Sheet } from '@/components/ui/sheet'
 import { AgendaGrid } from './agenda-grid'
-import type {
-  AgendaBlock,
-  AgendaWorkHour,
-} from './agenda-grid-utils'
+import type { AgendaBlock, AgendaWorkHour } from './agenda-grid-utils'
 import type { AgendaSettings } from './agenda-schedule-mappers'
 import {
   ManualBookingSheet,
@@ -45,8 +37,7 @@ const statusLabels: Record<AppointmentStatus, string> = {
 
 const statusActionClassNames: Record<AppointmentStatus, string> = {
   pending: 'border-[#d8dae0] bg-white text-[#47464b] hover:bg-[#f1f3fa]',
-  confirmed:
-    'border-[#d7b77d] bg-[#fff7e8] text-[#795506] hover:bg-[#ffefcf]',
+  confirmed: 'border-[#d7b77d] bg-[#fff7e8] text-[#795506] hover:bg-[#ffefcf]',
   completed:
     'border-emerald-700 bg-emerald-700 text-white hover:bg-emerald-800',
   cancelled: 'border-red-700 bg-red-700 text-white hover:bg-red-800',
@@ -82,10 +73,7 @@ function AppointmentFinancialDetails({
 }) {
   const productSubtotal = appointment.products
     .filter((product) => product.status !== 'cancelled')
-    .reduce(
-      (total, product) => total + product.unitPrice * product.quantity,
-      0,
-    )
+    .reduce((total, product) => total + product.unitPrice * product.quantity, 0)
 
   return (
     <div className="space-y-6 text-sm">
@@ -157,6 +145,33 @@ function AppointmentFinancialDetails({
             <dt>Total do atendimento</dt>
             <dd>{money(appointment.attendanceTotal)}</dd>
           </div>
+          {(appointment.subscriptionPlanName ||
+            appointment.subscriptionCoverageStatus !== 'none') && (
+            <div className="flex items-center justify-between rounded-lg bg-emerald-50 px-3 py-2 text-emerald-900">
+              <dt>Assinatura {appointment.subscriptionPlanName}</dt>
+              <dd className="text-xs font-bold uppercase">
+                {appointment.subscriptionCoverageStatus === 'waiting'
+                  ? 'Aguardando disponibilidade'
+                  : appointment.subscriptionCoverageStatus === 'awaiting_cycle'
+                    ? 'Aguardando pagamento'
+                    : 'Benefício aplicado'}
+              </dd>
+            </div>
+          )}
+          <div className="flex justify-between text-emerald-800">
+            <dt>Coberto pela assinatura</dt>
+            <dd>- {money(appointment.subscriptionCoveredTotal)}</dd>
+          </div>
+          <div className="flex justify-between font-bold text-[#181c21]">
+            <dt>A pagar pelo atendimento</dt>
+            <dd>{money(appointment.amountDue)}</dd>
+          </div>
+          {appointment.waitingSubscriptionItems.length > 0 && (
+            <p className="rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-900">
+              Aguardando disponibilidade:{' '}
+              {appointment.waitingSubscriptionItems.join(', ')}
+            </p>
+          )}
         </dl>
       </div>
 
@@ -187,7 +202,7 @@ function AppointmentFinancialDetails({
         </div>
         <div className="mt-3 flex justify-between text-base font-extrabold text-[#181c21]">
           <span>Total na barbearia</span>
-          <span>{money(appointment.attendanceTotal + productSubtotal)}</span>
+          <span>{money(appointment.amountDue + productSubtotal)}</span>
         </div>
       </div>
 
@@ -270,15 +285,17 @@ export function AgendaClient({
     })
   }
 
-  const formattedDate = new Date(
-    `${currentDate}T00:00:00`,
-  ).toLocaleDateString('pt-BR', {
-    weekday: 'long',
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-  })
-  const displayDate = formattedDate.charAt(0).toUpperCase() + formattedDate.slice(1)
+  const formattedDate = new Date(`${currentDate}T00:00:00`).toLocaleDateString(
+    'pt-BR',
+    {
+      weekday: 'long',
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+    },
+  )
+  const displayDate =
+    formattedDate.charAt(0).toUpperCase() + formattedDate.slice(1)
   const activeAppointments = initialAppointments.filter(
     (appointment) => appointment.status !== 'cancelled',
   ).length

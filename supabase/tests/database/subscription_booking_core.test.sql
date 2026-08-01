@@ -1,6 +1,6 @@
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(31);
+select plan(33);
 
 select function_returns(
   'private', 'create_appointment_with_entitlements',
@@ -23,9 +23,21 @@ select function_returns(
   'jsonb', 'admin confirmation wrapper has a stable signature'
 );
 
+select function_returns(
+  'public', 'is_client_subscriptions_booking_enabled',
+  array['uuid'], 'boolean', 'public feature decision has a stable signature'
+);
+
 insert into public.barbershops(id,name,slug) values
 ('f1000000-0000-0000-0000-000000000001','Booking A','subscription-booking-a'),
 ('f1000000-0000-0000-0000-000000000002','Booking B','subscription-booking-b');
+
+select is(
+  public.is_client_subscriptions_booking_enabled(
+    'f1000000-0000-0000-0000-000000000001'
+  ),
+  false, 'booking coverage stays off by default'
+);
 
 insert into public.barbers(id,barbershop_id,name) values
 ('f1000000-0000-0000-0000-000000000011','f1000000-0000-0000-0000-000000000001','Ana'),
