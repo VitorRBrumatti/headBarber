@@ -166,6 +166,12 @@ export function FinancialEntryDrawer({ open, onClose }: FinancialEntryDrawerProp
 
             {error && <p role="alert" className="rounded-lg border border-[#ba1a1a]/20 bg-[#ffdad6] px-4 py-3 text-sm text-[#93000a]">{error}</p>}
 
+            {entryType === 'revenue' && (
+              <p className="rounded-lg border border-[#e0e2e9] bg-white px-4 py-3 text-xs leading-5 text-[#47464b]">
+                Este formulário registra somente receitas manuais. Mensalidades,
+                atendimentos e produtos entram automaticamente pelas operações de origem.
+              </p>
+            )}
             <div>
               <label htmlFor="entry-amount" className="mb-2 block text-xs font-semibold uppercase tracking-[0.05em] text-[#47464b]">Valor (R$)</label>
               <div className="relative">
