@@ -248,7 +248,7 @@ export default function LoginPage() {
               </svg>
               <div>
                 <strong className="text-white block font-montserrat text-[16px] font-semibold">Agendamento Inteligente</strong>
-                <p className="text-[12px] text-[#858387] font-semibold tracking-wider uppercase mt-0.5">Reduza faltas com notificações automáticas e fluxos otimizados.</p>
+                <p className="text-[12px] text-[#858387] font-semibold tracking-wider uppercase mt-0.5">Centralize sua operação com uma gestão simples, organizada e eficiente.</p>
               </div>
             </li>
             <li className="auth-feature-item flex items-start gap-4">

@@ -34,7 +34,7 @@ function getErrorMessage(error: unknown) {
 
 export function ConfiguracoesClient({ initialSettings, barbers }: SettingsClientProps) {
   const [activeTab, setActiveTab] = useState<'agenda' | 'blocked'>('agenda')
-  const [whatsappReminderHours, setWhatsappReminderHours] = useState(initialSettings?.whatsapp_reminder_hours ?? 2)
+  const [whatsappReminderHours] = useState(initialSettings?.whatsapp_reminder_hours ?? 2)
   const [slotIntervalMinutes, setSlotIntervalMinutes] = useState(initialSettings?.slot_interval_minutes ?? 30)
   const [defaultStartTime, setDefaultStartTime] = useState((initialSettings?.default_start_time || '09:00:00').substring(0, 5))
   const [defaultEndTime, setDefaultEndTime] = useState((initialSettings?.default_end_time || '19:00:00').substring(0, 5))
@@ -165,7 +165,7 @@ export function ConfiguracoesClient({ initialSettings, barbers }: SettingsClient
                   <div className="flex items-center gap-3 border-b border-[#eceef4] px-5 py-5 sm:px-6"><span className="flex h-10 w-10 items-center justify-center rounded-full bg-[#f1f3fa] text-[#181c21]"><ListChecks className="h-5 w-5" aria-hidden="true" /></span><h2 id="scheduling-rules-title" className="font-montserrat text-lg font-semibold text-[#181c21] sm:text-xl">Regras de Agendamento</h2></div>
                   <div className="space-y-6 p-5 sm:p-6">
                     <label className="block space-y-2"><span className={fieldLabelClassName}>Intervalo dos slots</span><span className="relative block"><select value={slotIntervalMinutes} onChange={(event) => setSlotIntervalMinutes(Number(event.target.value))} className={`${controlClassName} appearance-none pr-10`}><option value={15}>15 minutos</option><option value={30}>30 minutos (Recomendado)</option><option value={60}>1 hora</option></select><ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#77767b]" aria-hidden="true" /></span><span className="block font-inter text-xs leading-5 text-[#77767b]">Define a frequência de slots livres na página pública.</span></label>
-                    <label className="block space-y-2"><span className={fieldLabelClassName}>Lembrete WhatsApp (antecedência)</span><span className="relative block"><select value={whatsappReminderHours} onChange={(event) => setWhatsappReminderHours(Number(event.target.value))} className={`${controlClassName} appearance-none pr-10`}><option value={1}>1 hora antes</option><option value={2}>2 horas antes (Recomendado)</option><option value={4}>4 horas antes</option><option value={24}>24 horas antes</option></select><ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#77767b]" aria-hidden="true" /></span><span className="block font-inter text-xs leading-5 text-[#77767b]">Antecedência da mensagem de lembrete do WhatsApp.</span></label>
+
                   </div>
                 </section>
 
