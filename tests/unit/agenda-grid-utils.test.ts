@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import {
   generateAgendaSlots,
+  getAgendaDisplayRange,
+  getAppointmentGridPlacement,
   getAgendaCellState,
   getAppointmentSpan,
   shouldShowUnavailableLabel,
@@ -31,6 +33,38 @@ describe('agenda grid time slots', () => {
       '09:30',
       '10:00',
     ])
+  })
+
+  it('places an appointment inside the interval it overlaps', () => {
+    expect(
+      getAppointmentGridPlacement({
+        date: '2030-07-22',
+        slots: ['09:00', '09:30', '10:00'],
+        intervalMinutes: 30,
+        startAt: '2030-07-22T09:10:00.000Z',
+        endAt: '2030-07-22T09:40:00.000Z',
+      }),
+    ).toEqual({ slotIndex: 0, span: 2 })
+  })
+
+  it('extends the visible range to include appointments outside shop hours', () => {
+    expect(
+      getAgendaDisplayRange({
+        defaultStartTime: '09:00:00',
+        defaultEndTime: '19:00:00',
+        intervalMinutes: 30,
+        appointments: [
+          {
+            startAt: '2030-07-22T08:40:00.000Z',
+            endAt: '2030-07-22T09:10:00.000Z',
+          },
+          {
+            startAt: '2030-07-22T18:50:00.000Z',
+            endAt: '2030-07-22T19:20:00.000Z',
+          },
+        ],
+      }),
+    ).toEqual({ startTime: '08:30', endTime: '19:30' })
   })
 
   it('falls back to thirty minutes for an invalid interval', () => {

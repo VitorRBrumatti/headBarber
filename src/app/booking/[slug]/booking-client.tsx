@@ -44,6 +44,7 @@ import { BookingProductStep } from './booking-product-step'
 import { BookingProgress } from './booking-progress'
 import { BookingSuccess } from './booking-success'
 import { BookingSummaryBar } from './booking-summary-bar'
+import { BookingCoveragePreviewCard } from './booking-coverage-preview-card'
 
 type Barber = {
   id: string
@@ -881,7 +882,11 @@ export function BookingClient({
                 </span>
                 <input
                   value={clientPhone}
-                  onChange={(event) => setClientPhone(event.target.value)}
+                  onChange={(event) => {
+                    previewRequestRef.current += 1
+                    setCoveragePreview(null)
+                    setClientPhone(event.target.value)
+                  }}
                   inputMode="tel"
                   autoComplete="tel"
                   className="h-12 w-full rounded-xl border border-white/10 bg-[#111113] px-4 text-sm outline-none focus:border-[#C79A4A]"
@@ -998,41 +1003,7 @@ export function BookingClient({
                   <span>Serviço e adicionais</span>
                   <span>{formatCurrency(totals.serviceSubtotal)}</span>
                 </div>
-                {coveragePreview && (
-                  <div className="rounded-xl border border-[#C79A4A]/25 bg-[#C79A4A]/10 p-3">
-                    <div className="flex justify-between text-sm font-semibold text-[#C79A4A]">
-                      <span>
-                        {coveragePreview.subscriptionPlanName
-                          ? `Assinatura ${coveragePreview.subscriptionPlanName}`
-                          : 'Assinatura'}
-                      </span>
-                      <span>
-                        {coveragePreview.subscriptionCoverageStatus ===
-                        'waiting'
-                          ? 'Aguardando disponibilidade'
-                          : coveragePreview.subscriptionCoverageStatus ===
-                              'awaiting_cycle'
-                            ? 'Aguardando pagamento'
-                            : 'Benefício disponível'}
-                      </span>
-                    </div>
-                    <div className="mt-2 flex justify-between text-sm text-emerald-300">
-                      <span>Coberto</span>
-                      <span>
-                        -{' '}
-                        {formatCurrency(
-                          Number(coveragePreview.subscriptionCoveredTotal),
-                        )}
-                      </span>
-                    </div>
-                    <div className="mt-1 flex justify-between text-sm font-semibold">
-                      <span>A pagar</span>
-                      <span>
-                        {formatCurrency(Number(coveragePreview.amountDue))}
-                      </span>
-                    </div>
-                  </div>
-                )}
+                <BookingCoveragePreviewCard preview={coveragePreview} />
                 <div className="flex justify-between text-sm text-white/50">
                   <span>Produtos</span>
                   <span>{formatCurrency(totals.productSubtotal)}</span>

@@ -11,7 +11,8 @@ import type { AgendaBarber, AppointmentDetails } from './agenda-types'
 import {
   generateAgendaSlots,
   getAgendaCellState,
-  getAppointmentSpan,
+  getAgendaDisplayRange,
+  getAppointmentGridPlacement,
   shouldShowUnavailableLabel,
   type AgendaBlock,
   type AgendaCellState,
@@ -96,9 +97,15 @@ export function AgendaGrid({
   onSelectAppointment,
   onSelectSlot,
 }: AgendaGridProps) {
+  const displayRange = getAgendaDisplayRange({
+    defaultStartTime: settings.defaultStartTime,
+    defaultEndTime: settings.defaultEndTime,
+    intervalMinutes: settings.slotIntervalMinutes,
+    appointments,
+  })
   const slots = generateAgendaSlots(
-    settings.defaultStartTime,
-    settings.defaultEndTime,
+    displayRange.startTime,
+    displayRange.endTime,
     settings.slotIntervalMinutes,
   )
   const minWidth = Math.max(720, 72 + barbers.length * 240)
@@ -175,28 +182,34 @@ export function AgendaGrid({
           const workHour = workHours.find(
             (item) => item.barberId === barber.id,
           )
+          const placements = barberAppointments.flatMap((appointment) => {
+            const placement = getAppointmentGridPlacement({
+              date: currentDate,
+              slots,
+              intervalMinutes: settings.slotIntervalMinutes,
+              startAt: appointment.startAt,
+              endAt: appointment.endAt,
+            })
+            return placement ? [{ appointment, ...placement }] : []
+          })
 
           return slots.map((time, slotIndex) => {
-            const slotStart = Date.parse(`${currentDate}T${time}:00.000Z`)
-            const appointment = barberAppointments.find(
-              (item) => Date.parse(item.startAt) === slotStart,
+            const startingPlacement = placements.find(
+              (item) => item.slotIndex === slotIndex,
             )
-            const coveredByEarlierAppointment = barberAppointments.some(
+            const coveredByEarlierAppointment = placements.some(
               (item) =>
-                Date.parse(item.startAt) < slotStart &&
-                Date.parse(item.endAt) > slotStart,
+                item.slotIndex < slotIndex &&
+                item.slotIndex + item.span > slotIndex,
             )
 
             if (coveredByEarlierAppointment) return null
 
-            if (appointment) {
+            if (startingPlacement) {
+              const { appointment } = startingPlacement
               const presentation = statusPresentation[appointment.status]
               const span = Math.min(
-                getAppointmentSpan(
-                  appointment.startAt,
-                  appointment.endAt,
-                  settings.slotIntervalMinutes,
-                ),
+                startingPlacement.span,
                 slots.length - slotIndex,
               )
 
@@ -210,7 +223,7 @@ export function AgendaGrid({
                   }}
                 >
                   <button
-                    aria-label={`Ver reserva de ${appointment.client.name} às ${time}`}
+                    aria-label={`Ver reserva de ${appointment.client.name} às ${timeFromIso(appointment.startAt)}`}
                     className={cn(
                       'flex h-full w-full min-w-0 flex-col justify-start overflow-hidden rounded-lg border-l-[3px] px-3 py-2 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C79A4A] focus-visible:ring-offset-1 active:scale-[0.99]',
                       presentation.className,
