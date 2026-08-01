@@ -11,6 +11,7 @@ import {
   Percent,
   Plus,
   ShoppingBag,
+  Users,
   Trash2,
   TrendingDown,
   TrendingUp,
@@ -265,7 +266,7 @@ export function FinanceiroClient({ overview, initialStartDate, initialEndDate }:
           <h3 data-testid="metric-total-revenues" className="mt-4 font-montserrat text-2xl font-bold text-[#047857]">{formatPrice(overview.totalRevenues)}</h3>
           <div className="mt-4 space-y-2 border-t border-[#e0e2e9] pt-3 text-xs text-[#47464b]">
             <div className="flex justify-between gap-4"><span>Serviços</span><strong className="text-[#181c21]">{formatPrice(overview.revenuesByCategory.find((item) => item.category === 'service')?.value || 0)}</strong></div>
-            <div className="flex justify-between gap-4"><span>Produtos</span><strong className="text-[#181c21]">{formatPrice(overview.revenuesByCategory.find((item) => item.category === 'product')?.value || 0)}</strong></div>
+            <div className="flex justify-between gap-4"><span>Produtos</span><strong className="text-[#181c21]">{formatPrice(overview.revenuesByCategory.find((item) => item.category === 'product')?.value || 0)}</strong></div>            <div className="flex justify-between gap-4"><span>Assinaturas</span><strong className="text-[#181c21]">{formatPrice(overview.subscriptionRevenue)}</strong></div>
           </div>
         </Card>
 
@@ -295,6 +296,18 @@ export function FinanceiroClient({ overview, initialStartDate, initialEndDate }:
         </Card>
       </div>
 
+      <section aria-label="Indicadores de assinaturas" className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+        <Card className={`${financeSurface} p-6`}>
+          <div className="flex items-start justify-between gap-4"><div><p className={financeLabel}>Receita de assinaturas</p><h2 className="mt-3 font-montserrat text-2xl font-bold text-[#047857]">{formatPrice(overview.subscriptionRevenue)}</h2></div><span className="rounded-md bg-[#e5f5ed] p-2 text-[#047857]"><DollarSign className="h-4 w-4" /></span></div>
+          <div className="mt-4 grid grid-cols-2 gap-4 border-t border-[#e0e2e9] pt-4 text-xs text-[#47464b]"><div><span>Assinantes ativos</span><strong className="mt-1 block text-base text-[#181c21]">{overview.activeSubscribers}</strong></div><div><span>Média por assinante</span><strong className="mt-1 block text-base text-[#181c21]">{formatPrice(overview.averageRevenuePerSubscriber)}</strong></div></div>
+        </Card>
+
+        <Card className={`${financeSurface} p-6`}>
+          <div className="flex items-start justify-between gap-4"><div><p className={financeLabel}>Cobertura utilizada</p><h2 className="mt-3 font-montserrat text-2xl font-bold text-[#795506]">{formatPrice(overview.coveredAttendanceValue)}</h2></div><span className="rounded-md bg-[#f4ead7] p-2 text-[#795506]"><Users className="h-4 w-4" /></span></div>
+          <p className="mt-2 text-xs text-[#47464b]">Valor operacional coberto, sem somar ao faturamento.</p>
+          <div className="mt-4 grid grid-cols-3 gap-3 border-t border-[#e0e2e9] pt-4 text-xs text-[#47464b]"><div><span>Atendimentos</span><strong className="mt-1 block text-base text-[#181c21]">{overview.coveredAppointmentsCount}</strong></div><div><span>Consumo médio</span><strong className="mt-1 block text-base text-[#181c21]">{overview.averageConsumptionPerSubscriber.toFixed(1)}</strong></div><div><span>Renovações</span><strong className="mt-1 block text-base text-[#181c21]">{overview.renewalsDue}</strong></div></div>
+        </Card>
+      </section>
       <Card className={`${financeSurface} p-5 sm:p-6`}>
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div><h2 className={financeTitle}>Receitas vs. despesas</h2><p className="mt-1 text-xs text-[#47464b]">Evolução financeira no período selecionado</p></div>
@@ -372,7 +385,7 @@ export function FinanceiroClient({ overview, initialStartDate, initialEndDate }:
               overview.recentRevenues.length > 0 ? overview.recentRevenues.map((revenue) => (
                 <div key={revenue.id} className="flex items-start justify-between gap-4 rounded-lg border border-[#e0e2e9] bg-white p-4 transition-colors hover:border-[#c8c5cb]">
                   <div className="min-w-0"><div className="flex flex-wrap items-center gap-2"><span className="rounded-full bg-[#e5f5ed] px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-[#047857]">{REV_CATEGORY_LABELS[revenue.category] || revenue.category}</span><span className="text-xs text-[#47464b]">{new Date(`${revenue.date}T12:00:00`).toLocaleDateString('pt-BR')}</span></div><p className="mt-2 truncate text-sm font-semibold text-[#181c21]">{revenue.description}</p>{revenue.payment_method && <p className="mt-1 text-[10px] uppercase tracking-wide text-[#47464b]">Forma: {PAYMENT_METHOD_LABELS[revenue.payment_method] || revenue.payment_method}</p>}</div>
-                  <div className="flex shrink-0 items-center gap-2"><strong className="font-montserrat text-sm text-[#047857]">+{formatPrice(revenue.amount)}</strong>{!revenue.reference_id && <Button variant="ghost" size="icon" onClick={() => handleDeleteClick(revenue.id, 'revenue')} className="h-8 w-8 text-[#77767b] hover:bg-[#ffdad6] hover:text-[#ba1a1a]" title="Remover lançamento"><Trash2 className="h-4 w-4" /></Button>}</div>
+                  <div className="flex shrink-0 items-center gap-2"><strong className="font-montserrat text-sm text-[#047857]">+{formatPrice(revenue.amount)}</strong>{revenue.source === 'manual' && <Button variant="ghost" size="icon" onClick={() => handleDeleteClick(revenue.id, 'revenue')} className="h-8 w-8 text-[#77767b] hover:bg-[#ffdad6] hover:text-[#ba1a1a]" title="Remover lançamento"><Trash2 className="h-4 w-4" /></Button>}</div>
                 </div>
               )) : <div className="rounded-lg border border-dashed border-[#c8c5cb] bg-white px-5 py-12 text-center"><TrendingUp className="mx-auto h-6 w-6 text-[#C79A4A]" /><p className="mt-3 text-sm font-semibold">Nenhuma receita registrada</p><p className="mt-1 text-xs text-[#47464b]">Crie um lançamento para preencher o extrato.</p></div>
             ) : (

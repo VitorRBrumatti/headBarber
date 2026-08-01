@@ -1,6 +1,8 @@
 import type {
   BarberServiceOption,
+  BookingCoveragePreview,
   CreatedBookingReceipt,
+  SubscriptionCoverageStatus,
   UnavailableProduct,
 } from './booking-types'
 
@@ -27,8 +29,7 @@ const expectedErrorMessages = {
     'O preço ou a duração mudou. Revise o serviço e confirme novamente.',
   INVALID_BARBER_SERVICE:
     'Este serviço não está mais disponível para o profissional escolhido.',
-  INVALID_ADD_ON:
-    'Um adicional selecionado mudou ou não está mais disponível.',
+  INVALID_ADD_ON: 'Um adicional selecionado mudou ou não está mais disponível.',
   SLOT_UNAVAILABLE:
     'Este horário acabou de ficar indisponível. Escolha outro horário.',
 } as const
@@ -38,6 +39,29 @@ function requiredString(value: unknown, field: string) {
     throw new Error(`Invalid booking receipt field: ${field}`)
   }
   return value
+}
+
+const subscriptionCoverageStatuses = new Set<SubscriptionCoverageStatus>([
+  'none',
+  'awaiting_cycle',
+  'waiting',
+  'partial',
+  'covered',
+])
+
+function optionalString(value: unknown, field: string) {
+  if (value === null || value === undefined) return null
+  return requiredString(value, field)
+}
+
+function coverageStatus(value: unknown): SubscriptionCoverageStatus {
+  if (
+    typeof value !== 'string' ||
+    !subscriptionCoverageStatuses.has(value as SubscriptionCoverageStatus)
+  ) {
+    throw new Error('Invalid booking receipt field: subscriptionCoverageStatus')
+  }
+  return value as SubscriptionCoverageStatus
 }
 
 function requiredNumber(value: unknown, field: string) {
@@ -51,9 +75,7 @@ export function mapBarberServiceRows(
   rows: BarberServiceRow[] | null,
 ): BarberServiceOption[] {
   return (rows ?? []).map((row) => {
-    const service = Array.isArray(row.services)
-      ? row.services[0]
-      : row.services
+    const service = Array.isArray(row.services) ? row.services[0] : row.services
 
     if (!service) throw new Error('Invalid barber service relation')
 
@@ -82,10 +104,7 @@ export function parseCreatedBookingReceipt(
 
   const receipt = value as Record<string, unknown>
   return {
-    appointmentId: requiredString(
-      receipt.appointmentId,
-      'appointmentId',
-    ),
+    appointmentId: requiredString(receipt.appointmentId, 'appointmentId'),
     barberId: requiredString(receipt.barberId, 'barberId'),
     barberName: requiredString(receipt.barberName, 'barberName'),
     serviceId: requiredString(receipt.serviceId, 'serviceId'),
@@ -100,17 +119,56 @@ export function parseCreatedBookingReceipt(
       'addOnDurationMinutes',
     ),
     addOnTotal: requiredString(receipt.addOnTotal, 'addOnTotal'),
-    productSubtotal: requiredString(
-      receipt.productSubtotal,
-      'productSubtotal',
-    ),
-    attendanceTotal: requiredString(
-      receipt.attendanceTotal,
-      'attendanceTotal',
+    productSubtotal: requiredString(receipt.productSubtotal, 'productSubtotal'),
+    attendanceTotal: requiredString(receipt.attendanceTotal, 'attendanceTotal'),
+    subscriptionCoveredTotal:
+      receipt.subscriptionCoveredTotal === undefined
+        ? '0.00'
+        : requiredString(
+            receipt.subscriptionCoveredTotal,
+            'subscriptionCoveredTotal',
+          ),
+    amountDue:
+      receipt.amountDue === undefined
+        ? requiredString(receipt.attendanceTotal, 'attendanceTotal')
+        : requiredString(receipt.amountDue, 'amountDue'),
+    subscriptionCoverageStatus:
+      receipt.subscriptionCoverageStatus === undefined
+        ? 'none'
+        : coverageStatus(receipt.subscriptionCoverageStatus),
+    subscriptionPlanName: optionalString(
+      receipt.subscriptionPlanName,
+      'subscriptionPlanName',
     ),
     totalAtShop: requiredString(receipt.totalAtShop, 'totalAtShop'),
     startAt: requiredString(receipt.startAt, 'startAt'),
     endAt: requiredString(receipt.endAt, 'endAt'),
+  }
+}
+
+export function parseBookingCoveragePreview(
+  value: unknown,
+): BookingCoveragePreview {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+    throw new Error('Invalid booking preview')
+  }
+  const preview = value as Record<string, unknown>
+  return {
+    attendanceTotal: requiredString(preview.attendanceTotal, 'attendanceTotal'),
+    subscriptionCoveredTotal: requiredString(
+      preview.subscriptionCoveredTotal,
+      'subscriptionCoveredTotal',
+    ),
+    amountDue: requiredString(preview.amountDue, 'amountDue'),
+    subscriptionCoverageStatus: coverageStatus(
+      preview.subscriptionCoverageStatus,
+    ),
+    subscriptionPlanName: optionalString(
+      preview.subscriptionPlanName,
+      'subscriptionPlanName',
+    ),
+    productSubtotal: requiredString(preview.productSubtotal, 'productSubtotal'),
+    totalAtShop: requiredString(preview.totalAtShop, 'totalAtShop'),
   }
 }
 

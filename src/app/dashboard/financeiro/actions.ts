@@ -3,6 +3,25 @@
 import { revalidatePath } from 'next/cache'
 import { getBarbershopId } from '@/utils/get-barbershop'
 
+export interface FinancialRevenue {
+  id: string
+  category: string
+  description: string | null
+  amount: number
+  date: string
+  payment_method: string | null
+  reference_id: string | null
+  source: string
+}
+
+export interface FinancialExpense {
+  id: string
+  category: string
+  description: string | null
+  amount: number
+  date: string
+  is_recurring: boolean
+}
 export interface FinancialOverview {
   totalRevenues: number
   totalExpenses: number
@@ -11,99 +30,173 @@ export interface FinancialOverview {
   completedAppointmentsCount: number
   productsSoldQuantity: number
   provisionedCommissions: number
+  subscriptionRevenue: number
+  activeSubscribers: number
+  renewalsDue: number
+  coveredAppointmentsCount: number
+  coveredAttendanceValue: number
+  averageConsumptionPerSubscriber: number
+  averageRevenuePerSubscriber: number
   revenuesByCategory: { category: string; value: number }[]
   expensesByCategory: { category: string; value: number }[]
-  recentRevenues: any[]
-  recentExpenses: any[]
+  recentRevenues: FinancialRevenue[]
+  recentExpenses: FinancialExpense[]
 }
 
 export async function getFinancialOverview(
   startDateStr: string,
-  endDateStr: string
+  endDateStr: string,
 ): Promise<FinancialOverview> {
   const { supabase, barbershopId } = await getBarbershopId()
+  const startTimestamp = `${startDateStr}T00:00:00`
+  const endTimestamp = `${endDateStr}T23:59:59`
 
-  // 1. Fetch all revenues in range
-  const { data: revenues, error: revError } = await supabase
-    .from('revenues')
-    .select('*')
-    .eq('barbershop_id', barbershopId)
-    .gte('date', startDateStr)
-    .lte('date', endDateStr)
-    .order('date', { ascending: false })
+  const [
+    revenuesResult,
+    expensesResult,
+    appointmentsResult,
+    productSalesResult,
+    subscriptionsResult,
+    allocationsResult,
+  ] = await Promise.all([
+    supabase
+      .from('revenues')
+      .select('*')
+      .eq('barbershop_id', barbershopId)
+      .gte('date', startDateStr)
+      .lte('date', endDateStr)
+      .order('date', { ascending: false }),
+    supabase
+      .from('expenses')
+      .select('*')
+      .eq('barbershop_id', barbershopId)
+      .gte('date', startDateStr)
+      .lte('date', endDateStr)
+      .order('date', { ascending: false }),
+    supabase
+      .from('appointments')
+      .select('id, total_price, subscription_covered_total, commission_amount')
+      .eq('barbershop_id', barbershopId)
+      .eq('status', 'completed')
+      .gte('start_at', startTimestamp)
+      .lte('start_at', endTimestamp),
+    supabase
+      .from('product_sales')
+      .select('quantity')
+      .eq('barbershop_id', barbershopId)
+      .gte('created_at', startTimestamp)
+      .lte('created_at', endTimestamp),
+    supabase
+      .from('client_subscriptions')
+      .select('id, status, next_billing_date')
+      .eq('barbershop_id', barbershopId)
+      .eq('status', 'active'),
+    supabase
+      .from('appointment_subscription_allocations')
+      .select('appointment_id, covered_amount, status')
+      .eq('barbershop_id', barbershopId)
+      .eq('status', 'consumed')
+      .gte('consumed_at', startTimestamp)
+      .lte('consumed_at', endTimestamp),
+  ])
 
-  if (revError) throw new Error(`Erro ao buscar receitas: ${revError.message}`)
+  if (revenuesResult.error) {
+    throw new Error(`Erro ao buscar receitas: ${revenuesResult.error.message}`)
+  }
+  if (expensesResult.error) {
+    throw new Error(`Erro ao buscar despesas: ${expensesResult.error.message}`)
+  }
+  if (appointmentsResult.error) {
+    throw new Error(
+      `Erro ao buscar atendimentos: ${appointmentsResult.error.message}`,
+    )
+  }
+  if (productSalesResult.error) {
+    throw new Error(
+      `Erro ao buscar quantidade de produtos: ${productSalesResult.error.message}`,
+    )
+  }
+  if (subscriptionsResult.error) {
+    throw new Error(
+      `Erro ao buscar assinantes: ${subscriptionsResult.error.message}`,
+    )
+  }
+  if (allocationsResult.error) {
+    throw new Error(
+      `Erro ao buscar consumo de assinaturas: ${allocationsResult.error.message}`,
+    )
+  }
 
-  // 2. Fetch all manual/recorded expenses in range
-  const { data: expenses, error: expError } = await supabase
-    .from('expenses')
-    .select('*')
-    .eq('barbershop_id', barbershopId)
-    .gte('date', startDateStr)
-    .lte('date', endDateStr)
-    .order('date', { ascending: false })
+  const revenues = revenuesResult.data ?? []
+  const expenses = expensesResult.data ?? []
+  const appointments = appointmentsResult.data ?? []
+  const productSales = productSalesResult.data ?? []
+  const activeSubscriptions = subscriptionsResult.data ?? []
+  const consumedAllocations = allocationsResult.data ?? []
 
-  if (expError) throw new Error(`Erro ao buscar despesas: ${expError.message}`)
-
-  // 3. Calculate provisioned commissions from completed appointments
-  // Query appointments where status = completed and start_at is in date range
-  const { data: appointments, error: apptError } = await supabase
-    .from('appointments')
-    .select('total_price, barbers(commission_percentage)')
-    .eq('status', 'completed')
-    .eq('barbershop_id', barbershopId)
-    .gte('start_at', `${startDateStr}T00:00:00`)
-    .lte('start_at', `${endDateStr}T23:59:59`)
-
-  if (apptError) throw new Error(`Erro ao buscar comissões: ${apptError.message}`)
-
-  let provisionedCommissions = 0
-  appointments?.forEach((appt: any) => {
-    // barbers could be an object because of the relationship
-    const commissionPercent = appt.barbers?.commission_percentage || 0
-    provisionedCommissions += (appt.total_price * Number(commissionPercent)) / 100
-  })
-
-  // 4. Calculate total products sold quantity in range
-  const { data: productSales, error: salesError } = await supabase
-    .from('product_sales')
-    .select('quantity')
-    .eq('barbershop_id', barbershopId)
-    .gte('created_at', `${startDateStr}T00:00:00`)
-    .lte('created_at', `${endDateStr}T23:59:59`)
-
-  if (salesError) throw new Error(`Erro ao buscar quantidade de produtos: ${salesError.message}`)
-
-  const productsSoldQuantity = productSales?.reduce((acc, sale) => acc + sale.quantity, 0) || 0
-
-  // 5. Compute sums
-  const totalRevenues = revenues?.reduce((sum, rev) => sum + Number(rev.amount), 0) || 0
-  const manualExpensesSum = expenses?.reduce((sum, exp) => sum + Number(exp.amount), 0) || 0
+  const totalRevenues = revenues.reduce(
+    (sum, revenue) => sum + Number(revenue.amount),
+    0,
+  )
+  const subscriptionRevenue = revenues
+    .filter((revenue) => revenue.source === 'subscription_cycle')
+    .reduce((sum, revenue) => sum + Number(revenue.amount), 0)
+  const provisionedCommissions = appointments.reduce(
+    (sum, appointment) => sum + Number(appointment.commission_amount ?? 0),
+    0,
+  )
+  const manualExpensesSum = expenses.reduce(
+    (sum, expense) => sum + Number(expense.amount),
+    0,
+  )
   const totalExpenses = manualExpensesSum + provisionedCommissions
   const netProfit = totalRevenues - totalExpenses
+  const completedAppointmentsCount = appointments.length
+  const operationalAttendanceValue = appointments.reduce(
+    (sum, appointment) => sum + Number(appointment.total_price),
+    0,
+  )
+  const averageTicket =
+    completedAppointmentsCount > 0
+      ? operationalAttendanceValue / completedAppointmentsCount
+      : 0
+  const productsSoldQuantity = productSales.reduce(
+    (sum, sale) => sum + Number(sale.quantity),
+    0,
+  )
 
-  // Average Ticket for completed appointments (service category in revenues)
-  const serviceRevenues = revenues?.filter((r) => r.category === 'service') || []
-  const serviceRevenueSum = serviceRevenues.reduce((sum, r) => sum + Number(r.amount), 0)
-  const completedAppointmentsCount = serviceRevenues.length
-  const averageTicket = completedAppointmentsCount > 0 ? serviceRevenueSum / completedAppointmentsCount : 0
+  const activeSubscribers = activeSubscriptions.length
+  const renewalsDue = activeSubscriptions.filter(
+    (subscription) =>
+      subscription.next_billing_date >= startDateStr &&
+      subscription.next_billing_date <= endDateStr,
+  ).length
+  const coveredAppointmentIds = new Set(
+    consumedAllocations.map((allocation) => allocation.appointment_id),
+  )
+  const coveredAppointmentsCount = coveredAppointmentIds.size
+  const coveredAttendanceValue = consumedAllocations.reduce(
+    (sum, allocation) => sum + Number(allocation.covered_amount),
+    0,
+  )
+  const averageConsumptionPerSubscriber =
+    activeSubscribers > 0 ? consumedAllocations.length / activeSubscribers : 0
+  const averageRevenuePerSubscriber =
+    activeSubscribers > 0 ? subscriptionRevenue / activeSubscribers : 0
 
-  // 6. Aggregate by category
   const revCatMap: Record<string, number> = {
     service: 0,
     product: 0,
     monthly_plan: 0,
     manual_adjustment: 0,
   }
-  revenues?.forEach((r) => {
-    if (revCatMap[r.category] !== undefined) {
-      revCatMap[r.category] += Number(r.amount)
-    }
+  revenues.forEach((revenue) => {
+    revCatMap[revenue.category] =
+      (revCatMap[revenue.category] ?? 0) + Number(revenue.amount)
   })
-  const revenuesByCategory = Object.entries(revCatMap).map(([category, value]) => ({
-    category,
-    value,
-  }))
+  const revenuesByCategory = Object.entries(revCatMap).map(
+    ([category, value]) => ({ category, value }),
+  )
 
   const expCatMap: Record<string, number> = {
     rent: 0,
@@ -111,22 +204,18 @@ export async function getFinancialOverview(
     water: 0,
     internet: 0,
     products: 0,
-    commission: provisionedCommissions, // Seed with the dynamic commission
+    commission: provisionedCommissions,
     maintenance: 0,
     marketing: 0,
     other: 0,
   }
-  expenses?.forEach((e) => {
-    if (expCatMap[e.category] !== undefined) {
-      expCatMap[e.category] += Number(e.amount)
-    } else {
-      expCatMap[e.category] = Number(e.amount)
-    }
+  expenses.forEach((expense) => {
+    expCatMap[expense.category] =
+      (expCatMap[expense.category] ?? 0) + Number(expense.amount)
   })
-  const expensesByCategory = Object.entries(expCatMap).map(([category, value]) => ({
-    category,
-    value,
-  }))
+  const expensesByCategory = Object.entries(expCatMap).map(
+    ([category, value]) => ({ category, value }),
+  )
 
   return {
     totalRevenues,
@@ -136,13 +225,19 @@ export async function getFinancialOverview(
     completedAppointmentsCount,
     productsSoldQuantity,
     provisionedCommissions,
+    subscriptionRevenue,
+    activeSubscribers,
+    renewalsDue,
+    coveredAppointmentsCount,
+    coveredAttendanceValue,
+    averageConsumptionPerSubscriber,
+    averageRevenuePerSubscriber,
     revenuesByCategory,
     expensesByCategory,
-    recentRevenues: revenues || [],
-    recentExpenses: expenses || [],
+    recentRevenues: revenues,
+    recentExpenses: expenses,
   }
 }
-
 export async function createExpenseAction(formData: {
   category: string
   description: string
@@ -198,6 +293,7 @@ export async function createManualRevenueAction(formData: {
     amount: formData.amount,
     date: formData.date,
     payment_method: formData.payment_method,
+    source: 'manual',
   })
 
   if (error) throw new Error(error.message)
@@ -209,13 +305,17 @@ export async function createManualRevenueAction(formData: {
 export async function deleteManualRevenueAction(id: string) {
   const { supabase, barbershopId } = await getBarbershopId()
 
-  const { error } = await supabase
+  const { data, error } = await supabase
     .from('revenues')
     .delete()
     .eq('id', id)
     .eq('barbershop_id', barbershopId)
+    .eq('source', 'manual')
+    .select('id')
+    .maybeSingle()
 
   if (error) throw new Error(error.message)
+  if (!data) throw new Error('Somente receitas manuais podem ser removidas.')
 
   revalidatePath('/dashboard/financeiro')
   revalidatePath('/dashboard')

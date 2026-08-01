@@ -3,32 +3,69 @@ import { getFinancialOverview } from '@/app/dashboard/financeiro/actions'
 
 // Mock datasets
 const mockRevenues = [
-  { id: '1', category: 'service', amount: 100.0, date: '2026-06-01', payment_method: 'pix' },
-  { id: '2', category: 'service', amount: 50.0, date: '2026-06-02', payment_method: 'money' },
-  { id: '3', category: 'product', amount: 30.0, date: '2026-06-03', payment_method: 'credit_card' },
+  {
+    id: '1',
+    category: 'service',
+    amount: 100.0,
+    date: '2026-06-01',
+    payment_method: 'pix',
+  },
+  {
+    id: '2',
+    category: 'service',
+    amount: 50.0,
+    date: '2026-06-02',
+    payment_method: 'money',
+  },
+  {
+    id: '3',
+    category: 'product',
+    amount: 30.0,
+    date: '2026-06-03',
+    payment_method: 'credit_card',
+  },
 ]
 
 const mockExpenses = [
-  { id: '1', category: 'rent', amount: 40.0, date: '2026-06-01', is_recurring: true },
-  { id: '2', category: 'other', amount: 20.0, date: '2026-06-02', is_recurring: false },
+  {
+    id: '1',
+    category: 'rent',
+    amount: 40.0,
+    date: '2026-06-01',
+    is_recurring: true,
+  },
+  {
+    id: '2',
+    category: 'other',
+    amount: 20.0,
+    date: '2026-06-02',
+    is_recurring: false,
+  },
 ]
 
 const mockAppointments = [
-  { total_price: 100.0, barbers: { commission_percentage: 30.0 } },
-  { total_price: 50.0, barbers: { commission_percentage: 20.0 } },
+  {
+    id: 'a1',
+    total_price: 100.0,
+    subscription_covered_total: 0,
+    commission_amount: 30.0,
+  },
+  {
+    id: 'a2',
+    total_price: 50.0,
+    subscription_covered_total: 0,
+    commission_amount: 10.0,
+  },
 ]
 
-const mockProductSales = [
-  { quantity: 2 },
-  { quantity: 1 },
-]
+const mockProductSales = [{ quantity: 2 }, { quantity: 1 }]
 
 // Mock getBarbershopId module
 vi.mock('@/utils/get-barbershop', () => {
   return {
     getBarbershopId: vi.fn().mockImplementation(async () => {
       const selectMock = (table: string) => {
-        let data: any[] = []
+        let data: unknown[] = []
         if (table === 'revenues') data = mockRevenues
         else if (table === 'expenses') data = mockExpenses
         else if (table === 'appointments') data = mockAppointments
@@ -39,9 +76,11 @@ vi.mock('@/utils/get-barbershop', () => {
           gte: () => queryObj,
           lte: () => queryObj,
           order: () => queryObj,
-          then: (onfulfilled: any) => Promise.resolve({ data, error: null }).then(onfulfilled),
+          then: (
+            onfulfilled: (value: { data: unknown[]; error: null }) => unknown,
+          ) => Promise.resolve({ data, error: null }).then(onfulfilled),
         }
-        
+
         return {
           select: () => queryObj,
         }
@@ -49,7 +88,9 @@ vi.mock('@/utils/get-barbershop', () => {
 
       return {
         supabase: {
-          from: vi.fn().mockImplementation((table) => selectMock(table)),
+          from: vi
+            .fn()
+            .mockImplementation((table: string) => selectMock(table)),
         },
         barbershopId: 'test-barbershop-id',
       }
@@ -84,12 +125,17 @@ describe('getFinancialOverview', () => {
     // Count: 2
     // Average: 75
     expect(overview.averageTicket).toBe(75)
+    expect(overview.completedAppointmentsCount).toBe(2)
 
     // 7. Categories breakdown
-    const serviceCat = overview.revenuesByCategory.find((c) => c.category === 'service')
+    const serviceCat = overview.revenuesByCategory.find(
+      (c) => c.category === 'service',
+    )
     expect(serviceCat?.value).toBe(150)
 
-    const commissionCat = overview.expensesByCategory.find((c) => c.category === 'commission')
+    const commissionCat = overview.expensesByCategory.find(
+      (c) => c.category === 'commission',
+    )
     expect(commissionCat?.value).toBe(40)
   })
 })

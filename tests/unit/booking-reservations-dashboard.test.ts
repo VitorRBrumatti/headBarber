@@ -29,12 +29,16 @@ describe('manual appointment administration', () => {
       'p_configuration_version: input.configurationVersion',
     )
     expect(actions).not.toContain("'create_public_appointment_with_client'")
+    expect(actions).toContain("'create_admin_booking_with_entitlements'")
+    expect(actions).toContain('client_subscriptions_booking_enabled')
+    expect(actions).toContain(".rpc('settle_appointment'")
+    expect(actions).not.toMatch(
+      /from\('appointments'\)[\s\S]{0,160}\.update\(\{ status \}\)/,
+    )
   })
 
   it('renders a barber-first, service-aware manual form', () => {
-    const sheet = source(
-      'src/app/dashboard/agenda/manual-booking-sheet.tsx',
-    )
+    const sheet = source('src/app/dashboard/agenda/manual-booking-sheet.tsx')
     expect(sheet.indexOf('Profissional')).toBeLessThan(sheet.indexOf('Serviço'))
     expect(sheet).toContain('setSelectedServiceId')
     expect(sheet).toContain('getAdminSlotsAction')
@@ -53,9 +57,7 @@ describe('appointment status transition safety', () => {
       'confirmed',
       'cancelled',
     ])
-    expect(canTransitionAppointmentStatus('cancelled', 'confirmed')).toBe(
-      false,
-    )
+    expect(canTransitionAppointmentStatus('cancelled', 'confirmed')).toBe(false)
     expect(canTransitionAppointmentStatus('no_show', 'confirmed')).toBe(false)
   })
 })
@@ -86,6 +88,8 @@ describe('historical appointment details', () => {
       expect(file).toContain('item.durationMinutes')
       expect(file).toContain('totalDurationMinutes')
       expect(file).toContain('Total do atendimento')
+      expect(file).toContain('Coberto pela assinatura')
+      expect(file).toContain('A pagar pelo atendimento')
       expect(file).toContain('Subtotal dos produtos')
       expect(file).toContain('Total na barbearia')
     }

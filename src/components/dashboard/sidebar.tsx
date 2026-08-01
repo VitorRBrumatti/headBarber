@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
@@ -11,13 +12,14 @@ const sidebarItems = [
   { name: 'Dashboard', href: '/dashboard', icon: 'dashboard' },
   { name: 'Agenda', href: '/dashboard/agenda', icon: 'calendar_today' },
   { name: 'Financeiro', href: '/dashboard/financeiro', icon: 'payments' },
+  { name: 'Assinaturas de clientes', href: '/dashboard/financeiro/assinaturas', icon: 'loyalty' },
   { name: 'Reservas', href: '/dashboard/reservas', icon: 'book_online' },
   { name: 'Barbeiros', href: '/dashboard/barbeiros', icon: 'content_cut' },
   { name: 'Serviços', href: '/dashboard/servicos', icon: 'dry_cleaning' },
   { name: 'Adicionais', href: '/dashboard/adicionais', icon: 'add_circle' },
   { name: 'Produtos', href: '/dashboard/produtos', icon: 'inventory_2' },
   { name: 'Clientes', href: '/dashboard/clientes', icon: 'groups' },
-  { name: 'Assinatura', href: '/dashboard/planos-mensais', icon: 'card_membership' },
+  { name: 'Assinatura HeadBarber', href: '/dashboard/planos-mensais', icon: 'card_membership' },
   { name: 'Configurações', href: '/dashboard/configuracoes', icon: 'settings' },
 ]
 
@@ -34,10 +36,12 @@ export function Sidebar({ onLinkClick }: SidebarProps) {
       {/* Logo Section (No text below, just logo image as requested) */}
       <div className="mb-10 px-4 flex items-center justify-center">
         <Link href="/dashboard" className="block hover:opacity-90 transition-opacity">
-          <img 
+          <Image
             alt="HeadBarber"
-            className="w-full max-w-[150px] h-auto object-contain mx-auto"
+            className="mx-auto h-auto w-full max-w-[150px] object-contain"
             src="/brand/headbarber_logo_branca_com_texto_transparente.png"
+            width={150}
+            height={113}
           />
         </Link>
       </div>
