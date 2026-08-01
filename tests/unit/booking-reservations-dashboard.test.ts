@@ -31,6 +31,10 @@ describe('manual appointment administration', () => {
     expect(actions).not.toContain("'create_public_appointment_with_client'")
     expect(actions).toContain("'create_admin_booking_with_entitlements'")
     expect(actions).toContain('client_subscriptions_booking_enabled')
+    expect(actions).toContain(".rpc('settle_appointment'")
+    expect(actions).not.toMatch(
+      /from\('appointments'\)[\s\S]{0,160}\.update\(\{ status \}\)/,
+    )
   })
 
   it('renders a barber-first, service-aware manual form', () => {

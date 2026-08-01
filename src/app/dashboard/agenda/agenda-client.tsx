@@ -11,12 +11,17 @@ import {
   ManualBookingSheet,
   type ManualBookingSelection,
 } from './manual-booking-sheet'
-import { updateAppointmentStatus } from './actions'
+import { confirmAppointmentAction, settleAppointmentAction } from './actions'
 import {
   getAllowedAppointmentTransitions,
   type AppointmentStatus,
 } from './agenda-rules'
 import type { AgendaBarber, AppointmentDetails } from './agenda-types'
+import {
+  SettlementDialog,
+  type SettlementPaymentMethod,
+  type SettlementTargetStatus,
+} from './settlement-dialog'
 
 interface AgendaClientProps {
   initialBarbers: AgendaBarber[]
@@ -244,6 +249,9 @@ export function AgendaClient({
     useState<ManualBookingSelection | null>(null)
   const [isCreateOpen, setIsCreateOpen] = useState(false)
   const [message, setMessage] = useState('')
+  const [settlementTarget, setSettlementTarget] =
+    useState<SettlementTargetStatus | null>(null)
+  const [settlementError, setSettlementError] = useState('')
   const [isPending, startTransition] = useTransition()
 
   const navigateToDate = (date: string) => {
@@ -270,21 +278,54 @@ export function AgendaClient({
     status: AppointmentStatus,
   ) => {
     setMessage('')
+    if (
+      status === 'completed' ||
+      status === 'cancelled' ||
+      status === 'no_show'
+    ) {
+      setSettlementError('')
+      setSettlementTarget(status)
+      return
+    }
+
+    if (status !== 'confirmed') return
+
     startTransition(async () => {
-      try {
-        await updateAppointmentStatus(appointment.id, status)
-        setSelectedAppointment(null)
-        router.refresh()
-      } catch (error) {
-        setMessage(
-          error instanceof Error
-            ? error.message
-            : 'Não foi possível atualizar o atendimento.',
-        )
+      const result = await confirmAppointmentAction(appointment.id)
+      if (!result.success) {
+        setMessage(result.error)
+        return
       }
+      setSelectedAppointment(null)
+      router.refresh()
     })
   }
 
+  const confirmSettlement = (paymentMethod: SettlementPaymentMethod | null) => {
+    if (!selectedAppointment || !settlementTarget) return
+
+    setSettlementError('')
+    startTransition(async () => {
+      const result = await settleAppointmentAction({
+        appointmentId: selectedAppointment.id,
+        targetStatus: settlementTarget,
+        paymentMethod,
+      })
+      if (!result.success) {
+        setSettlementError(result.error)
+        return
+      }
+      setSettlementTarget(null)
+      setSelectedAppointment(null)
+      router.refresh()
+    })
+  }
+
+  const closeSettlement = () => {
+    if (isPending) return
+    setSettlementTarget(null)
+    setSettlementError('')
+  }
   const formattedDate = new Date(`${currentDate}T00:00:00`).toLocaleDateString(
     'pt-BR',
     {
@@ -403,6 +444,15 @@ export function AgendaClient({
           router.refresh()
         }}
         open={isCreateOpen}
+      />
+      <SettlementDialog
+        appointment={selectedAppointment}
+        error={settlementError}
+        isPending={isPending}
+        onClose={closeSettlement}
+        onConfirm={confirmSettlement}
+        open={Boolean(selectedAppointment && settlementTarget)}
+        targetStatus={settlementTarget}
       />
 
       <Sheet

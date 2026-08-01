@@ -8,10 +8,7 @@ import {
   mapBookingRpcError,
   parseCreatedBookingReceipt,
 } from '@/app/booking/[slug]/booking-action-mappers'
-import {
-  canTransitionAppointmentStatus,
-  type AppointmentStatus,
-} from './agenda-rules'
+import type { AppointmentStatus } from './agenda-rules'
 import { mapAppointmentRows } from './appointment-mappers'
 
 export async function getAgendaAppointments(dateStr: string) {
@@ -138,63 +135,113 @@ export async function getAdminSlotsAction(
   }
 }
 
-export async function updateAppointmentStatus(
+const appointmentStatusErrors: Record<string, string> = {
+  APPOINTMENT_NOT_FOUND: 'Agendamento não encontrado.',
+  INVALID_STATUS_TRANSITION: 'Transição de status não permitida.',
+  INVALID_PAYMENT: 'Selecione uma forma de pagamento válida.',
+  SETTLEMENT_CONFLICT:
+    'O atendimento foi alterado por outra operação. Atualize a agenda.',
+  USE_SETTLEMENT: 'Este atendimento precisa ser finalizado pela conferência.',
+}
+
+function mapAppointmentStatusError(message: string) {
+  const code = Object.keys(appointmentStatusErrors).find((candidate) =>
+    message.includes(candidate),
+  )
+  return code
+    ? appointmentStatusErrors[code]
+    : 'Não foi possível atualizar o atendimento.'
+}
+
+async function notifyAppointmentCancellation(
+  supabase: Awaited<ReturnType<typeof getBarbershopId>>['supabase'],
   appointmentId: string,
-  status: AppointmentStatus,
 ) {
+  try {
+    const { data: cancelled } = await supabase
+      .from('appointments')
+      .select('start_at, clients(name, phone), barbershops(name)')
+      .eq('id', appointmentId)
+      .single()
+    const client = Array.isArray(cancelled?.clients)
+      ? cancelled.clients[0]
+      : cancelled?.clients
+    const barbershop = Array.isArray(cancelled?.barbershops)
+      ? cancelled.barbershops[0]
+      : cancelled?.barbershops
+    if (client?.phone && cancelled?.start_at) {
+      await sendWhatsAppNotification(
+        client.phone,
+        `Olá, *${client.name}*! Seu agendamento na *${barbershop?.name || 'Barbearia'}* para ${new Date(cancelled.start_at).toLocaleDateString('pt-BR')} foi cancelado pelo estabelecimento.`,
+      )
+    }
+  } catch (notificationError) {
+    console.error('Failed to dispatch cancellation log:', notificationError)
+  }
+}
+
+function revalidateAppointmentViews() {
+  revalidatePath('/dashboard/agenda')
+  revalidatePath('/dashboard/reservas')
+  revalidatePath('/dashboard/financeiro')
+  revalidatePath('/dashboard')
+  revalidatePath('/dashboard/assinaturas')
+}
+
+export async function confirmAppointmentAction(appointmentId: string) {
+  const { supabase } = await getBarbershopId()
+  const { error } = await supabase.rpc('transition_appointment_status', {
+    p_appointment_id: appointmentId,
+    p_target_status: 'confirmed',
+  })
+  if (error) {
+    return {
+      success: false as const,
+      error: mapAppointmentStatusError(error.message),
+    }
+  }
+  revalidateAppointmentViews()
+  return { success: true as const }
+}
+
+export async function settleAppointmentAction(input: {
+  appointmentId: string
+  targetStatus: Exclude<AppointmentStatus, 'pending' | 'confirmed'>
+  paymentMethod: string | null
+}) {
   const { supabase, barbershopId } = await getBarbershopId()
-  const { data: appointment, error: loadError } = await supabase
-    .from('appointments')
-    .select('status')
-    .eq('id', appointmentId)
+  const { data: settings } = await supabase
+    .from('barbershop_settings')
+    .select('client_subscriptions_settlement_enabled')
     .eq('barbershop_id', barbershopId)
-    .single()
+    .maybeSingle()
 
-  if (loadError || !appointment) {
-    throw new Error('Agendamento não encontrado.')
-  }
+  const settlementEnabled =
+    settings?.client_subscriptions_settlement_enabled === true
+  const result = settlementEnabled
+    ? await supabase.rpc('settle_appointment', {
+        p_appointment_id: input.appointmentId,
+        p_target_status: input.targetStatus,
+        p_payment_method: input.paymentMethod,
+      })
+    : await supabase.rpc('transition_appointment_status', {
+        p_appointment_id: input.appointmentId,
+        p_target_status: input.targetStatus,
+      })
 
-  const currentStatus = appointment.status as AppointmentStatus
-  if (!canTransitionAppointmentStatus(currentStatus, status)) {
-    throw new Error('Transição de status não permitida.')
-  }
-
-  const { error } = await supabase
-    .from('appointments')
-    .update({ status })
-    .eq('id', appointmentId)
-    .eq('barbershop_id', barbershopId)
-
-  if (error) throw new Error(`Erro ao atualizar status: ${error.message}`)
-
-  if (status === 'cancelled') {
-    try {
-      const { data: cancelled } = await supabase
-        .from('appointments')
-        .select('start_at, clients(name, phone), barbershops(name)')
-        .eq('id', appointmentId)
-        .single()
-      const client = Array.isArray(cancelled?.clients)
-        ? cancelled.clients[0]
-        : cancelled?.clients
-      const barbershop = Array.isArray(cancelled?.barbershops)
-        ? cancelled.barbershops[0]
-        : cancelled?.barbershops
-      if (client?.phone && cancelled?.start_at) {
-        await sendWhatsAppNotification(
-          client.phone,
-          `Olá, *${client.name}*! Seu agendamento na *${barbershop?.name || 'Barbearia'}* para ${new Date(cancelled.start_at).toLocaleDateString('pt-BR')} foi cancelado pelo estabelecimento.`,
-        )
-      }
-    } catch (notificationError) {
-      console.error('Failed to dispatch cancellation log:', notificationError)
+  if (result.error) {
+    return {
+      success: false as const,
+      error: mapAppointmentStatusError(result.error.message),
     }
   }
 
-  revalidatePath('/dashboard/agenda')
-  revalidatePath('/dashboard/reservas')
+  if (input.targetStatus === 'cancelled') {
+    await notifyAppointmentCancellation(supabase, input.appointmentId)
+  }
+  revalidateAppointmentViews()
+  return { success: true as const, receipt: result.data }
 }
-
 export type CreateAdminBookingInput = {
   clientName: string
   clientPhone: string

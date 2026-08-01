@@ -1,10 +1,14 @@
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(33);
+select plan(40);
 
 select function_returns(
   'public', 'settle_appointment', array['uuid','text','text'], 'jsonb',
   'settlement RPC has a stable signature'
+);
+select function_returns(
+  'public', 'transition_appointment_status', array['uuid','text'], 'jsonb',
+  'status transition RPC has a stable signature'
 );
 
 insert into public.barbershops(id,name,slug) values
@@ -80,7 +84,7 @@ insert into public.appointments(
 ('f2000000-0000-0000-0000-000000000083','f2000000-0000-0000-0000-000000000001','f2000000-0000-0000-0000-000000000041','f2000000-0000-0000-0000-000000000021','f2000000-0000-0000-0000-000000000031','f2000000-0000-0000-0000-000000000033','2030-08-04 09:00+00','2030-08-04 09:30+00','confirmed',40,30,40,40,'covered'),
 ('f2000000-0000-0000-0000-000000000084','f2000000-0000-0000-0000-000000000001','f2000000-0000-0000-0000-000000000041','f2000000-0000-0000-0000-000000000021','f2000000-0000-0000-0000-000000000031','f2000000-0000-0000-0000-000000000033','2030-08-05 09:00+00','2030-08-05 09:30+00','confirmed',40,30,40,0,'waiting'),
 ('f2000000-0000-0000-0000-000000000085','f2000000-0000-0000-0000-000000000001','f2000000-0000-0000-0000-000000000041','f2000000-0000-0000-0000-000000000021','f2000000-0000-0000-0000-000000000031','f2000000-0000-0000-0000-000000000033','2030-08-06 09:00+00','2030-08-06 09:30+00','confirmed',40,30,40,40,'covered'),
-('f2000000-0000-0000-0000-000000000086','f2000000-0000-0000-0000-000000000001','f2000000-0000-0000-0000-000000000041','f2000000-0000-0000-0000-000000000021','f2000000-0000-0000-0000-000000000031','f2000000-0000-0000-0000-000000000033','2030-08-07 09:00+00','2030-08-07 09:30+00','confirmed',40,30,40,0,'none'),
+('f2000000-0000-0000-0000-000000000086','f2000000-0000-0000-0000-000000000001','f2000000-0000-0000-0000-000000000041','f2000000-0000-0000-0000-000000000021','f2000000-0000-0000-0000-000000000031','f2000000-0000-0000-0000-000000000033','2030-08-07 09:00+00','2030-08-07 09:30+00','pending',40,30,40,0,'none'),
 ('f2000000-0000-0000-0000-000000000087','f2000000-0000-0000-0000-000000000002','f2000000-0000-0000-0000-000000000042','f2000000-0000-0000-0000-000000000022','f2000000-0000-0000-0000-000000000032','f2000000-0000-0000-0000-000000000034','2030-08-07 10:00+00','2030-08-07 10:30+00','confirmed',60,30,60,0,'none');
 
 insert into public.appointment_subscription_allocations(
@@ -96,7 +100,10 @@ insert into public.appointment_products(id,barbershop_id,appointment_id,product_
 ('f2000000-0000-0000-0000-000000000092','f2000000-0000-0000-0000-000000000001','f2000000-0000-0000-0000-000000000083','f2000000-0000-0000-0000-000000000051',1,15,'reserved'),
 ('f2000000-0000-0000-0000-000000000093','f2000000-0000-0000-0000-000000000001','f2000000-0000-0000-0000-000000000085','f2000000-0000-0000-0000-000000000051',1,15,'reserved');
 
-update public.appointments set status='completed' where id='f2000000-0000-0000-0000-000000000080';
+set local role authenticated;
+set local "request.jwt.claim.sub"='f2000000-0000-0000-0000-000000000011';
+select lives_ok($$select public.transition_appointment_status('f2000000-0000-0000-0000-000000000080','completed')$$,'flag-off status transition preserves legacy completion');
+reset role;
 select is((select count(*) from public.revenues where reference_id='f2000000-0000-0000-0000-000000000080' and source='appointment_service'),1::bigint,'flag-off legacy trigger still creates revenue');
 select is((select amount from public.revenues where reference_id='f2000000-0000-0000-0000-000000000080' and source='appointment_service'),40::numeric,'legacy trigger uses amount due');
 
@@ -105,6 +112,10 @@ where barbershop_id='f2000000-0000-0000-0000-000000000001';
 
 set local role authenticated;
 set local "request.jwt.claim.sub"='f2000000-0000-0000-0000-000000000011';
+
+select lives_ok($$select public.transition_appointment_status('f2000000-0000-0000-0000-000000000086','confirmed')$$,'non-terminal confirmation remains available');
+select throws_ok($$select public.transition_appointment_status('f2000000-0000-0000-0000-000000000086','completed')$$,'P0001','USE_SETTLEMENT','flag-on terminal transition requires settlement');
+select throws_ok($$select public.transition_appointment_status('f2000000-0000-0000-0000-000000000087','confirmed')$$,'P0001','APPOINTMENT_NOT_FOUND','status transition hides cross-tenant appointment');
 
 select lives_ok($$select public.settle_appointment('f2000000-0000-0000-0000-000000000081','completed','pix')$$,'covered completion settles atomically');
 select is((select status from public.appointments where id='f2000000-0000-0000-0000-000000000081'),'completed','appointment is completed');
@@ -141,6 +152,8 @@ select throws_ok($$select public.settle_appointment('f2000000-0000-0000-0000-000
 reset role;
 select ok(has_function_privilege('authenticated','public.settle_appointment(uuid,text,text)','EXECUTE'),'authenticated members can settle');
 select ok(not has_function_privilege('anon','public.settle_appointment(uuid,text,text)','EXECUTE'),'anonymous callers cannot settle');
+select ok(has_function_privilege('authenticated','public.transition_appointment_status(uuid,text)','EXECUTE'),'authenticated members can transition status');
+select ok(not has_function_privilege('anon','public.transition_appointment_status(uuid,text)','EXECUTE'),'anonymous callers cannot transition status');
 select is((select count(*) from public.revenues where source='appointment_service' and reference_id in ('f2000000-0000-0000-0000-000000000081'::uuid,'f2000000-0000-0000-0000-000000000085'::uuid)),0::bigint,'covered completion and no-show create no service revenue');
 
 select * from finish();

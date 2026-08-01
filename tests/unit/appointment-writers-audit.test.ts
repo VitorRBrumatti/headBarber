@@ -30,9 +30,7 @@ const applicationUpdateInventory = appointmentSourceFiles
       ...source.matchAll(
         /\.from\('appointments'\)[\s\S]{0,160}?\.update\(([^)]+)\)/g,
       ),
-    ].map(
-      (match) => `${file.replaceAll('\\', '/')}:${match[1]}`,
-    )
+    ].map((match) => `${file.replaceAll('\\', '/')}:${match[1]}`)
   })
   .sort()
 const publicBookingActions = readFileSync(
@@ -140,9 +138,9 @@ describe('appointment writer inventory', () => {
 
   it('allows only reviewed status or notification updates in application code', () => {
     expect(applicationUpdateInventory).toEqual([
-      "src/app/booking/[slug]/actions.ts:{ whatsapp_confirmation_sent: true }",
-      "src/app/dashboard/agenda/actions.ts:{ status }",
-      "src/app/dashboard/agenda/actions.ts:{ whatsapp_confirmation_sent: true }",
+      'src/app/booking/[slug]/actions.ts:{ whatsapp_confirmation_sent: true }',
+
+      'src/app/dashboard/agenda/actions.ts:{ whatsapp_confirmation_sent: true }',
     ])
   })
 
