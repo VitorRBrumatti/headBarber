@@ -1,10 +1,11 @@
 'use client'
 
-import { useState, useTransition } from 'react'
+import { useEffect, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { CalendarDays, ChevronLeft, ChevronRight, Plus } from 'lucide-react'
 import { Sheet } from '@/components/ui/sheet'
 import { AgendaGrid } from './agenda-grid'
+import { startAgendaAutoRefresh } from './agenda-auto-refresh'
 import type { AgendaBlock, AgendaWorkHour } from './agenda-grid-utils'
 import type { AgendaSettings } from './agenda-schedule-mappers'
 import {
@@ -253,6 +254,17 @@ export function AgendaClient({
     useState<SettlementTargetStatus | null>(null)
   const [settlementError, setSettlementError] = useState('')
   const [isPending, startTransition] = useTransition()
+
+  useEffect(
+    () =>
+      startAgendaAutoRefresh({
+        refresh: () => router.refresh(),
+        windowTarget: window,
+        documentTarget: document,
+        isDocumentVisible: () => document.visibilityState === 'visible',
+      }),
+    [router],
+  )
 
   const navigateToDate = (date: string) => {
     router.push(`/dashboard/agenda?date=${date}`, { scroll: false })

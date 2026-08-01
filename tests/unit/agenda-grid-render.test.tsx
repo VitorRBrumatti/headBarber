@@ -25,6 +25,38 @@ const markup = renderToStaticMarkup(
         addOns: [],
         products: [],
       },
+      {
+        id: 'appointment-off-grid',
+        barberId: 'barber-2',
+        startAt: '2030-07-22T10:10:00.000Z',
+        endAt: '2030-07-22T10:40:00.000Z',
+        status: 'confirmed',
+        servicePrice: 45,
+        serviceDurationMinutes: 30,
+        attendanceTotal: 45,
+        notes: null,
+        client: { name: 'Maria', phone: '51999999998', email: null },
+        serviceName: 'Corte',
+        barberName: 'Marcos',
+        addOns: [],
+        products: [],
+      },
+      {
+        id: 'appointment-after-hours',
+        barberId: 'barber-1',
+        startAt: '2030-07-22T11:10:00.000Z',
+        endAt: '2030-07-22T11:40:00.000Z',
+        status: 'confirmed',
+        servicePrice: 55,
+        serviceDurationMinutes: 30,
+        attendanceTotal: 55,
+        notes: null,
+        client: { name: 'Pedro', phone: '51999999997', email: null },
+        serviceName: 'Barba',
+        barberName: 'Ricardo',
+        addOns: [],
+        products: [],
+      },
     ]}
     barbers={[
       {
@@ -93,6 +125,18 @@ describe('daily agenda grid rendering', () => {
   it('renders lunch as unavailable instead of a booking action', () => {
     expect(markup).toContain('Almoço')
     expect(markup).not.toContain('aria-label="Agendar com Ricardo às 10:00"')
+  })
+
+  it('renders appointments that start between configured intervals', () => {
+    expect(markup).toContain('Maria')
+    expect(markup).toContain('10:10')
+    expect(markup).toContain('10:40')
+  })
+
+  it('extends the grid to render appointments outside configured hours', () => {
+    expect(markup).toContain('Pedro')
+    expect(markup).toContain('11:10')
+    expect(markup).toContain('11:40')
   })
 
   it('shows one visible label for consecutive blocked intervals', () => {

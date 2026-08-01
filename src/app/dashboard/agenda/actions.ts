@@ -8,6 +8,7 @@ import {
   mapBookingRpcError,
   parseCreatedBookingReceipt,
 } from '@/app/booking/[slug]/booking-action-mappers'
+import { selectAgendaBarbers } from './agenda-barbers'
 import type { AppointmentStatus } from './agenda-rules'
 import { mapAppointmentRows } from './appointment-mappers'
 
@@ -19,9 +20,8 @@ export async function getAgendaAppointments(dateStr: string) {
   const [barbersResult, appointmentsResult] = await Promise.all([
     supabase
       .from('barbers')
-      .select('id, name, bio, avatar_url')
+      .select('id, name, bio, avatar_url, is_active')
       .eq('barbershop_id', barbershopId)
-      .eq('is_active', true)
       .order('name'),
     supabase
       .from('appointments')
@@ -73,14 +73,10 @@ export async function getAgendaAppointments(dateStr: string) {
     throw new Error(appointmentsResult.error.message)
   }
 
+  const appointments = mapAppointmentRows(appointmentsResult.data ?? [])
   return {
-    barbers: (barbersResult.data ?? []).map((barber) => ({
-      id: barber.id,
-      name: barber.name,
-      bio: barber.bio,
-      avatarUrl: barber.avatar_url,
-    })),
-    appointments: mapAppointmentRows(appointmentsResult.data ?? []),
+    barbers: selectAgendaBarbers(barbersResult.data ?? [], appointments),
+    appointments,
   }
 }
 
