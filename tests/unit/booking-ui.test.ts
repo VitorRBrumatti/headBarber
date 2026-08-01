@@ -1,11 +1,32 @@
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
+import { createElement } from 'react'
+import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it } from 'vitest'
+import { BookingCoveragePreviewCard } from '@/app/booking/[slug]/booking-coverage-preview-card'
 
 const read = (name: string) =>
   readFileSync(resolve(process.cwd(), `src/app/booking/[slug]/${name}`), 'utf8')
 
 describe('booking visual contract', () => {
+  it('does not claim a subscription when the phone has no eligible coverage', () => {
+    const markup = renderToStaticMarkup(
+      createElement(BookingCoveragePreviewCard, {
+        preview: {
+          attendanceTotal: '24.99',
+          subscriptionCoveredTotal: '0.00',
+          amountDue: '24.99',
+          subscriptionCoverageStatus: 'none',
+          subscriptionPlanName: null,
+          productSubtotal: '0.00',
+          totalAtShop: '24.99',
+        },
+      }),
+    )
+
+    expect(markup).toBe('')
+  })
+
   it('renders seven accessible steps in the approved palette', () => {
     const source = read('booking-progress.tsx')
     expect(source).toContain("aria-current={isActive ? 'step' : undefined}")
