@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useRef, useState, useTransition } from 'react'
+import { useEffect, useMemo, useRef, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import {
   AlertTriangle,
@@ -18,6 +18,7 @@ import {
 import {
   createPublicBooking,
   getBarberServicesAction,
+  previewPublicBooking,
   getPublicSlotsAction,
 } from './actions'
 import { getBarberAddOnsAction } from './booking-add-on-actions'
@@ -28,6 +29,7 @@ import {
 } from './booking-add-ons'
 import type {
   BarberServiceOption,
+  BookingCoveragePreview,
   BookingProduct,
   CreatedBookingReceipt,
   ProductSelection,
@@ -43,6 +45,7 @@ import { BookingProductStep } from './booking-product-step'
 import { BookingProgress } from './booking-progress'
 import { BookingSuccess } from './booking-success'
 import { BookingSummaryBar } from './booking-summary-bar'
+import { BookingCoveragePreviewCard } from './booking-coverage-preview-card'
 
 type Barber = {
   id: string
@@ -127,6 +130,7 @@ export function BookingClient({
   const serviceRequestRef = useRef(0)
   const addOnRequestRef = useRef(0)
   const slotRequestRef = useRef(0)
+  const previewRequestRef = useRef(0)
   const selectedBarberRef = useRef('')
   const [currentStep, setCurrentStep] = useState(1)
   const [selectedBarber, setSelectedBarber] = useState('')
@@ -156,6 +160,8 @@ export function BookingClient({
   const [submitting, startSubmitting] = useTransition()
   const [error, setError] = useState('')
   const [receipt, setReceipt] = useState<CreatedBookingReceipt | null>(null)
+  const [coveragePreview, setCoveragePreview] =
+    useState<BookingCoveragePreview | null>(null)
 
   const calendarDays = useMemo(
     () =>
@@ -182,6 +188,52 @@ export function BookingClient({
     products,
     selectedProducts,
   )
+  const amountDue = coveragePreview
+    ? Number(coveragePreview.amountDue)
+    : totals.serviceSubtotal
+  const totalAtShop = amountDue + totals.productSubtotal
+
+  useEffect(() => {
+    if (
+      currentStep !== 7 ||
+      !service ||
+      !selectedDate ||
+      !selectedTime ||
+      !clientPhone.trim()
+    ) {
+      return
+    }
+
+    const requestId = ++previewRequestRef.current
+    void previewPublicBooking({
+      barbershopId: barbershop.id,
+      clientPhone: clientPhone.trim(),
+      barberServiceId: service.id,
+      configurationVersion: service.configurationVersion,
+      startAt: `${selectedDate}T${selectedTime}:00.000Z`,
+      addOns: selectedAddOnPayload(selectedAddOns, barberAddOns),
+      products: toSelectedProducts(selectedProducts),
+    }).then((response) => {
+      if (requestId !== previewRequestRef.current) return
+      setCoveragePreview(
+        'success' in response && response.success ? response.preview : null,
+      )
+    })
+
+    return () => {
+      previewRequestRef.current += 1
+    }
+  }, [
+    barberAddOns,
+    barbershop.id,
+    clientPhone,
+    currentStep,
+    selectedAddOns,
+    selectedDate,
+    selectedProducts,
+    selectedTime,
+    service,
+  ])
 
   async function loadBarberServices(barberId: string) {
     const requestId = ++serviceRequestRef.current
@@ -400,6 +452,7 @@ export function BookingClient({
     setSlotsError('')
     setError('')
     setReceipt(null)
+    setCoveragePreview(null)
   }
 
   function handleConfirm() {
@@ -830,7 +883,11 @@ export function BookingClient({
                 </span>
                 <input
                   value={clientPhone}
-                  onChange={(event) => setClientPhone(event.target.value)}
+                  onChange={(event) => {
+                    previewRequestRef.current += 1
+                    setCoveragePreview(null)
+                    setClientPhone(event.target.value)
+                  }}
                   inputMode="tel"
                   autoComplete="tel"
                   className="h-12 w-full rounded-xl border border-white/10 bg-[#111113] px-4 text-sm outline-none focus:border-[#C79A4A]"
@@ -947,6 +1004,7 @@ export function BookingClient({
                   <span>Serviço e adicionais</span>
                   <span>{formatCurrency(totals.serviceSubtotal)}</span>
                 </div>
+                <BookingCoveragePreviewCard preview={coveragePreview} />
                 <div className="flex justify-between text-sm text-white/50">
                   <span>Produtos</span>
                   <span>{formatCurrency(totals.productSubtotal)}</span>
@@ -954,7 +1012,7 @@ export function BookingClient({
                 <div className="flex justify-between border-t border-white/10 pt-4 text-lg font-semibold">
                   <span>Total na barbearia</span>
                   <span className="text-[#C79A4A]">
-                    {formatCurrency(totals.total)}
+                    {formatCurrency(totalAtShop)}
                   </span>
                 </div>
               </div>
@@ -981,7 +1039,8 @@ export function BookingClient({
         canContinue={canContinue}
         serviceSubtotal={totals.serviceSubtotal}
         productSubtotal={totals.productSubtotal}
-        total={totals.total}
+        total={totalAtShop}
+        coveragePreview={coveragePreview}
         onBack={handleBack}
         onNext={handleNext}
         onConfirm={handleConfirm}

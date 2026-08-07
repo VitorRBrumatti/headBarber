@@ -30,9 +30,7 @@ const applicationUpdateInventory = appointmentSourceFiles
       ...source.matchAll(
         /\.from\('appointments'\)[\s\S]{0,160}?\.update\(([^)]+)\)/g,
       ),
-    ].map(
-      (match) => `${file.replaceAll('\\', '/')}:${match[1]}`,
-    )
+    ].map((match) => `${file.replaceAll('\\', '/')}:${match[1]}`)
   })
   .sort()
 const publicBookingActions = readFileSync(
@@ -85,13 +83,42 @@ const barberAddOnConfirmationMigration = readFileSync(
   'utf8',
 )
 
+const subscriptionSettlementMigration = readFileSync(
+  join(
+    process.cwd(),
+    'supabase',
+    'migrations',
+    '20260801190211_subscription_settlement.sql',
+  ),
+  'utf8',
+)
+
+const statusTransitionMigration = readFileSync(
+  join(
+    process.cwd(),
+    'supabase',
+    'migrations',
+    '20260801191540_appointment_status_transition.sql',
+  ),
+  'utf8',
+)
+const subscriptionBookingMigration = readFileSync(
+  join(
+    process.cwd(),
+    'supabase',
+    'migrations',
+    '20260801182418_subscription_booking_core.sql',
+  ),
+  'utf8',
+)
+
 describe('appointment writer inventory', () => {
   it('keeps appointment creation inside the reviewed booking RPC paths', () => {
     const appointmentInsertMatches = repositoryMatches
       .split(/\r?\n/)
       .filter((line) => /insert into public\.appointments/i.test(line))
 
-    expect(appointmentInsertMatches).toHaveLength(3)
+    expect(appointmentInsertMatches).toHaveLength(4)
     expect(appointmentInsertMatches).toEqual(
       expect.arrayContaining([
         expect.stringContaining('20240522_phase4_booking_schedule.sql'),
@@ -99,6 +126,7 @@ describe('appointment writer inventory', () => {
         expect.stringContaining(
           '20260725211743_barber_add_on_confirmation_expand.sql',
         ),
+        expect.stringContaining('20260801182418_subscription_booking_core.sql'),
       ]),
     )
     expect(scheduleMigration).toMatch(
@@ -116,6 +144,9 @@ describe('appointment writer inventory', () => {
     expect(barberAddOnConfirmationMigration).toMatch(
       /create or replace function public\.create_public_booking_with_barber_add_ons[\s\S]+insert into public\.appointments/i,
     )
+    expect(subscriptionBookingMigration).toMatch(
+      /create or replace function private\.create_appointment_with_entitlements[\s\S]+insert into public\.appointments/i,
+    )
     expect(publicBookingActions).not.toMatch(
       /\.from\('appointments'\)[\s\S]{0,160}\.(?:insert|upsert)\(/,
     )
@@ -126,12 +157,25 @@ describe('appointment writer inventory', () => {
 
   it('allows only reviewed status or notification updates in application code', () => {
     expect(applicationUpdateInventory).toEqual([
-      "src/app/booking/[slug]/actions.ts:{ whatsapp_confirmation_sent: true }",
-      "src/app/dashboard/agenda/actions.ts:{ status }",
-      "src/app/dashboard/agenda/actions.ts:{ whatsapp_confirmation_sent: true }",
+      'src/app/booking/[slug]/actions.ts:{ whatsapp_confirmation_sent: true }',
+
+      'src/app/dashboard/agenda/actions.ts:{ whatsapp_confirmation_sent: true }',
     ])
   })
 
+  it('keeps terminal states and automatic revenues behind reviewed RPCs', () => {
+    expect(agendaActions).toContain(".rpc('settle_appointment'")
+    expect(agendaActions).toContain(".rpc('transition_appointment_status'")
+    expect(subscriptionSettlementMigration).toMatch(
+      /create or replace function public\.settle_appointment/i,
+    )
+    expect(subscriptionSettlementMigration).toMatch(
+      /source[\s\S]+appointment_service[\s\S]+appointment_product/i,
+    )
+    expect(statusTransitionMigration).toMatch(
+      /client_subscriptions_settlement_enabled[\s\S]+USE_SETTLEMENT/i,
+    )
+  })
   it('has no direct agenda update for appointment identity or interval fields', () => {
     expect(agendaActions).not.toMatch(
       /\.update\(\{[^}]*(?:start_at|end_at|barber_id|service_id)[^}]*\}\)/,

@@ -9,6 +9,19 @@ export interface BarberServiceOption {
   configurationVersion: number
 }
 
+export type SubscriptionCoverageStatus =
+  'none' | 'awaiting_cycle' | 'waiting' | 'partial' | 'covered'
+
+export interface BookingCoveragePreview {
+  attendanceTotal: string
+  subscriptionCoveredTotal: string
+  amountDue: string
+  subscriptionCoverageStatus: SubscriptionCoverageStatus
+  subscriptionPlanName: string | null
+  productSubtotal: string
+  totalAtShop: string
+}
+
 export interface CreatedBookingReceipt {
   appointmentId: string
   barberId: string
@@ -21,6 +34,10 @@ export interface CreatedBookingReceipt {
   addOnTotal: string
   productSubtotal: string
   attendanceTotal: string
+  subscriptionCoveredTotal: string
+  amountDue: string
+  subscriptionCoverageStatus: SubscriptionCoverageStatus
+  subscriptionPlanName: string | null
   totalAtShop: string
   startAt: string
   endAt: string

@@ -39,6 +39,17 @@ export function BookingSuccess({
   receipt,
   onReset,
 }: BookingSuccessProps) {
+  const coverageLabel =
+    receipt.subscriptionCoverageStatus === 'waiting'
+      ? 'Aguardando disponibilidade'
+      : receipt.subscriptionCoverageStatus === 'awaiting_cycle'
+        ? 'Aguardando pagamento da assinatura'
+        : receipt.subscriptionCoverageStatus === 'partial'
+          ? 'Cobertura parcial'
+          : receipt.subscriptionCoverageStatus === 'covered'
+            ? 'Coberto pela assinatura'
+            : null
+
   return (
     <main className="relative mx-auto flex min-h-screen w-full max-w-md flex-col items-center justify-center overflow-hidden px-4 py-16">
       <div
@@ -54,8 +65,8 @@ export function BookingSuccess({
           Agendamento confirmado
         </h1>
         <p className="mx-auto mt-2 max-w-sm text-sm leading-6 text-white/50">
-          Sua reserva na {barbershopName} foi criada. Este comprovante contém
-          os valores confirmados pela barbearia.
+          Sua reserva na {barbershopName} foi criada. Este comprovante contém os
+          valores confirmados pela barbearia.
         </p>
       </div>
 
@@ -89,6 +100,19 @@ export function BookingSuccess({
           />
         </div>
 
+        {(receipt.subscriptionPlanName || coverageLabel) && (
+          <div className="mt-5 rounded-lg border border-[#C79A4A]/30 bg-[#C79A4A]/10 px-3 py-2 text-left">
+            <p className="text-xs font-bold text-[#C79A4A]">
+              {receipt.subscriptionPlanName
+                ? `Assinatura ${receipt.subscriptionPlanName}`
+                : 'Assinatura'}
+            </p>
+            {coverageLabel && (
+              <p className="mt-1 text-xs text-white/60">{coverageLabel}</p>
+            )}
+          </div>
+        )}
+
         <div className="mt-5 space-y-2 border-t border-white/10 pt-4">
           <MoneyRow
             label="Serviço"
@@ -101,6 +125,14 @@ export function BookingSuccess({
           <MoneyRow
             label="Total do atendimento"
             value={formatReceiptMoney(receipt.attendanceTotal)}
+          />
+          <MoneyRow
+            label="Coberto pela assinatura"
+            value={`- ${formatReceiptMoney(receipt.subscriptionCoveredTotal)}`}
+          />
+          <MoneyRow
+            label="A pagar pelo atendimento"
+            value={formatReceiptMoney(receipt.amountDue)}
           />
           <MoneyRow
             icon={Package}

@@ -31,6 +31,12 @@ export interface AppointmentDetails {
   serviceDurationMinutes: number
   totalDurationMinutes: number
   attendanceTotal: number
+  subscriptionCoveredTotal: number
+  amountDue: number
+  subscriptionCoverageStatus:
+    'none' | 'awaiting_cycle' | 'waiting' | 'partial' | 'covered'
+  subscriptionPlanName: string | null
+  waitingSubscriptionItems: string[]
   notes: string | null
   client: {
     name: string
