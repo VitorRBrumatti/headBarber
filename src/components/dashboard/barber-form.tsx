@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from 'react'
 import { Button } from '@/components/ui/button'
+import { ImageUpload } from '@/components/ui/image-upload'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { createBarber, updateBarber } from '@/app/dashboard/barbeiros/actions'
@@ -22,6 +23,7 @@ interface BarberFormProps {
 
 export function BarberForm({ barber, onSuccess }: BarberFormProps) {
   const [isPending, startTransition] = useTransition()
+  const [isUploading, setIsUploading] = useState(false)
   const [error, setError] = useState('')
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -36,8 +38,8 @@ export function BarberForm({ barber, onSuccess }: BarberFormProps) {
           await createBarber(formData)
         }
         onSuccess()
-      } catch (err: any) {
-        setError(err.message)
+      } catch (err: unknown) {
+        setError(err instanceof Error ? err.message : 'Não foi possível salvar.')
       }
     })
   }
@@ -54,18 +56,14 @@ export function BarberForm({ barber, onSuccess }: BarberFormProps) {
         />
       </div>
 
-      <div className="space-y-1.5">
-        <label className="text-sm font-medium">Link do Avatar (Opcional)</label>
-        <Input
-          name="avatar_url"
-          type="url"
-          defaultValue={barber?.avatar_url ?? ''}
-          placeholder="https://exemplo.com/avatar.jpg"
-        />
-        <p className="text-xs text-zinc-500">
-          Insira uma URL direta para a foto do profissional.
-        </p>
-      </div>
+      <ImageUpload
+        key={barber?.id ?? 'new-barber'}
+        name="avatar_url"
+        label="Foto do profissional"
+        initialUrl={barber?.avatar_url ?? null}
+        shape="circle"
+        onUploadingChange={setIsUploading}
+      />
 
       <div className="space-y-1.5">
         <label className="text-sm font-medium">Porcentagem de Comissão (%) *</label>
@@ -98,8 +96,14 @@ export function BarberForm({ barber, onSuccess }: BarberFormProps) {
       {error && <p className="text-sm text-red-500">{error}</p>}
 
       <div className="flex gap-3 pt-2">
-        <Button type="submit" disabled={isPending} className="flex-1">
-          {isPending ? 'Salvando...' : barber ? 'Salvar alterações' : 'Criar profissional'}
+        <Button type="submit" disabled={isPending || isUploading} className="flex-1">
+          {isUploading
+            ? 'Enviando imagem...'
+            : isPending
+              ? 'Salvando...'
+              : barber
+                ? 'Salvar alterações'
+                : 'Criar profissional'}
         </Button>
       </div>
     </form>
