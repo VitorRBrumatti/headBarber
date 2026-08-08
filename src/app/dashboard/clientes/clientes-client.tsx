@@ -5,6 +5,7 @@ import { Sheet } from '@/components/ui/sheet'
 import { Dialog } from '@/components/ui/dialog'
 import { ClientForm } from '@/components/dashboard/client-form'
 import { deleteClient } from './actions'
+import { getClientSubscriptionLabel } from './client-subscription-label'
 
 interface Client {
   id: string
@@ -17,9 +18,13 @@ interface Client {
 
 interface ClientesClientProps {
   clients: Client[]
+  activePlanNamesByClientId: Record<string, string>
 }
 
-export function ClientesClient({ clients }: ClientesClientProps) {
+export function ClientesClient({
+  clients,
+  activePlanNamesByClientId,
+}: ClientesClientProps) {
   const [sheetOpen, setSheetOpen] = useState(false)
   const [editingClient, setEditingClient] = useState<Client | undefined>(undefined)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
@@ -275,9 +280,11 @@ export function ClientesClient({ clients }: ClientesClientProps) {
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#c8c5cb]/30">
-                {paginatedClients.map((client, idx) => {
-                  // Determine status/badge for visual layout variation
-                  const isPremium = client.notes?.toLowerCase().includes('premium') || idx % 4 === 0
+                {paginatedClients.map((client) => {
+                  const { label: subscriptionLabel, isSubscriber } =
+                    getClientSubscriptionLabel(
+                      activePlanNamesByClientId[client.id] ?? null,
+                    )
 
                   return (
                     <tr
@@ -288,7 +295,7 @@ export function ClientesClient({ clients }: ClientesClientProps) {
                       <td className="py-4 px-6">
                         <div className="flex items-center gap-4">
                           <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm shrink-0 ${
-                            isPremium 
+                            isSubscriber
                               ? 'bg-[#1b1b1e] text-[#C79A4A]' 
                               : 'bg-[#d8dae0] text-[#181c21]'
                           }`}>
@@ -298,12 +305,17 @@ export function ClientesClient({ clients }: ClientesClientProps) {
                             <p className="font-semibold text-sm text-[#181c21] group-hover:text-[#7c5809] transition-colors leading-tight">
                               {client.name}
                             </p>
-                            <span className={`inline-block px-2 py-0.5 rounded text-[10px] font-bold mt-1 ${
-                              isPremium 
-                                ? 'bg-[#1b1b1e] text-[#C79A4A]' 
-                                : 'bg-[#f1f3fa] text-[#47464b]'
-                            }`}>
-                              {isPremium ? 'Membro Premium' : 'Regular'}
+                            <span
+                              aria-label={subscriptionLabel}
+                              className={`mt-1 block max-w-40 truncate rounded px-2 py-0.5 text-[10px] font-bold ${
+                                isSubscriber
+                                  ? 'bg-[#1b1b1e] text-[#C79A4A]'
+                                  : 'bg-[#f1f3fa] text-[#47464b]'
+                              }`}
+                              tabIndex={0}
+                              title={subscriptionLabel}
+                            >
+                              {subscriptionLabel}
                             </span>
                           </div>
                         </div>
