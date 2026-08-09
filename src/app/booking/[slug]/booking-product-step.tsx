@@ -1,4 +1,5 @@
 import { AlertTriangle, Minus, Package, Plus } from 'lucide-react'
+import { ImageWithFallback } from '@/components/ui/image-with-fallback'
 import type { BookingProduct, SelectedProductQuantities } from './booking-types'
 
 interface BookingProductStepProps {
@@ -78,19 +79,12 @@ export function BookingProductStep({
             >
               <div className="flex gap-4">
                 <div className="grid h-20 w-20 shrink-0 place-items-center overflow-hidden rounded-lg bg-white/[0.06]">
-                  {product.image_url ? (
-                    // Product URLs are tenant-managed and can come from different storage hosts.
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={product.image_url}
-                      alt={product.name}
-                      width={80}
-                      height={80}
-                      className="h-full w-full object-cover"
-                    />
-                  ) : (
-                    <Package className="h-7 w-7 text-white/25" />
-                  )}
+                  <ImageWithFallback
+                    src={product.image_url}
+                    alt={product.name}
+                    className="h-full w-full object-cover"
+                    fallback={<Package className="h-7 w-7 text-white/25" />}
+                  />
                 </div>
 
                 <div className="min-w-0 flex-1">

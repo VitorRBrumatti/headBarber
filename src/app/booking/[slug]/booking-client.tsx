@@ -40,6 +40,7 @@ import {
   getBookingTotals,
   toSelectedProducts,
 } from './booking-utils'
+import { ImageWithFallback } from '@/components/ui/image-with-fallback'
 import { BookingProductStep } from './booking-product-step'
 import { BookingProgress } from './booking-progress'
 import { BookingSuccess } from './booking-success'
@@ -553,10 +554,12 @@ export function BookingClient({
       </header>
 
       <div className="fixed inset-x-0 top-16 z-30 border-b border-white/10 bg-[#1A1A1D]/95 backdrop-blur-xl">
-        <BookingProgress steps={STEPS} currentStep={currentStep} />
+        <div className="mx-auto w-full max-w-3xl px-4 sm:px-6">
+          <BookingProgress steps={STEPS} currentStep={currentStep} />
+        </div>
       </div>
 
-      <main className="mx-auto w-full max-w-3xl px-4 pb-40 pt-36 sm:px-6 sm:pt-40">
+      <main className="mx-auto w-full max-w-3xl px-4 pb-40 pt-40 sm:px-6 sm:pt-48">
         {currentStep === 1 && (
           <section>
             <SectionHeading
@@ -578,18 +581,16 @@ export function BookingClient({
                         : 'border-white/10 bg-white/[0.035] hover:border-white/25'
                     }`}
                   >
-                    {item.avatar_url ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        src={item.avatar_url}
-                        alt=""
-                        className="size-14 shrink-0 rounded-full object-cover ring-1 ring-white/10"
-                      />
-                    ) : (
-                      <span className="grid size-14 shrink-0 place-items-center rounded-full bg-white/5 text-white/45">
-                        <UserRound className="size-5" />
-                      </span>
-                    )}
+                    <ImageWithFallback
+                      src={item.avatar_url}
+                      alt={item.name}
+                      className="size-14 shrink-0 rounded-full object-cover ring-1 ring-white/10"
+                      fallback={
+                        <span className="grid size-14 shrink-0 place-items-center rounded-full bg-white/5 text-white/45">
+                          <UserRound className="size-5" />
+                        </span>
+                      }
+                    />
                     <span className="min-w-0 flex-1">
                       <span className="block truncate font-[var(--font-montserrat)] text-sm font-semibold">
                         {item.name}
