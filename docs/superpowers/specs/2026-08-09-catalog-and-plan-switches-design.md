@@ -10,6 +10,7 @@ Substituir os checkboxes nativos visíveis nos fluxos de serviços, adicionais e
 - Controle “Catálogo ativo” nos cards de adicionais.
 - Controle de ativo nos formulários de criar e editar serviço.
 - Controle de ativo nos formulários de criar e editar adicional.
+- Controle de disponibilidade por profissional nos formulários de serviço e adicional.
 - Seleção de benefícios na criação e edição de planos mensais.
 
 Checkboxes que representam outras funções fora desses fluxos não fazem parte desta alteração.

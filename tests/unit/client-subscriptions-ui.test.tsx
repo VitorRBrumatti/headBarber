@@ -4,9 +4,42 @@ import {
   mapSubscriptionRow,
   type SubscriptionRow,
 } from '@/app/dashboard/financeiro/assinaturas/subscription-mappers'
+import { PlanBenefitRow } from '@/app/dashboard/financeiro/assinaturas/plan-benefit-row'
 import { SubscriptionsClient } from '@/app/dashboard/financeiro/assinaturas/subscriptions-client'
 
 describe('client subscriptions mapping and UI', () => {
+  it('renders plan benefits with a switch and disables unused limits', () => {
+    const unselectedMarkup = renderToStaticMarkup(
+      <PlanBenefitRow
+        name="Corte"
+        selected={false}
+        limit=""
+        onSelectedChange={() => undefined}
+        onLimitChange={() => undefined}
+      />,
+    )
+    const selectedMarkup = renderToStaticMarkup(
+      <PlanBenefitRow
+        name="Corte"
+        selected
+        limit="2"
+        onSelectedChange={() => undefined}
+        onLimitChange={() => undefined}
+      />,
+    )
+
+    expect(unselectedMarkup).toContain('role="switch"')
+    expect(unselectedMarkup).toContain('aria-checked="false"')
+    expect(unselectedMarkup).toContain('Corte')
+    expect(unselectedMarkup).toMatch(
+      /aria-label="Limite de Corte"[^>]*disabled=""/,
+    )
+    expect(selectedMarkup).toContain('aria-checked="true"')
+    expect(selectedMarkup).not.toMatch(
+      /aria-label="Limite de Corte"[^>]*disabled=""/,
+    )
+  })
+
   it('maps nested subscriber data into a stable view model', () => {
     const row: SubscriptionRow = {
       id: 'sub-1',
