@@ -64,8 +64,8 @@ export function ClientesClient({
         await deleteClient(deletingId)
         setDeleteDialogOpen(false)
         setDeletingId(null)
-      } catch (err: any) {
-        setError(err.message)
+      } catch (err: unknown) {
+        setError(err instanceof Error ? err.message : 'Não foi possível excluir o cliente.')
         // Automatically close the dialog on error per rule
         setDeleteDialogOpen(false)
         setDeletingId(null)
@@ -312,6 +312,7 @@ export function ClientesClient({
                                   ? 'bg-[#1b1b1e] text-[#C79A4A]'
                                   : 'bg-[#f1f3fa] text-[#47464b]'
                               }`}
+                              onClick={(event) => event.stopPropagation()}
                               tabIndex={0}
                               title={subscriptionLabel}
                             >
