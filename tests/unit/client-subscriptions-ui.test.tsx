@@ -5,8 +5,41 @@ import {
   type SubscriptionRow,
 } from '@/app/dashboard/financeiro/assinaturas/subscription-mappers'
 import { SubscriptionsClient } from '@/app/dashboard/financeiro/assinaturas/subscriptions-client'
+import { ClientesClient } from '@/app/dashboard/clientes/clientes-client'
 
 describe('client subscriptions mapping and UI', () => {
+  it('renders active plan names and exposes long labels in full', () => {
+    const longPlanName = 'Clube Executivo com Benefícios Ilimitados'
+    const markup = renderToStaticMarkup(
+      <ClientesClient
+        clients={[
+          {
+            id: 'client-1',
+            name: 'Ana',
+            phone: null,
+            email: null,
+            notes: 'cliente premium por preferência',
+            created_at: '2026-08-01T12:00:00Z',
+          },
+          {
+            id: 'client-2',
+            name: 'Bia',
+            phone: null,
+            email: null,
+            notes: null,
+            created_at: '2026-08-02T12:00:00Z',
+          },
+        ]}
+        activePlanNamesByClientId={{ 'client-1': longPlanName }}
+      />,
+    )
+
+    expect(markup).toContain(longPlanName)
+    expect(markup).toContain(`title="${longPlanName}"`)
+    expect(markup).toContain('Regular')
+    expect(markup).not.toContain('Membro Premium')
+  })
+
   it('maps nested subscriber data into a stable view model', () => {
     const row: SubscriptionRow = {
       id: 'sub-1',
