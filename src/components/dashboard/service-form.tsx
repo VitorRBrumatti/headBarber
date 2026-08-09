@@ -10,6 +10,7 @@ import type {
 import { ServiceAssignmentsEditor } from '@/components/dashboard/service-assignments-editor'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { Switch } from '@/components/ui/switch'
 import { Textarea } from '@/components/ui/textarea'
 
 interface ServiceFormProps {
@@ -96,11 +97,10 @@ export function ServiceForm({
         />
       </div>
 
-      <label className="flex items-center gap-2 text-sm font-medium">
-        <input
-          type="checkbox"
+      <label className="flex min-h-11 items-center gap-2 text-sm font-medium">
+        <Switch
           checked={isActive}
-          onChange={(event) => setIsActive(event.target.checked)}
+          onCheckedChange={setIsActive}
         />
         Serviço ativo no catálogo
       </label>

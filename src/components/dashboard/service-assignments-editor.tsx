@@ -2,6 +2,7 @@
 
 import type { ServiceAssignmentDraft } from '@/app/dashboard/servicos/service-types'
 import { Input } from '@/components/ui/input'
+import { Switch } from '@/components/ui/switch'
 
 interface ServiceAssignmentsEditorProps {
   assignments: ServiceAssignmentDraft[]
@@ -37,13 +38,12 @@ export function ServiceAssignmentsEditor({
             <span className="font-montserrat text-sm font-bold text-[#181c21]">
               {assignment.barberName}
             </span>
-            <label className="flex items-center gap-2 text-xs font-semibold text-[#47464b]">
-              <input
-                type="checkbox"
+            <label className="flex items-center gap-1 text-xs font-semibold text-[#47464b]">
+              <Switch
                 checked={assignment.isAvailable}
-                onChange={(event) =>
+                onCheckedChange={(isAvailable) =>
                   update(assignment.barberId, {
-                    isAvailable: event.target.checked,
+                    isAvailable,
                   })
                 }
               />

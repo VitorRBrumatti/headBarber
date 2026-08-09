@@ -4,6 +4,7 @@ import { useState, useTransition } from 'react'
 import { ServiceForm } from '@/components/dashboard/service-form'
 import { Dialog } from '@/components/ui/dialog'
 import { Sheet } from '@/components/ui/sheet'
+import { Switch } from '@/components/ui/switch'
 import {
   formatDurationRange,
   formatPriceRange,
@@ -145,12 +146,11 @@ export function ServicesClient({
                   </p>
                 </div>
                 <div className="flex items-center justify-between border-t border-[#e0e2e9] bg-[#f8f9ff] px-6 py-4">
-                  <label className="flex items-center gap-2 text-xs">
-                    <input
-                      type="checkbox"
+                  <label className="flex items-center gap-1 text-xs font-semibold text-[#47464b]">
+                    <Switch
                       checked={service.isActive}
                       disabled={isPending}
-                      onChange={() => toggleStatus(service)}
+                      onCheckedChange={() => toggleStatus(service)}
                     />
                     Catálogo ativo
                   </label>

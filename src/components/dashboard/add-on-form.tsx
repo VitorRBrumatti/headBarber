@@ -10,6 +10,7 @@ import type {
 import { AddOnAssignmentsEditor } from './add-on-assignments-editor'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { Switch } from '@/components/ui/switch'
 
 interface AddOnFormProps {
   addOn?: AddOnCatalogItem
@@ -85,11 +86,10 @@ export function AddOnForm({
         />
       </div>
 
-      <label className="flex items-center gap-2 text-sm font-medium">
-        <input
-          type="checkbox"
+      <label className="flex min-h-11 items-center gap-2 text-sm font-medium">
+        <Switch
           checked={isActive}
-          onChange={(event) => setIsActive(event.target.checked)}
+          onCheckedChange={setIsActive}
         />
         Adicional ativo no catálogo
       </label>
