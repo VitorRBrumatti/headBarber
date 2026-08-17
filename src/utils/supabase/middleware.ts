@@ -53,12 +53,31 @@ export async function updateSession(request: NextRequest) {
         .maybeSingle(),
       supabase
         .from('profiles')
-        .select('barbershop_id')
+        .select('barbershop_id, demo_mode')
         .eq('id', user.id)
         .maybeSingle(),
     ])
 
-    const hasAccess = hasProductAccess(subscription?.status)
+    const isDemo = profile?.demo_mode === true
+    const hasAccess = isDemo || hasProductAccess(subscription?.status)
+
+    if (isDemo && isDashboard) {
+      const demoRoutes = [
+        '/dashboard',
+        '/dashboard/agenda',
+        '/dashboard/clientes',
+        '/dashboard/financeiro',
+        '/dashboard/servicos',
+        '/dashboard/barbeiros',
+      ]
+      const isDemoRoute = demoRoutes.includes(path)
+      if (!isDemoRoute) {
+        const url = request.nextUrl.clone()
+        url.pathname = '/dashboard'
+        url.search = ''
+        return NextResponse.redirect(url)
+      }
+    }
 
     if (!hasAccess && !isPlans) {
       const url = request.nextUrl.clone()

@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation'
 
 interface SidebarProps {
   onLinkClick?: () => void
+  isDemo?: boolean
 }
 
 const sidebarItems = [
@@ -23,8 +24,20 @@ const sidebarItems = [
   { name: 'Configurações', href: '/dashboard/configuracoes', icon: 'settings' },
 ]
 
-export function Sidebar({ onLinkClick }: SidebarProps) {
+const demoHrefs = new Set([
+  '/dashboard',
+  '/dashboard/agenda',
+  '/dashboard/financeiro',
+  '/dashboard/barbeiros',
+  '/dashboard/servicos',
+  '/dashboard/clientes',
+])
+
+export function Sidebar({ onLinkClick, isDemo = false }: SidebarProps) {
   const pathname = usePathname()
+  const visibleItems = isDemo
+    ? sidebarItems.filter((item) => demoHrefs.has(item.href))
+    : sidebarItems
 
   const isActive = (href: string) => {
     if (href === '/dashboard') return pathname === '/dashboard'
@@ -48,7 +61,7 @@ export function Sidebar({ onLinkClick }: SidebarProps) {
 
       {/* Navigation Menu */}
       <nav className="flex-1 space-y-1 overflow-y-auto pr-2 custom-scrollbar">
-        {sidebarItems.map((item) => {
+        {visibleItems.map((item) => {
           const active = isActive(item.href)
           return (
             <Link

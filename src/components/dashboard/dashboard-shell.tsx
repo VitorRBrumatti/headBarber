@@ -8,9 +8,10 @@ interface DashboardShellProps {
   children: React.ReactNode
   userEmail: string
   barbershopName: string
+  isDemo: boolean
 }
 
-export function DashboardShell({ children, userEmail, barbershopName }: DashboardShellProps) {
+export function DashboardShell({ children, userEmail, barbershopName, isDemo }: DashboardShellProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false)
 
@@ -25,7 +26,7 @@ export function DashboardShell({ children, userEmail, barbershopName }: Dashboar
     <div className="min-h-screen bg-[#f8f9ff] text-[#181c21] flex relative">
       {/* Sidebar (Desktop) */}
       <aside className="hidden md:block fixed left-0 top-0 h-screen w-[260px] z-50">
-        <Sidebar />
+        <Sidebar isDemo={isDemo} />
       </aside>
 
       {/* Main Content Area */}
@@ -111,6 +112,15 @@ export function DashboardShell({ children, userEmail, barbershopName }: Dashboar
           </div>
         </header>
 
+        {isDemo && (
+          <div className="flex items-start gap-3 border-b border-[#ead6ad] bg-[#fff8e8] px-5 py-3 text-sm text-[#5f4518] sm:items-center sm:px-6">
+            <span className="material-symbols-outlined mt-0.5 text-lg text-[#9b6f21] sm:mt-0" aria-hidden="true">visibility</span>
+            <p className="leading-5">
+              <strong>Modo demonstração.</strong> Explore os dados à vontade. Cadastros, preços e configurações estão protegidos; você pode criar agendamentos de teste.
+            </p>
+          </div>
+        )}
+
         {/* Page Content */}
         <main className="min-w-0 flex-1 overflow-x-hidden">
           {children}
@@ -127,7 +137,7 @@ export function DashboardShell({ children, userEmail, barbershopName }: Dashboar
           />
           {/* Sliding Aside */}
           <aside className="fixed inset-y-0 left-0 w-[260px] h-full z-55 transform transition-transform duration-350 ease-in-out md:hidden translate-x-0">
-            <Sidebar onLinkClick={() => setMobileMenuOpen(false)} />
+            <Sidebar isDemo={isDemo} onLinkClick={() => setMobileMenuOpen(false)} />
           </aside>
         </>
       )}
