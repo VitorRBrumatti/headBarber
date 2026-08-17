@@ -6,6 +6,7 @@ import { Dialog } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Select } from '@/components/ui/select'
 import { Sheet } from '@/components/ui/sheet'
+import { PlanBenefitRow } from './plan-benefit-row'
 import {
   createClientSubscriptionAction,
   registerSubscriptionPaymentAction,
@@ -473,7 +474,35 @@ export function SubscriptionsClient({
           <div><label htmlFor="plan-name" className="text-xs font-bold">Nome</label><Input id="plan-name" required maxLength={120} value={planDraft.name} onChange={(event) => setPlanDraft((current) => ({ ...current, name: event.target.value }))} /></div>
           <div><label htmlFor="plan-description" className="text-xs font-bold">Descrição</label><Input id="plan-description" value={planDraft.description} onChange={(event) => setPlanDraft((current) => ({ ...current, description: event.target.value }))} /></div>
           <div><label htmlFor="plan-price" className="text-xs font-bold">Mensalidade</label><Input id="plan-price" type="number" min="0" step="0.01" required value={planDraft.monthlyPrice} onChange={(event) => setPlanDraft((current) => ({ ...current, monthlyPrice: event.target.value }))} /></div>
-          <fieldset className="space-y-3"><legend className="text-sm font-bold">Benefícios</legend>{[...services.map((item) => ({ ...item, type: 'service' as const })), ...addOns.map((item) => ({ ...item, type: 'add_on' as const }))].map((item) => { const key = `${item.type}:${item.id}`; const benefit = planDraft.benefits[key]; return <div key={key} className="grid grid-cols-[1fr_100px] items-center gap-3 rounded-xl border border-[#e0e2e9] p-3"><label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={benefit?.selected ?? false} onChange={(event) => toggleBenefit(key, event.target.checked)} />{item.name}</label><Input aria-label={`Limite de ${item.name}`} type="number" min="1" placeholder="Ilimitado" disabled={!benefit?.selected} value={benefit?.limit ?? ''} onChange={(event) => updateBenefitLimit(key, event.target.value)} /></div>})}</fieldset>
+          <fieldset className="space-y-3">
+            <legend className="text-sm font-bold">Benefícios</legend>
+            {[
+              ...services.map((item) => ({
+                ...item,
+                type: 'service' as const,
+              })),
+              ...addOns.map((item) => ({
+                ...item,
+                type: 'add_on' as const,
+              })),
+            ].map((item) => {
+              const key = `${item.type}:${item.id}`
+              const benefit = planDraft.benefits[key]
+
+              return (
+                <PlanBenefitRow
+                  key={key}
+                  name={item.name}
+                  selected={benefit?.selected ?? false}
+                  limit={benefit?.limit ?? ''}
+                  onSelectedChange={(selected) =>
+                    toggleBenefit(key, selected)
+                  }
+                  onLimitChange={(limit) => updateBenefitLimit(key, limit)}
+                />
+              )
+            })}
+          </fieldset>
           <Button type="submit" className="w-full" disabled={isPending}>{isPending ? 'Salvando...' : 'Salvar plano'}</Button>
         </form>
       </Sheet>

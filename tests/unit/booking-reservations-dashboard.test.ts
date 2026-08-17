@@ -1,10 +1,13 @@
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
+import { createElement } from 'react'
+import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it } from 'vitest'
 import {
   canTransitionAppointmentStatus,
   getAllowedAppointmentTransitions,
 } from '@/app/dashboard/agenda/agenda-rules'
+import { ReservasClient } from '@/app/dashboard/reservas/reservas-client'
 
 const source = (path: string) =>
   readFileSync(resolve(process.cwd(), path), 'utf8')
@@ -63,6 +66,50 @@ describe('appointment status transition safety', () => {
 })
 
 describe('historical appointment details', () => {
+  it('renders the reservations history as desktop and mobile views', () => {
+    const markup = renderToStaticMarkup(
+      createElement(ReservasClient, {
+        initialAppointments: [
+          {
+            id: 'appointment-1',
+            barberId: 'barber-1',
+            startAt: '2026-08-07T14:30:00Z',
+            endAt: '2026-08-07T15:15:00Z',
+            status: 'confirmed',
+            servicePrice: 55,
+            serviceDurationMinutes: 45,
+            totalDurationMinutes: 45,
+            attendanceTotal: 55,
+            subscriptionCoveredTotal: 0,
+            amountDue: 55,
+            subscriptionCoverageStatus: 'none',
+            subscriptionPlanName: null,
+            waitingSubscriptionItems: [],
+            notes: 'Não usar gilete.',
+            client: {
+              name: 'Victor Brumatti',
+              phone: '(44) 99999-9999',
+              email: null,
+            },
+            serviceName: 'Corte degradê',
+            barberName: 'Ricardo',
+            addOns: [],
+            products: [],
+          },
+        ],
+      }),
+    )
+
+    expect(markup).toContain('reservas encontradas')
+    expect(markup).toContain('aria-label="Buscar reservas"')
+    expect(markup).toContain('<table')
+    expect(markup).toContain('hidden md:table')
+    expect(markup).toContain('md:hidden')
+    expect(markup).toContain('Victor Brumatti')
+    expect(markup).toContain('Corte degradê')
+    expect(markup).toContain('Confirmada')
+  })
+
   it('queries service/add-on/product snapshots in Agenda and Reservas', () => {
     for (const path of [
       'src/app/dashboard/agenda/actions.ts',
