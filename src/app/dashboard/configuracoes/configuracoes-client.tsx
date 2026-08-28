@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState, useTransition } from 'react'
 import { AlertTriangle, CalendarClock, CalendarDays, Check, ChevronDown, Clock3, ListChecks, LoaderCircle, PlusCircle, Save, Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { updateBarbershopSettingsAction, createBarberBlock, getBarberBlocks, deleteBarberBlock } from './actions'
+import { toAgendaIsoDateTime } from './blocked-time-utils'
 
 interface SettingsClientProps {
   initialSettings?: {
@@ -99,8 +100,8 @@ export function ConfiguracoesClient({ initialSettings, barbers }: SettingsClient
     }
     setErrorMsg('')
     setSuccessMsg('')
-    const startIso = new Date(blockStart).toISOString()
-    const endIso = new Date(blockEnd).toISOString()
+    const startIso = toAgendaIsoDateTime(blockStart)
+    const endIso = toAgendaIsoDateTime(blockEnd)
     startBlocking(async () => {
       try {
         await createBarberBlock(selectedBarberBlock, startIso, endIso, blockReason)
