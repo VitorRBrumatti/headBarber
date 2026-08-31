@@ -1,125 +1,109 @@
 'use client'
 
-import { useState } from 'react'
-import { createClient } from '@/utils/supabase/client'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { AlertTriangle, CheckCircle2, Mail, ArrowLeft } from 'lucide-react'
+import { useRef, useState } from 'react'
+import Image from 'next/image'
 import Link from 'next/link'
+import { ArrowLeft, ArrowRight, AlertTriangle, KeyRound, Mail, MailCheck } from 'lucide-react'
+import { createClient } from '@/utils/supabase/client'
+import styles from './recovery.module.css'
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const [message, setMessage] = useState('')
+  const [sentEmail, setSentEmail] = useState('')
+  const emailRef = useRef<HTMLInputElement>(null)
+  const submitting = useRef(false)
 
-  const handleResetRequest = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const handleResetRequest = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    if (submitting.current) return
+    submitting.current = true
     setLoading(true)
     setError('')
-    setMessage('')
-
-    const supabase = createClient()
-
-    const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/reset-password`,
-    })
-
-    if (resetError) {
-      setError(`Erro ao enviar solicitação: ${resetError.message}`)
+    try {
+      const supabase = createClient()
+      const { error: resetError } = await supabase.auth.resetPasswordForEmail(email.trim(), {
+        redirectTo: `${window.location.origin}/reset-password`,
+      })
+      if (resetError) {
+        setError(resetError.status === 429
+          ? 'Muitas tentativas em pouco tempo. Aguarde alguns minutos antes de tentar novamente.'
+          : 'Não foi possível enviar o link. Confira seu e-mail e tente novamente.')
+        return
+      }
+      setSentEmail(email.trim())
+    } catch {
+      setError('Não foi possível conectar. Verifique sua conexão e tente novamente.')
+    } finally {
+      submitting.current = false
       setLoading(false)
-      return
     }
-
-    setMessage('Enviamos as instruções para redefinição no seu e-mail. Verifique sua caixa de entrada!')
-    setLoading(false)
-    setEmail('')
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#F8F6F1] p-4 font-sans select-none antialiased">
-      <div className="w-full max-w-[440px] space-y-6 animate-in fade-in slide-in-from-bottom-3 duration-300">
-        
-        {/* Logo superior */}
-        <div className="flex flex-col items-center">
-          <Link href="/" className="flex items-center gap-2.5 mb-6 hover:opacity-90 transition-opacity">
-            <div className="w-9 h-9 bg-[#1D1C19] rounded-lg flex items-center justify-center shadow-sm">
-              <img 
-                src="/brand/headbarber_simbolo_duas_cores_transparente.png"
-                alt="Logo HeadBarber" 
-                className="w-5.5 h-5.5 object-contain"
-              />
-            </div>
-            <span className="text-xl font-bold tracking-tight text-[#1D1C19]">
-              Head<span className="text-[#A87935]">Barber</span>
-            </span>
+    <main className={styles.page}>
+      <aside className={styles.brand} aria-label="HeadBarber">
+        <div className={styles.brandContent}>
+          <Link href="/" className={styles.logo} aria-label="HeadBarber — página inicial">
+            <Image src="/brand/headbarber_logo_duas_cores_com_texto_transparente.png" alt="HeadBarber"
+              width={384} height={256} sizes="(max-width: 767px) 144px, 216px" className={styles.logoImage} preload />
           </Link>
-          
-          <Card className="w-full bg-[#FEFCF8] border-[#DEDAD2] text-[#1D1C19] shadow-sm rounded-xl overflow-hidden">
-            <CardHeader className="text-left space-y-1.5 p-6 pb-4">
-              <CardTitle className="text-xl font-semibold tracking-tight text-[#1D1C19]">Recuperar Senha</CardTitle>
-              <CardDescription className="text-[#77736A] text-sm leading-normal">
-                Informe o seu e-mail de cadastro. Enviaremos um link seguro para você redefinir sua senha.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4 p-6 pt-0">
-              
-              {/* Notificações de Erro e Sucesso */}
-              {error && (
-                <div className="text-[#B42318] text-xs font-medium bg-[#FEECE9] border border-red-200 p-3 rounded-lg text-left flex items-start gap-2 animate-in fade-in slide-in-from-top-1 duration-200">
-                  <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
-                  <span>{error}</span>
-                </div>
+          <div className={styles.brandCopy}>
+            <h2>Sua barbearia espera.<br /><span>Vamos recuperar seu acesso.</span></h2>
+            <p>Redefina sua senha e volte a cuidar da sua agenda, da sua equipe e dos seus clientes.</p>
+          </div>
+          <p className={styles.brandNote}>A mesma gestão. Um novo acesso.</p>
+        </div>
+      </aside>
+      <section className={styles.formPanel} aria-labelledby="recovery-title">
+        <div className={styles.formContent}>
+          <Link href="/login" className={styles.backLink}><ArrowLeft size={18} aria-hidden="true" /> Voltar para o login</Link>
+          <div className={styles.card}>
+            <div className={styles.icon} aria-hidden="true">
+              {sentEmail ? <MailCheck size={26} strokeWidth={1.6} /> : <KeyRound size={26} strokeWidth={1.6} />}
+            </div>
+            <div role="status" aria-live="polite" aria-atomic="true">
+              <h1 id="recovery-title">{sentEmail ? 'Confira seu e-mail' : 'Esqueceu sua senha?'}</h1>
+              {sentEmail ? (
+                <p className={styles.description}>Se houver uma conta vinculada a <strong className={styles.email}>{sentEmail}</strong>, você receberá um link para criar uma nova senha.</p>
+              ) : (
+                <p id="recovery-description" className={styles.description}>Acontece. Informe seu e-mail de cadastro e enviaremos um link para redefinir sua senha.</p>
               )}
-
-              {message && (
-                <div className="text-[#237A4B] text-xs font-medium bg-[#E7F5EC] border border-green-200 p-3 rounded-lg text-left flex items-start gap-2 animate-in fade-in slide-in-from-top-1 duration-200">
-                  <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5" />
-                  <span>{message}</span>
-                </div>
-              )}
-
-              <form onSubmit={handleResetRequest} className="space-y-4">
-                <div className="space-y-1.5 text-left">
-                  <label htmlFor="reset-email" className="text-xs font-semibold tracking-wider text-[#77736A] uppercase cursor-pointer">E-mail de cadastro</label>
-                  <div className="relative">
-                    <Input
-                      id="reset-email"
-                      type="email"
-                      placeholder="seu@email.com"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      required
-                      className="w-full bg-[#FEFCF8] border-[#DEDAD2] text-[#1D1C19] placeholder:text-[#AAA49A] h-11 pl-10 pr-4 rounded-lg focus-visible:ring-2 focus-visible:ring-[#A87935]/20 focus-visible:ring-offset-0 focus-visible:border-[#A87935] hover:border-[#A87935]/50 transition-all duration-150"
-                    />
-                    <Mail className="absolute left-3.5 top-3.5 w-4 h-4 text-[#AAA49A]" />
+            </div>
+            {sentEmail ? (
+              <div className={styles.success}>
+                <p>Não encontrou? Confira também a pasta de spam ou lixo eletrônico. O e-mail pode levar alguns minutos para chegar.</p>
+                <Link href="/login" className={styles.primary}>Voltar para o login <ArrowRight size={18} aria-hidden="true" /></Link>
+                <button type="button" className={styles.secondary} onClick={() => {
+                  setSentEmail('')
+                  setError('')
+                  requestAnimationFrame(() => emailRef.current?.focus())
+                }}>Corrigir e-mail ou tentar novamente</button>
+              </div>
+            ) : (
+              <form onSubmit={handleResetRequest} className={styles.form} aria-busy={loading}>
+                <div className={styles.field}>
+                  <label htmlFor="reset-email">E-mail de cadastro</label>
+                  <div className={styles.inputWrap}>
+                    <Mail size={18} aria-hidden="true" />
+                    <input ref={emailRef} id="reset-email" name="email" type="email" autoComplete="email" autoCapitalize="none" spellCheck={false}
+                      placeholder="seu@email.com" value={email} onChange={(event) => { setEmail(event.target.value); setError('') }} required disabled={loading}
+                      aria-describedby={error ? 'recovery-description recovery-error' : 'recovery-description'} />
                   </div>
                 </div>
-
-                <Button 
-                  type="submit" 
-                  className="w-full h-11 bg-[#1D1C19] hover:bg-[#35332E] active:bg-[#1D1C19] text-[#FEFCF8] font-semibold rounded-lg shadow-sm transition-all duration-150 flex items-center justify-center gap-2 cursor-pointer mt-2 hover:-translate-y-[1px] active:translate-y-0" 
-                  disabled={loading}
-                >
-                  {loading ? 'Enviando instruções...' : 'Recuperar Senha'}
-                </Button>
+                {error && <p id="recovery-error" role="alert" className={styles.error}><AlertTriangle size={18} aria-hidden="true" />{error}</p>}
+                <button type="submit" className={styles.primary} disabled={loading} aria-live="polite">
+                  <span>{loading ? 'Enviando link...' : 'Enviar link de recuperação'}</span>
+                  {!loading && <ArrowRight size={18} aria-hidden="true" />}
+                </button>
+                <p className={styles.hint}>Você vai criar uma nova senha pelo link recebido.</p>
               </form>
-
-              <div className="pt-2 text-center">
-                <Link 
-                  href="/login" 
-                  className="text-xs text-[#77736A] hover:text-[#1D1C19] font-semibold inline-flex items-center gap-1.5 transition-colors"
-                >
-                  <ArrowLeft className="w-3.5 h-3.5" />
-                  <span>Voltar para o Login</span>
-                </Link>
-              </div>
-
-            </CardContent>
-          </Card>
+            )}
+          </div>
+          <p className={styles.footer}>HeadBarber · Gestão para sua barbearia</p>
         </div>
-      </div>
-    </div>
+      </section>
+    </main>
   )
 }

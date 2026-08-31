@@ -1,0 +1,69 @@
+.page {
+  --recovery-ink: var(--color-primary-container);
+  --recovery-muted: var(--color-on-surface-variant);
+  --recovery-gold: var(--color-gold-accent);
+  display: flex;
+  min-height: 100svh;
+  color: var(--recovery-ink);
+  background: var(--color-surface-bright);
+  font-family: var(--font-inter), sans-serif;
+}
+.brand { display: flex; align-items: center; width: 50%; padding: 64px; background: var(--recovery-ink); color: white; }
+.brandContent { width: 100%; max-width: 512px; margin-inline: auto; }
+.logo { display: inline-flex; margin-bottom: 40px; border-radius: 4px; }
+.logoImage { width: 216px; height: auto; }
+.brandCopy h2 { font-family: var(--font-montserrat), sans-serif; font-size: 32px; font-weight: 700; line-height: 1.35; letter-spacing: -0.02em; text-wrap: balance; }
+.brandCopy h2 span { color: var(--recovery-gold); }
+.brandCopy p { max-width: 38ch; margin-top: 24px; color: var(--color-outline-variant); font-size: 16px; line-height: 1.8; text-wrap: pretty; }
+.brandNote { margin-top: 64px; padding-top: 24px; border-top: 1px solid var(--color-on-primary-container); color: var(--color-outline-variant); font-size: 13px; line-height: 1.6; }
+.formPanel { width: 50%; display: flex; align-items: center; justify-content: center; padding: 48px; }
+.formContent { width: 100%; max-width: 448px; min-width: 0; }
+.backLink { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; margin-bottom: 20px; color: var(--recovery-muted); font-size: 13px; font-weight: 600; border-radius: 4px; }
+.backLink:hover { color: var(--recovery-ink); text-decoration: underline; text-underline-offset: 4px; }
+.card { padding: 40px; border: 1px solid var(--color-outline-variant); border-radius: 12px; background: var(--color-surface-container-lowest); }
+.icon { display: flex; align-items: center; justify-content: center; width: 52px; height: 52px; margin-bottom: 24px; background: var(--color-surface-container-low); color: var(--recovery-ink); border-radius: 12px; }
+.card h1 { margin: 0; font-family: var(--font-montserrat), sans-serif; font-size: 24px; font-weight: 600; line-height: 1.35; letter-spacing: -0.02em; text-wrap: balance; }
+.description { margin-top: 12px; font-size: 14px; line-height: 1.75; color: var(--recovery-muted); text-wrap: pretty; }
+.form { margin-top: 28px; }
+.field label { display: block; margin-bottom: 8px; color: var(--recovery-muted); font-size: 13px; font-weight: 600; }
+.inputWrap { position: relative; }
+.inputWrap > svg { position: absolute; top: 16px; left: 14px; pointer-events: none; color: var(--recovery-muted); }
+.inputWrap input { width: 100%; min-width: 0; height: 50px; padding: 12px 14px 12px 42px; border: 1px solid var(--color-on-primary-container); border-radius: 4px; background: var(--color-surface-bright); color: var(--recovery-ink); font-size: 16px; }
+.inputWrap input::placeholder { color: var(--recovery-muted); opacity: 1; }
+.primary { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; min-height: 52px; margin-top: 24px; padding: 14px 12px; border-radius: 4px; background: var(--recovery-gold); color: var(--recovery-ink); font-size: 13px; font-weight: 600; line-height: 1.5; text-align: center; cursor: pointer; transition: background-color 180ms ease-out; }
+.primary > svg { flex-shrink: 0; }
+.primary:hover:not(:disabled) { background: color-mix(in srgb, var(--recovery-gold) 86%, white); }
+.primary:active:not(:disabled) { background: color-mix(in srgb, var(--recovery-gold) 90%, black); }
+.primary:disabled, .inputWrap input:disabled { opacity: .65; cursor: wait; }
+.page :is(a, button, input):focus-visible { outline: 2px solid var(--recovery-ink); outline-offset: 4px; }
+.brand a:focus-visible { outline-color: var(--recovery-gold); }
+.hint { margin-top: 16px; color: var(--recovery-muted); font-size: 12px; line-height: 1.6; text-align: center; }
+.error { display: flex; gap: 8px; margin-top: 16px; padding: 12px; border-radius: 4px; color: #8c2020; background: #fff0ee; font-size: 13px; line-height: 1.6; }
+.error svg { flex-shrink: 0; margin-top: 2px; }
+.email { color: var(--recovery-ink); overflow-wrap: anywhere; }
+.success { margin-top: 24px; }
+.success > p { padding-top: 24px; border-top: 1px solid var(--color-outline-variant); font-size: 13px; line-height: 1.75; color: var(--recovery-muted); }
+.secondary { display: block; width: 100%; min-height: 44px; margin-top: 12px; padding: 8px; color: var(--recovery-muted); font-size: 12px; font-weight: 600; cursor: pointer; text-decoration: underline; text-underline-offset: 4px; }
+.secondary:hover { color: var(--recovery-ink); }
+.footer { margin-top: 24px; text-align: center; color: var(--recovery-muted); font-size: 12px; line-height: 1.6; }
+@media (min-width: 768px) and (max-width: 1100px) {
+  .brand { padding: 40px; }
+  .brandCopy h2 { font-size: 28px; }
+  .formPanel { padding: 32px 24px; }
+  .card { padding: 28px; }
+}
+@media (max-width: 767px) {
+  .page { flex-direction: column; }
+  .brand { width: 100%; padding: 16px 24px; }
+  .brandContent { max-width: 448px; }
+  .logo { margin: 0; }
+  .logoImage { width: 144px; }
+  .brandCopy, .brandNote { display: none; }
+  .formPanel { width: 100%; padding: 20px 20px 32px; }
+  .backLink { margin-bottom: 12px; }
+  .card { padding: 28px 24px; }
+  .card h1 { font-size: 22px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .primary { transition: none; }
+}
