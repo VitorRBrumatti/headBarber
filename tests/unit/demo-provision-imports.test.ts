@@ -10,7 +10,7 @@ describe('demo provisioning entry point', () => {
     const imports = source.match(/^import .+$/gm) ?? []
     expect(imports.length).toBeGreaterThan(0)
     expect(() => execFileSync(process.execPath, ['--input-type=module', '-e', imports.join('\n')], {
-      cwd: process.cwd(),
+      cwd: join(process.cwd(), 'scripts'),
       stdio: 'pipe',
     })).not.toThrow()
   })

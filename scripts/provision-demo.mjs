@@ -1,5 +1,6 @@
 import nextEnv from '@next/env'
 import { createClient } from '@supabase/supabase-js'
+import { must, prepareDemoAccount, writeDemoRows } from './lib/demo-provision.mjs'
 
 const { loadEnvConfig } = nextEnv
 loadEnvConfig(process.cwd())
@@ -24,70 +25,7 @@ const supabase = createClient(url, serviceRoleKey, {
   auth: { autoRefreshToken: false, persistSession: false },
 })
 
-async function must(label, promise) {
-  const result = await promise
-  if (result.error) throw new Error(`${label}: ${result.error.message}`)
-  return result.data
-}
-
-const users = await must(
-  'Não foi possível consultar usuários',
-  supabase.auth.admin.listUsers({ page: 1, perPage: 1000 }),
-)
-let user = users.users.find((candidate) => candidate.email === email)
-
-if (!user) {
-  const created = await must(
-    'Não foi possível criar a conta demo',
-    supabase.auth.admin.createUser({
-      email,
-      password,
-      email_confirm: true,
-      user_metadata: { full_name: 'Visitante Demo' },
-    }),
-  )
-  user = created.user
-} else {
-  const updated = await must(
-    'Não foi possível atualizar a conta demo',
-    supabase.auth.admin.updateUserById(user.id, {
-      password,
-      email_confirm: true,
-    }),
-  )
-  user = updated.user
-}
-
-if (!user) throw new Error('A conta demo não foi encontrada após o provisionamento.')
-
-let shop = await must(
-  'Não foi possível consultar a barbearia demo',
-  supabase.from('barbershops').select('id, slug').eq('slug', slug).maybeSingle(),
-)
-
-if (!shop) {
-  shop = await must(
-    'Não foi possível criar a barbearia demo',
-    supabase
-      .from('barbershops')
-      .insert({ name: 'Barbearia Aurora — Demo', slug })
-      .select('id, slug')
-      .single(),
-  )
-}
-
-await must(
-  'Não foi possível marcar o perfil como demo',
-  supabase
-    .from('profiles')
-    .update({
-      barbershop_id: shop.id,
-      full_name: 'Visitante Demo',
-      role: 'owner',
-      demo_mode: true,
-    })
-    .eq('id', user.id),
-)
+const { user, shop } = await prepareDemoAccount(supabase, { email, password, slug })
 
 await must(
   'Não foi possível liberar o acesso da conta demo',
@@ -168,14 +106,8 @@ const barbers = [
   },
 ]
 
-await must(
-  'Não foi possível criar os serviços demo',
-  supabase.from('services').upsert(services, { onConflict: 'id' }),
-)
-await must(
-  'Não foi possível criar os barbeiros demo',
-  supabase.from('barbers').upsert(barbers, { onConflict: 'id' }),
-)
+await writeDemoRows(supabase, 'services', services)
+await writeDemoRows(supabase, 'barbers', barbers)
 
 const assignments = barbers.flatMap((barber) =>
   services.map((service) => ({
@@ -188,12 +120,7 @@ const assignments = barbers.flatMap((barber) =>
   })),
 )
 
-await must(
-  'Não foi possível relacionar profissionais e serviços',
-  supabase
-    .from('barber_services')
-    .upsert(assignments, { onConflict: 'barber_id,service_id' }),
-)
+await writeDemoRows(supabase, 'barber_services', assignments, ['barber_id', 'service_id'])
 
 for (const barber of barbers) {
   const existingHours = await must(

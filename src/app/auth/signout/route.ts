@@ -10,9 +10,9 @@ export async function POST(request: Request) {
   } = await supabase.auth.getSession()
 
   if (session) {
-    await supabase.auth.signOut()
+    await supabase.auth.signOut({ scope: 'local' })
   }
 
   // Redireciona para a home
-  return NextResponse.redirect(new URL('/', request.url))
+  return NextResponse.redirect(new URL('/', request.url), 303)
 }

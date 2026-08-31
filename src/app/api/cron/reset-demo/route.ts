@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createAdminClient } from '@/utils/supabase/admin'
+import { getConfiguredDemo } from '@/lib/demo-server'
 
 export async function GET(request: Request) {
   const secret = process.env.CRON_SECRET
@@ -7,28 +8,16 @@ export async function GET(request: Request) {
     return new NextResponse('Não autorizado', { status: 401 })
   }
 
-  const supabase = createAdminClient()
-  const { data: profiles, error: profilesError } = await supabase
-    .from('profiles')
-    .select('barbershop_id')
-    .eq('demo_mode', true)
-    .not('barbershop_id', 'is', null)
-
-  if (profilesError) {
-    console.error('Demo reset lookup failed:', profilesError.message)
+  try {
+    const supabase = createAdminClient()
+    const demo = await getConfiguredDemo(supabase)
+    const { error } = await supabase.rpc('reset_demo_activity', {
+      p_barbershop_id: demo.barbershop_id,
+    })
+    if (error) throw error
+    return NextResponse.json({ ok: true, reset: 1 }, { headers: { 'Cache-Control': 'no-store' } })
+  } catch {
+    console.error('Demo reset blocked: unavailable or inconsistent demo configuration')
     return NextResponse.json({ ok: false }, { status: 500 })
   }
-
-  const barbershopIds = [...new Set((profiles ?? []).map((profile) => profile.barbershop_id))]
-  for (const barbershopId of barbershopIds) {
-    const { error } = await supabase.rpc('reset_demo_activity', {
-      p_barbershop_id: barbershopId,
-    })
-    if (error) {
-      console.error(`Demo reset failed for ${barbershopId}:`, error.message)
-      return NextResponse.json({ ok: false }, { status: 500 })
-    }
-  }
-
-  return NextResponse.json({ ok: true, reset: barbershopIds.length })
 }
