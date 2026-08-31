@@ -6,6 +6,12 @@ import { createAdminClient } from '@/utils/supabase/admin'
 import { getAppUrl, getStripe } from '@/lib/stripe'
 import { getPriceId, hasProductAccess, isBillingPlan } from '@/lib/plans'
 
+async function blockDemoBilling(admin: ReturnType<typeof createAdminClient>, userId: string) {
+  const { data, error } = await admin.from('profiles').select('demo_mode').eq('id', userId).single()
+  if (error) redirect('/plans?error=billing-unavailable')
+  if (data.demo_mode) redirect('/dashboard')
+}
+
 export async function createCheckoutSession(formData: FormData) {
   const plan = formData.get('plan')
   if (!isBillingPlan(plan)) {
@@ -19,6 +25,7 @@ export async function createCheckoutSession(formData: FormData) {
   }
 
   const admin = createAdminClient()
+  await blockDemoBilling(admin, user.id)
   const { data: currentSubscription, error: subscriptionError } = await admin
     .from('subscriptions')
     .select('stripe_customer_id, status')
@@ -93,6 +100,7 @@ export async function createBillingPortalSession() {
   if (!user) redirect('/login')
 
   const admin = createAdminClient()
+  await blockDemoBilling(admin, user.id)
   const { data: subscription } = await admin
     .from('subscriptions')
     .select('stripe_customer_id')

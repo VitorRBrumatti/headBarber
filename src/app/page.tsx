@@ -199,6 +199,9 @@ export default function Home() {
                   Começar Agora
                   <Icon name="arrow_forward" className="w-4 h-4" />
                 </Link>
+                <Link href="/demo" className="inline-flex items-center gap-2 border border-white/25 px-8 py-4 rounded text-xs font-semibold uppercase tracking-widest text-white transition-colors hover:border-[#C79A4A] hover:text-[#C79A4A] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#C79A4A]">
+                  Explorar demo
+                </Link>
               </div>
 
               {/* Social proof */}

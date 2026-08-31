@@ -19,14 +19,15 @@ export default async function DashboardLayout({
     .eq('user_id', user.id)
     .maybeSingle()
 
-  if (!hasProductAccess(subscription?.status)) redirect('/plans')
-
   let barbershopName = 'Barbearia X'
   const { data: profile } = await supabase
     .from('profiles')
-    .select('barbershops(name)')
+    .select('demo_mode, barbershops(name)')
     .eq('id', user.id)
     .single()
+
+  const isDemo = profile?.demo_mode === true
+  if (!isDemo && !hasProductAccess(subscription?.status)) redirect('/plans')
 
   const relatedBarbershop = profile?.barbershops as unknown as { name?: string } | null
   if (relatedBarbershop?.name) {
@@ -37,6 +38,7 @@ export default async function DashboardLayout({
     <DashboardShell
       userEmail={user.email || 'Usuário'}
       barbershopName={barbershopName}
+      isDemo={isDemo}
     >
       {children}
     </DashboardShell>
