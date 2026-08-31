@@ -39,6 +39,8 @@ describe('client subscriptions mapping and UI', () => {
     expect(selectedMarkup).not.toMatch(
       /aria-label="Limite de Corte"[^>]*disabled=""/,
     )
+  })
+
   it('renders active plan names and exposes long labels in full', () => {
     const longPlanName = 'Clube Executivo com Benefícios Ilimitados'
     const markup = renderToStaticMarkup(
