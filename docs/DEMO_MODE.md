@@ -152,6 +152,19 @@ Para uma instalação nova, não há cadastro manual. Depois do merge e da migra
 O provisionador cria e registra a conta automaticamente. Por segurança, ele não
 adota uma conta ou slug preexistente e não altera a senha de uma conta existente.
 
+### Erro `SLOT_UNAVAILABLE` em uma instalação anterior
+
+Se o primeiro provisionamento parou com `SLOT_UNAVAILABLE`, aplique a migration
+`20260831231338_fix_demo_reset_timezone.sql` e execute novamente:
+
+```sh
+npm run demo:provision
+```
+
+Não exclua a conta ou a barbearia que o primeiro comando criou. O provisionador
+vai validar e reutilizar essa mesma demo. O reset que falhou foi revertido por
+transação, portanto não deixou a atividade fictícia parcialmente apagada/criada.
+
 ## O que a correção protege
 
 - preços, equipe, configurações, financeiro e dados estruturais são somente leitura;

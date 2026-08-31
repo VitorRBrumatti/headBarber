@@ -127,7 +127,7 @@ describe('appointment writer inventory', () => {
       .split(/\r?\n/)
       .filter((line) => /insert into public\.appointments/i.test(line))
 
-    expect(appointmentInsertMatches).toHaveLength(6)
+    expect(appointmentInsertMatches).toHaveLength(7)
     expect(appointmentInsertMatches).toEqual(
       expect.arrayContaining([
         expect.stringContaining('20240522_phase4_booking_schedule.sql'),
@@ -138,6 +138,7 @@ describe('appointment writer inventory', () => {
         expect.stringContaining('20260801182418_subscription_booking_core.sql'),
         expect.stringContaining('20260817211038_demo_mode.sql'),
         expect.stringContaining('20260831170149_harden_demo_security.sql'),
+        expect.stringContaining('20260831231338_fix_demo_reset_timezone.sql'),
       ]),
     )
     expect(scheduleMigration).toMatch(

@@ -34,6 +34,9 @@ describe('demo security in PostgreSQL (actual demo migrations, isolated schema f
       create table public.clients (id uuid primary key default gen_random_uuid(), barbershop_id uuid, name text, phone text, email text, notes text);
       create table public.barber_services (id uuid primary key, barbershop_id uuid, barber_id uuid, service_id uuid,
         price numeric, duration_minutes integer, is_available boolean, created_at timestamptz default now());
+      create table public.barber_work_hours (barbershop_id uuid, barber_id uuid, day_of_week integer,
+        start_time time, end_time time, lunch_start_time time, lunch_end_time time, is_active boolean);
+      create table public.barber_blocked_times (barbershop_id uuid, barber_id uuid, start_at timestamptz, end_at timestamptz);
       create table public.appointments (id uuid primary key default gen_random_uuid(), barbershop_id uuid,
         client_id uuid, barber_id uuid, service_id uuid, barber_service_id uuid, start_at timestamptz,
         end_at timestamptz, status text, total_price numeric, service_price numeric, service_duration_minutes integer, notes text);
@@ -47,8 +50,17 @@ describe('demo security in PostgreSQL (actual demo migrations, isolated schema f
       grant all on all tables in schema public to authenticated, service_role;
       grant all on all tables in schema auth to supabase_auth_admin;
     `)
-    await db.exec(readFileSync('supabase/migrations/20260817211038_demo_mode.sql', 'utf8'))
-    await db.exec(readFileSync('supabase/migrations/20260831170149_harden_demo_security.sql', 'utf8'))
+    for (const migration of [
+      'supabase/migrations/20260817211038_demo_mode.sql',
+      'supabase/migrations/20260831170149_harden_demo_security.sql',
+      'supabase/migrations/20260831231338_fix_demo_reset_timezone.sql',
+    ]) {
+      try {
+        await db.exec(readFileSync(migration, 'utf8'))
+      } catch (error) {
+        throw new Error(`Failed to apply ${migration}`, { cause: error })
+      }
+    }
     await db.exec(`
       insert into auth.users(id,email,encrypted_password,email_confirmed_at) values
         ('${demoUser}','demo@example.com','demo-hash',now()), ('${realUser}','real@example.com','real-hash',now());
@@ -60,6 +72,9 @@ describe('demo security in PostgreSQL (actual demo migrations, isolated schema f
       insert into public.clients(barbershop_id,name) values ('${realShop}','Real customer');
       insert into public.barber_services(id,barbershop_id,barber_id,service_id,price,duration_minutes,is_available)
         values (gen_random_uuid(),'${demoShop}',gen_random_uuid(),gen_random_uuid(),45,40,true);
+      insert into public.barber_work_hours(barbershop_id,barber_id,day_of_week,start_time,end_time,lunch_start_time,lunch_end_time,is_active)
+        select '${demoShop}', barber_id, days.day_of_week, '09:00', '19:00', '12:00', '13:00', days.day_of_week <> 0
+        from public.barber_services cross join generate_series(0, 6) as days(day_of_week);
     `)
   }, 30000)
   beforeEach(async () => { await db.exec('begin') })
@@ -104,6 +119,22 @@ describe('demo security in PostgreSQL (actual demo migrations, isolated schema f
     await db.exec(`select public.reset_demo_activity('${demoShop}'); select public.reset_demo_activity('${demoShop}');`)
     expect((await db.query<{ count: number }>('select count(*)::int as count from public.appointments')).rows[0].count).toBe(4)
     expect((await db.query<{ name: string }>(`select name from public.clients where barbershop_id = '${realShop}'`)).rows).toEqual([{ name: 'Real customer' }])
+  })
+  it('derives seed appointments from active work hours and skips lunch', async () => {
+    await asRole('service_role')
+    await db.exec(`select public.reset_demo_activity('${demoShop}')`)
+    const slots = (await db.query<{ start: string; finish: string }>(`
+      select start_at::time::text as start, end_at::time::text as finish
+      from public.appointments order by start_at
+    `)).rows
+    expect(slots).toHaveLength(4)
+    expect(slots.every(({ start, finish }) => finish <= '12:00:00' || start >= '13:00:00')).toBe(true)
+    expect((await db.query<{ count: number }>(`
+      select count(*)::int as count from public.appointments a
+      join public.barber_work_hours wh on wh.barber_id = a.barber_id
+        and wh.day_of_week = extract(dow from a.start_at)::integer and wh.is_active
+      where a.start_at::time >= wh.start_time and a.end_at::time <= wh.end_time
+    `)).rows[0].count).toBe(4)
   })
   it('does not update a real client on a seed UUID collision', async () => {
     await asRole('service_role')
