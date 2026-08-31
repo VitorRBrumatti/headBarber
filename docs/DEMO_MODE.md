@@ -1,80 +1,65 @@
-# Modo demonstração
+# Colocar a demo no ar
 
-O ambiente demo usa uma conta compartilhada, mas a senha nunca é enviada ao
-navegador. A entrada acontece pelo `POST /auth/demo`, usando variáveis privadas
-do servidor.
+## Resposta curta
 
-## O que o visitante pode fazer
+Para a demo **que já existe**, faça nesta ordem:
 
-- visualizar Dashboard, Agenda, Clientes, Financeiro, Serviços e Barbeiros;
-- criar um agendamento de teste;
-- sair da sessão normalmente.
+1. faça o merge da branch `codex/demo-mode`;
+2. rode somente a migration pendente;
+3. registre a conta/barbearia demo uma vez no Supabase;
+4. rode `npm run demo:provision`;
+5. teste `/demo` em janela anônima.
 
-O banco bloqueia edição ou exclusão de dados, mudanças de preço, equipe,
-configurações, financeiro e assinatura. Essa proteção não depende da interface.
+Se a Vercel publicar automaticamente logo após o merge, `/demo` ficará
+temporariamente indisponível até os passos 2 e 3. Isso é intencional e seguro;
+o restante da aplicação continua funcionando.
 
-## Correção de segurança
+## Passo a passo para a demo existente
 
-A migração `20260831170149_harden_demo_security.sql` adiciona um cadastro
-`public.demo_accounts`, acessível somente ao servidor/service role. Existe no
-máximo uma demo por projeto. Nenhum perfil antigo é cadastrado automaticamente.
+### 1. Merge
 
-- Um usuário comum não pode alterar `demo_mode` nem se vincular à barbearia demo.
-- O login confere cadastro, perfil, barbearia, e-mail e ausência de cobrança real
-  antes de autenticar. Só publica cookies depois de conferir o usuário retornado.
-- Uma sessão real já aberta é preservada; use janela anônima para experimentar a demo.
-- O reset exige a barbearia cadastrada, confere vínculos e recusa colisões com IDs
-  de clientes reais. A restauração ocorre numa transação: falhas não deixam deleções parciais.
-- Triggers no Auth bloqueiam senha, e-mail, telefone, metadados, recuperação,
-  exclusão da conta, vinculação de identidades e cadastro de MFA da demo registrada.
-  Datas de login continuam permitidas. Contas normais não recebem esse bloqueio.
-- Checkout e portal Stripe recusam sessões demo mesmo por chamada direta.
-- A demo não pode consumir a cota de envio de imagens para o provedor externo.
-- O botão Sair encerra apenas a sessão atual.
+Faça o merge do PR da branch `codex/demo-mode` na `main` e atualize seu repositório local.
 
-## Preparação e Supabase
+### 2. Migration do Supabase
 
-1. Mantenha a entrada demo desativada durante a preparação: não configure
-   `DEMO_ACCOUNT_PASSWORD` na Vercel até concluir a validação em homologação.
-   Se já estiver ativa, remova temporariamente a variável e faça redeploy.
-2. Confirme o projeto Supabase de destino antes de executar qualquer comando.
-   Confira as migrações e o dry-run:
+Primeiro confira o que será aplicado:
 
-   ```sh
-   npx supabase migration list --linked
-   npx supabase db push --dry-run --linked
-   ```
+```sh
+npx supabase db push --dry-run --linked
+```
 
-3. Aplique as migrações pendentes **primeiro em homologação**. O comando abaixo
-   altera o banco vinculado; revise a saída anterior antes de executá-lo:
+A saída deve mostrar como pendente a migration:
 
-   ```sh
-   npx supabase db push --linked
-   ```
+```text
+20260831170149_harden_demo_security.sql
+```
 
-   Não reedite/reaplique a migração antiga de demo. A correção é uma migração nova.
+Se aparecer outra migration inesperada, pare e revise. Se estiver correto, aplique:
 
-4. Configure `.env.local` com as variáveis da seção seguinte. Não comite esse arquivo.
-5. Para uma demo nova, escolha e-mail e slug ainda não utilizados e execute:
+```sh
+npx supabase db push --linked
+```
 
-   ```sh
-   npm run demo:provision
-   ```
+Não execute migrations antigas manualmente e não cole a migration inteira no SQL Editor.
 
-   O script cria conta confirmada, barbearia, cadastro protegido, três serviços,
-   dois barbeiros e poucos dados de exemplo. Ele **não adota contas existentes**,
-   não troca senhas de contas existentes e não sobrescreve IDs de outro tenant.
-   Execuções posteriores restauram a mesma demo registrada. A atividade de teste
-   nessa barbearia será apagada/recriada.
+### 3. Registrar a demo antiga
 
-### Se a demo antiga já foi criada
+Esse passo existe porque a correção não confia automaticamente em qualquer perfil
+que tenha `demo_mode = true`.
 
-O script vai parar até haver revisão e cadastro explícito. No SQL Editor, confira
-o UUID do usuário, UUID da barbearia, e-mail, slug e se TODOS os dados são fictícios:
+No Supabase, abra **SQL Editor**, execute esta consulta e confirme que aparece
+somente a conta e a barbearia fictícias da demo:
 
 ```sql
-select p.id as user_id, u.email, p.barbershop_id, b.name, b.slug,
-       p.demo_mode, p.role, s.stripe_customer_id, s.stripe_subscription_id
+select
+  p.id as user_id,
+  u.email,
+  p.barbershop_id,
+  b.name,
+  b.slug,
+  p.role,
+  s.stripe_customer_id,
+  s.stripe_subscription_id
 from public.profiles p
 join auth.users u on u.id = p.id
 join public.barbershops b on b.id = p.barbershop_id
@@ -82,99 +67,108 @@ left join public.subscriptions s on s.user_id = p.id
 where p.demo_mode = true;
 ```
 
-Essa consulta só ajuda na revisão: a marcação antiga NÃO comprova que os dados são
-descartáveis. Não registre uma barbearia com clientes reais. Verifique também que
-não há outros usuários vinculados, cobrança Stripe ou fatores MFA.
+Antes de continuar, confira:
 
-Depois da revisão, substitua os dois placeholders pelos UUIDs exatos e execute
-como administrador no SQL Editor. Isso autoriza resets destrutivos APENAS nessa
-barbearia e trava as credenciais da conta:
+- o e-mail é o `DEMO_ACCOUNT_EMAIL`;
+- o slug é o `DEMO_BOOKING_SLUG`;
+- `role` é `owner`;
+- os dois campos `stripe_*` estão vazios;
+- a barbearia não contém dados ou usuários reais.
+
+Copie `user_id` e `barbershop_id` do resultado. Depois execute, substituindo os
+dois valores:
 
 ```sql
 insert into public.demo_accounts (user_id, barbershop_id)
-values ('UUID_DO_USUARIO_DEMO', 'UUID_DA_BARBEARIA_DEMO');
+values ('COLE_O_USER_ID', 'COLE_O_BARBERSHOP_ID');
 ```
 
-Então execute `npm run demo:provision`. Não remova dados reais nem altere uma
-assinatura real para fazer a validação passar. Se houver dúvida, pare e revise.
-Falhas parciais no primeiro provisionamento também exigem revisão manual;
-não há adoção automática na segunda tentativa.
+Se o Supabase recusar esse `insert`, não tente contornar a validação: revise os dados.
+Esse registro é feito uma única vez.
 
-## Variáveis e Vercel
+### 4. Restaurar os dados demo
 
-Em **Project → Settings → Environment Variables**, configure os valores do
-mesmo projeto Supabase. Preview/homologação deve usar um projeto separado de Production.
+Com as variáveis da demo no `.env.local`, execute:
 
-| Variável | Valor/origem |
-| --- | --- |
-| `NEXT_PUBLIC_SUPABASE_URL` | URL do projeto Supabase |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Chave anon usada pelo cliente atual |
-| `SUPABASE_SERVICE_ROLE_KEY` | Chave service role; somente servidor |
-| `DEMO_ACCOUNT_EMAIL` | E-mail exclusivo da conta demo cadastrada |
-| `DEMO_ACCOUNT_PASSWORD` | Senha longa e aleatória, pelo menos 10 caracteres |
-| `DEMO_BOOKING_SLUG` | Slug exclusivo, padrão `headbarber-demo` |
-| `CRON_SECRET` | Segredo aleatório independente, gerado por você |
+```sh
+npm run demo:provision
+```
 
-Mantenha também as variáveis já usadas pela aplicação, como `NEXT_PUBLIC_APP_URL`
-e Stripe. Nunca coloque service role, senha demo ou cron secret em variáveis
-`NEXT_PUBLIC_`, links ou mensagens para leads.
+O comando deve terminar com uma mensagem semelhante a:
 
-**CRON_SECRET não é fornecido pelo Supabase.** Gere um valor com seu gerenciador
-de senhas (por exemplo, 32 bytes aleatórios), salve como `CRON_SECRET` na Vercel
-e faça redeploy. A Vercel envia `Authorization: Bearer <CRON_SECRET>` ao endpoint.
+```text
+Demo pronta: /demo (agendamento público em /booking/headbarber-demo)
+```
 
-O `vercel.json` agenda `/api/cron/reset-demo` diariamente às **05:00 UTC**
-(02:00 em São Paulo). No plano Hobby, a execução pode ocorrer em qualquer momento
-daquela hora. Crons da Vercel executam em deploys de Production, não em Preview.
-O reset restaura atividade/clientes/financeiro; não altera a senha ou o catálogo.
+Esse comando apaga e recria a atividade fictícia da demo. Não o execute antes de
+confirmar que a barbearia registrada não contém dados reais.
 
-Após configurar tudo e validar em homologação, aplique a migração e cadastre a demo
-em produção, configure as variáveis Production e publique a branch aprovada via PR.
-Nenhum deploy ou comando de produção faz parte dos testes unitários deste projeto.
+### 5. Vercel
 
-## Checklist obrigatório antes de enviar aos leads
+Em **Project → Settings → Environment Variables → Production**, confira:
 
-1. Abra `/demo` em janela anônima. Entre no painel sem informar credenciais.
-2. Confira os dados fictícios e crie um agendamento; teste também o botão de cliente.
-3. Confirme que editar preço, excluir cliente/barbeiro e mudar configurações falham.
-4. Na conta demo, tente mudar senha/e-mail por `auth.updateUser` e cadastrar MFA:
-   devem falhar. Faça isso em homologação, sem usar uma conta real.
-5. Confira que login, renovação de sessão e logout funcionam; o logout pelo botão
-   não deve desconectar uma segunda janela com outra sessão.
-6. Tente o reset sem autorização: deve retornar 401. Com o segredo correto,
-   deve retornar `{"ok":true,"reset":1}` e manter outra barbearia intacta.
-7. Confira os logs do cron depois do primeiro ciclo em Production.
+```text
+NEXT_PUBLIC_SUPABASE_URL
+NEXT_PUBLIC_SUPABASE_ANON_KEY
+SUPABASE_SERVICE_ROLE_KEY
+DEMO_ACCOUNT_EMAIL
+DEMO_ACCOUNT_PASSWORD
+DEMO_BOOKING_SLUG
+CRON_SECRET
+```
 
-Os testes automatizados executam as duas migrações demo em PostgreSQL em memória,
-com tabelas de teste, e verificam rotas com serviços simulados. Não substituem um
-teste integrado com a versão do Supabase Auth hospedada no projeto. Os triggers
-tocam tabelas gerenciadas pelo Auth; reteste após atualizações do Supabase.
+Regras importantes:
 
-Na validação desta correção, o build de produção e a suíte Vitest passaram.
-O Supabase local/Docker estava desligado, portanto seu advisor e o fluxo Auth
-completo continuam pendentes em homologação. O `tsc --noEmit` geral ainda aponta
-erros anteriores nas fixtures de `agenda-grid-render.test.tsx` e
-`dashboard-shell.test.ts`; esses arquivos não foram alterados por esta correção.
+- `DEMO_ACCOUNT_EMAIL`, senha e slug devem ser os mesmos usados no provisionamento;
+- `SUPABASE_SERVICE_ROLE_KEY`, `DEMO_ACCOUNT_PASSWORD` e `CRON_SECRET` nunca levam
+  o prefixo `NEXT_PUBLIC_`;
+- `CRON_SECRET` é um segredo aleatório criado por você, não fornecido pelo Supabase;
+- se alterar qualquer variável na Vercel, faça um novo deploy de Production.
 
-## Limites e manutenção
+O `vercel.json` já agenda o reset diariamente às 05:00 UTC. A Vercel envia o
+`CRON_SECRET` automaticamente no cabeçalho de autorização.
 
-- A conta ainda é compartilhada: os visitantes veem a mesma agenda e os mesmos
-  dados fictícios. Não peça telefone/e-mail reais nessa experiência.
-- Uma chamada maliciosa direta ao logout global do Supabase ainda pode invalidar
-  sessões de outros visitantes. O botão foi corrigido, mas isolamento total exige
-  sessões/contas individuais ou uma demo sem tokens Auth compartilhados.
-- Não habilite provedores/formas adicionais de login (como passkeys) para esta
-  demo sem revisar seus caminhos de credenciais. As proteções testadas cobrem
-  senha/e-mail, `auth.identities` e `auth.mfa_factors`.
-- Rotação de senha da demo exige manutenção administrativa controlada: não basta
-  alterar a variável ou executar o provisionador. O bloqueio alcança também a
-  API administrativa do Auth enquanto a conta está registrada. Não remova o
-  cadastro em uma demo ativa para contornar isso: revogue sessões e aguarde a
-  expiração dos tokens antes de qualquer desbloqueio planejado.
-- Considere limites de acesso na borda antes de divulgar amplamente; a conta
-  compartilhada continua sujeita a abuso de agendamentos e limites do Auth.
+### 6. Teste final
 
-Referências oficiais: [dados e triggers do Auth](https://supabase.com/docs/guides/auth/managing-user-data),
-[escopo de logout](https://supabase.com/docs/guides/auth/signout),
-[segurança do cron](https://vercel.com/docs/cron-jobs/manage-cron-jobs#securing-cron-jobs),
-[limites de cron](https://vercel.com/docs/cron-jobs/usage-and-pricing).
+Em uma janela anônima:
+
+1. abra `/demo` e entre sem informar e-mail ou senha;
+2. crie um agendamento;
+3. tente editar preço, excluir cliente e mudar configurações — deve falhar;
+4. saia e confirme que voltou para a página inicial;
+5. confira no dia seguinte se o cron restaurou os dados fictícios.
+
+Só divulgue a demo depois desses testes.
+
+## Se a demo ainda não existir
+
+Para uma instalação nova, não há cadastro manual. Depois do merge e da migration:
+
+1. configure as variáveis no `.env.local`;
+2. escolha e-mail e slug que nunca foram usados;
+3. execute `npm run demo:provision`;
+4. configure as mesmas variáveis na Vercel e faça o deploy.
+
+O provisionador cria e registra a conta automaticamente. Por segurança, ele não
+adota uma conta ou slug preexistente e não altera a senha de uma conta existente.
+
+## O que a correção protege
+
+- preços, equipe, configurações, financeiro e dados estruturais são somente leitura;
+- senha, e-mail, telefone, metadados, MFA e identidades da conta demo ficam travados;
+- somente a barbearia explicitamente registrada pode ser resetada;
+- checkout Stripe, portal de cobrança e upload de imagens são bloqueados na demo;
+- o login só envia a sessão ao navegador depois de validar a identidade demo;
+- o botão Sair encerra somente a sessão daquele navegador.
+
+## Limite conhecido
+
+A conta continua sendo compartilhada. Uma chamada direta ao logout global do
+Supabase pode invalidar outras sessões, embora o botão do sistema use logout local.
+Não habilite passkeys ou outros provedores de login nessa conta sem nova revisão.
+Use somente dados fictícios e considere proteção/rate limit na borda antes de uma
+divulgação em grande volume.
+
+Referências: [Supabase Auth](https://supabase.com/docs/guides/auth/managing-user-data),
+[logout local](https://supabase.com/docs/guides/auth/signout),
+[Vercel Cron](https://vercel.com/docs/cron-jobs/manage-cron-jobs#securing-cron-jobs).
