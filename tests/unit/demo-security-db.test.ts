@@ -23,7 +23,7 @@ describe('demo security in PostgreSQL (actual demo migrations, isolated schema f
       $$;
       create table auth.users (id uuid primary key, email text, encrypted_password text,
         email_confirmed_at timestamptz, last_sign_in_at timestamptz, updated_at timestamptz,
-        raw_user_meta_data jsonb, recovery_token text, phone text);
+        raw_user_meta_data jsonb, recovery_token text, phone text, last_sign_in_ip inet);
       create table auth.identities (id uuid primary key default gen_random_uuid(), user_id uuid,
         provider text, identity_data jsonb, last_sign_in_at timestamptz, updated_at timestamptz);
       create table auth.mfa_factors (id uuid primary key default gen_random_uuid(), user_id uuid, status text);
@@ -54,6 +54,7 @@ describe('demo security in PostgreSQL (actual demo migrations, isolated schema f
       'supabase/migrations/20260817211038_demo_mode.sql',
       'supabase/migrations/20260831170149_harden_demo_security.sql',
       'supabase/migrations/20260831231338_fix_demo_reset_timezone.sql',
+      'supabase/migrations/20260901004300_fix_demo_auth_signin.sql',
     ]) {
       try {
         await db.exec(readFileSync(migration, 'utf8'))
@@ -161,7 +162,7 @@ describe('demo security in PostgreSQL (actual demo migrations, isolated schema f
   )
   it('allows sign-in timestamps and normal account password changes', async () => {
     await asRole('supabase_auth_admin')
-    await db.exec(`update auth.users set last_sign_in_at = now(), updated_at = now() where id = '${demoUser}';
+    await db.exec(`update auth.users set last_sign_in_at = now(), updated_at = now(), last_sign_in_ip = '127.0.0.1' where id = '${demoUser}';
       update auth.identities set last_sign_in_at = now(), updated_at = now() where user_id = '${demoUser}';
       update auth.users set encrypted_password = 'new hash' where id = '${realUser}';`)
   })
