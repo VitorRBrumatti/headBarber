@@ -37,5 +37,9 @@
     "tailwindcss": "^4",
     "typescript": "^5",
     "vitest": "^4.1.8"
+  },
+  "allowScripts": {
+    "sharp@0.34.5": true,
+    "unrs-resolver@1.11.1": true
   }
 }
