@@ -56,16 +56,16 @@ export function SettlementDialog({
       title={titles[targetStatus]}
     >
       <div className="space-y-5">
-        <div className="rounded-xl border border-[#e0e2e9] bg-[#f8f9ff] p-4">
-          <p className="font-montserrat font-bold text-[#181c21]">
+        <div className="rounded-xl border border-[#dedad2] bg-[#f6f5f2] p-4">
+          <p className="font-montserrat font-bold text-[#242321]">
             {appointment.client.name}
           </p>
-          <p className="mt-1 text-sm text-[#77767b]">
+          <p className="mt-1 text-sm text-[#625f59]">
             {appointment.serviceName} · {appointment.startAt.substring(11, 16)}
           </p>
         </div>
 
-        <dl className="space-y-3 rounded-xl border border-[#e0e2e9] p-4 text-sm">
+        <dl className="space-y-3 rounded-xl border border-[#dedad2] p-4 text-sm">
           <div className="flex justify-between gap-4">
             <dt>Valor bruto</dt>
             <dd className="font-semibold">
@@ -78,21 +78,21 @@ export function SettlementDialog({
               - {money(appointment.subscriptionCoveredTotal)}
             </dd>
           </div>
-          <div className="flex justify-between gap-4 border-t border-[#eceef4] pt-3">
+          <div className="flex justify-between gap-4 border-t border-[#e8e4de] pt-3">
             <dt className="font-bold">Valor a receber</dt>
             <dd className="font-bold">{money(appointment.amountDue)}</dd>
           </div>
-          <div className="flex justify-between gap-4 text-[#77767b]">
+          <div className="flex justify-between gap-4 text-[#625f59]">
             <dt>Produtos</dt>
             <dd>{money(productSubtotal)}</dd>
           </div>
         </dl>
 
         {targetStatus === 'completed' && (
-          <label className="block text-sm font-semibold text-[#181c21]">
+          <label className="block text-sm font-semibold text-[#242321]">
             Forma de pagamento
             <select
-              className="mt-2 h-11 w-full rounded-xl border border-[#d8dae0] bg-white px-3 outline-none focus:border-[#C79A4A] focus:ring-2 focus:ring-[#C79A4A]/15"
+              className="mt-2 h-11 w-full rounded-xl border border-[#d7d2c9] bg-white px-3 outline-none focus:border-[#C79A4A] focus:ring-2 focus:ring-[#C79A4A]/15"
               disabled={isPending}
               onChange={(event) =>
                 setPaymentMethod(event.target.value as SettlementPaymentMethod)
@@ -128,9 +128,9 @@ export function SettlementDialog({
           </p>
         )}
 
-        <div className="flex gap-3 border-t border-[#eceef4] pt-5">
+        <div className="flex gap-3 border-t border-[#e8e4de] pt-5">
           <button
-            className="flex-1 rounded-xl border border-[#d8dae0] px-4 py-3 text-sm font-bold disabled:opacity-50"
+            className="flex-1 rounded-xl border border-[#d7d2c9] px-4 py-3 text-sm font-bold disabled:opacity-50"
             disabled={isPending}
             onClick={onClose}
             type="button"
@@ -138,7 +138,7 @@ export function SettlementDialog({
             Voltar
           </button>
           <button
-            className="flex-1 rounded-xl bg-[#181c21] px-4 py-3 text-sm font-bold text-white disabled:opacity-50"
+            className="flex-1 rounded-xl bg-[#242321] px-4 py-3 text-sm font-bold text-white disabled:opacity-50"
             disabled={isPending}
             onClick={() =>
               onConfirm(targetStatus === 'completed' ? paymentMethod : null)

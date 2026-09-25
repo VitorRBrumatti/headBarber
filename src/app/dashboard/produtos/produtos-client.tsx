@@ -1,4 +1,5 @@
 'use client'
+/* eslint-disable @next/next/no-img-element -- product images may be uploaded as data URLs */
 
 import { useState, useTransition } from 'react'
 import { Button } from '@/components/ui/button'
@@ -188,22 +189,22 @@ export function ProdutosClient({ products, clients }: ProdutosClientProps) {
       {/* Header Section */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 mb-2 text-left">
         <div>
-          <h1 className="font-montserrat text-2xl md:text-3xl font-extrabold text-[#181c21] mb-2">Produtos</h1>
-          <p className="text-sm md:text-base text-[#47464b]">
+          <h1 className="font-montserrat text-2xl md:text-3xl font-extrabold text-[#242321] mb-2">Produtos</h1>
+          <p className="text-sm md:text-base text-[#625f59]">
             Controle estoque, preços e vendas da sua barbearia.
           </p>
         </div>
         <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
           <button
             onClick={handleQuickSellHeaderClick}
-            className="bg-[#f1f3fa] text-[#181c21] hover:bg-[#eceef4] text-xs font-bold px-4 py-3 rounded-lg flex items-center justify-center gap-2 transition-colors border border-[#eceef4] w-full sm:w-auto shrink-0 cursor-pointer"
+            className="bg-[#f1efeb] text-[#242321] hover:bg-[#e8e4de] text-xs font-bold px-4 py-3 rounded-lg flex items-center justify-center gap-2 transition-colors border border-[#e8e4de] w-full sm:w-auto shrink-0 cursor-pointer"
           >
             <span className="material-symbols-outlined text-sm">point_of_sale</span>
             Venda Rápida
           </button>
           <button
             onClick={handleCreateNew}
-            className="bg-[#C79A4A] text-[#1a1a1d] hover:bg-[#b0863f] text-xs font-bold px-4 py-3 rounded-lg flex items-center justify-center gap-2 transition-colors shadow-sm w-full sm:w-auto shrink-0 cursor-pointer"
+            className="bg-[#C79A4A] text-[#20201f] hover:bg-[#b0863f] text-xs font-bold px-4 py-3 rounded-lg flex items-center justify-center gap-2 transition-colors shadow-sm w-full sm:w-auto shrink-0 cursor-pointer"
           >
             <span className="material-symbols-outlined text-sm">add</span>
             Novo produto
@@ -219,14 +220,14 @@ export function ProdutosClient({ products, clients }: ProdutosClientProps) {
       )}
 
       {/* Filters / Search Bar */}
-      <div className="bg-white p-4 rounded-xl shadow-soft border border-[#eceef4] flex flex-col md:flex-row gap-4">
+      <div className="bg-white p-4 rounded-xl shadow-soft border border-[#e8e4de] flex flex-col md:flex-row gap-4">
         <div className="relative flex-1">
-          <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[#47464b]">search</span>
+          <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[#625f59]">search</span>
           <input
             type="text"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 bg-[#f8f9ff] border border-[#eceef4] rounded-lg focus:outline-none focus:border-[#C79A4A] focus:ring-1 focus:ring-[#C79A4A] font-body-md transition-colors text-[#181c21] placeholder-[#858387]"
+            className="w-full pl-10 pr-4 py-2 bg-[#f6f5f2] border border-[#e8e4de] rounded-lg focus:outline-none focus:border-[#C79A4A] focus:ring-1 focus:ring-[#C79A4A] font-body-md transition-colors text-[#242321] placeholder-[#8b8379]"
             placeholder="Buscar produtos..."
           />
         </div>
@@ -234,7 +235,7 @@ export function ProdutosClient({ products, clients }: ProdutosClientProps) {
           <select
             value={selectedCategory}
             onChange={(e) => setSelectedCategory(e.target.value)}
-            className="px-4 py-2 bg-white border border-[#eceef4] rounded-lg focus:outline-none focus:border-[#C79A4A] font-body-md text-[#47464b]"
+            className="px-4 py-2 bg-white border border-[#e8e4de] rounded-lg focus:outline-none focus:border-[#C79A4A] font-body-md text-[#625f59]"
           >
             <option value="all">Todas as categorias</option>
             {uniqueCategories.map((cat) => (
@@ -251,20 +252,20 @@ export function ProdutosClient({ products, clients }: ProdutosClientProps) {
           title="Nenhum produto cadastrado"
           description="Cadastre os produtos que sua barbearia vende, como pomadas, shampoos, óleos, pentes e acessórios."
           action={
-            <Button onClick={handleCreateNew} className="gap-2 bg-[#C79A4A] text-[#1a1a1d] hover:bg-[#b0863f]">
+            <Button onClick={handleCreateNew} className="gap-2 bg-[#C79A4A] text-[#20201f] hover:bg-[#b0863f]">
               <span className="material-symbols-outlined">add</span>
               Adicionar Primeiro Produto
             </Button>
           }
         />
       ) : filteredProducts.length === 0 ? (
-        <div className="bg-white rounded-xl p-8 border border-dashed border-[#eceef4] text-center">
-          <span className="material-symbols-outlined text-[#77767b] text-4xl mb-2">search_off</span>
-          <p className="text-sm font-semibold text-[#181c21]">Nenhum produto corresponde aos filtros</p>
-          <p className="text-xs text-[#47464b] mt-1">Tente ajustar a busca ou categoria selecionada.</p>
+        <div className="bg-white rounded-xl p-8 border border-dashed border-[#e8e4de] text-center">
+          <span className="material-symbols-outlined text-[#625f59] text-4xl mb-2">search_off</span>
+          <p className="text-sm font-semibold text-[#242321]">Nenhum produto corresponde aos filtros</p>
+          <p className="text-xs text-[#625f59] mt-1">Tente ajustar a busca ou categoria selecionada.</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 text-left">
+        <div className="grid grid-cols-1 gap-4 text-left md:grid-cols-2 xl:grid-cols-3">
           {filteredProducts.map((product) => {
             const isLowStock = product.stock_quantity > 0 && product.stock_quantity <= 3
             const isOutOfStock = product.stock_quantity <= 0
@@ -273,52 +274,38 @@ export function ProdutosClient({ products, clients }: ProdutosClientProps) {
               <div
                 key={product.id}
                 className={cn(
-                  "bg-white rounded-xl shadow-soft border border-[#eceef4] flex flex-col group hover:shadow-md transition-shadow duration-300 relative",
+                  "relative flex flex-col rounded-xl border border-[#dedad2] bg-white transition-colors hover:border-[#bfae91]",
                   !product.is_active && "opacity-75 grayscale-[30%]"
                 )}
               >
                 {/* Product Image Wrapper */}
-                <div className="relative h-48 bg-[#f8f9ff] flex items-center justify-center p-4 rounded-t-xl border-b border-[#eceef4]/50">
-                  {product.image_url ? (
-                    // eslint-disable-next-line @next/next/no-img-element
+                {product.image_url && (
+                  <div className="relative flex h-48 items-center justify-center rounded-t-xl border-b border-[#e8e4de] bg-[#f6f5f2] p-4">
                     <img
                       src={product.image_url}
                       alt={product.name}
                       className="object-contain h-full w-full max-w-[160px] drop-shadow-md mix-blend-multiply"
                     />
-                  ) : (
-                    <span className="material-symbols-outlined text-[#77767b] text-[48px]">inventory_2</span>
-                  )}
-                  <div className="absolute top-3 right-3">
-                    <span
-                      className={cn(
-                        "text-xs font-semibold px-2.5 py-0.5 rounded-full border",
-                        product.is_active
-                          ? "bg-[#E6F4EA] text-[#137333] border-[#ceead6]"
-                          : "bg-[#eceef4] text-[#47464b] border-[#c8c5cb]"
-                      )}
-                    >
-                      {product.is_active ? 'Ativo' : 'Inativo'}
-                    </span>
                   </div>
-                </div>
+                )}
 
                 {/* Details */}
                 <div className="p-5 flex flex-col flex-1">
-                  <span className="font-label-sm text-xs font-bold text-[#858387] uppercase tracking-wider mb-1">
-                    {product.category ? (CATEGORY_LABELS[product.category] || product.category) : 'Outros'}
-                  </span>
-                  <h3 className="font-montserrat text-sm md:text-base font-bold text-[#181c21] mb-2 line-clamp-1">
+                  <div className="mb-2 flex items-center justify-between gap-3">
+                    <span className="text-xs font-semibold text-[#625f59]">{product.category ? (CATEGORY_LABELS[product.category] || product.category) : 'Outros'}</span>
+                    <span className={cn('rounded-full px-2 py-1 text-[11px] font-semibold', product.is_active ? 'bg-[#e9f3ec] text-[#275c3c]' : 'bg-[#e8e4de] text-[#625f59]')}>{product.is_active ? 'Ativo' : 'Inativo'}</span>
+                  </div>
+                  <h3 className="font-montserrat text-sm md:text-base font-bold text-[#242321] mb-2 line-clamp-1">
                     {product.name}
                   </h3>
-                  <p className="font-body-md text-xs md:text-sm text-[#47464b] mb-4 line-clamp-2 flex-1">
+                  <p className="font-body-md text-xs md:text-sm text-[#625f59] mb-4 line-clamp-2 flex-1">
                     {product.description || 'Sem descrição cadastrada.'}
                   </p>
 
                   <div className="flex justify-between items-end mb-5">
                     <div>
-                      <span className="block text-[10px] font-bold text-[#858387] uppercase tracking-wider mb-1">Preço Venda</span>
-                      <span className="font-montserrat text-lg font-bold text-[#181c21]">
+                      <span className="block text-[10px] font-bold text-[#8b8379] uppercase tracking-wider mb-1">Preço Venda</span>
+                      <span className="font-montserrat text-lg font-bold text-[#242321]">
                         {formatPrice(product.sale_price)}
                       </span>
                     </div>
@@ -339,8 +326,8 @@ export function ProdutosClient({ products, clients }: ProdutosClientProps) {
                         </>
                       ) : (
                         <>
-                          <span className="block text-[10px] font-bold text-[#858387] uppercase tracking-wider mb-1">Estoque</span>
-                          <span className="font-body-md text-xs font-semibold text-[#181c21]">
+                          <span className="block text-[10px] font-bold text-[#8b8379] uppercase tracking-wider mb-1">Estoque</span>
+                          <span className="font-body-md text-xs font-semibold text-[#242321]">
                             {product.stock_quantity} un
                           </span>
                         </>
@@ -353,14 +340,14 @@ export function ProdutosClient({ products, clients }: ProdutosClientProps) {
                     {isOutOfStock || !product.is_active ? (
                       <button
                         disabled
-                        className="flex-1 bg-[#eceef4] border border-[#c8c5cb] text-[#47464b] cursor-not-allowed font-body-md text-xs font-semibold py-2 px-4 rounded-lg flex items-center justify-center gap-2"
+                        className="flex-1 bg-[#e8e4de] border border-[#c9c3b9] text-[#625f59] cursor-not-allowed font-body-md text-xs font-semibold py-2 px-4 rounded-lg flex items-center justify-center gap-2"
                       >
                         Indisponível
                       </button>
                     ) : (
                       <button
                         onClick={() => handleSellClick(product)}
-                        className="flex-1 bg-white border border-[#eceef4] hover:border-[#1a1a1d] text-[#1a1a1d] font-body-md text-xs font-semibold py-2 px-4 rounded-lg transition-colors flex items-center justify-center gap-2 cursor-pointer"
+                        className="flex-1 bg-white border border-[#e8e4de] hover:border-[#20201f] text-[#20201f] font-body-md text-xs font-semibold py-2 px-4 rounded-lg transition-colors flex items-center justify-center gap-2 cursor-pointer"
                       >
                         <span className="material-symbols-outlined text-sm">point_of_sale</span>
                         Vender
@@ -369,11 +356,12 @@ export function ProdutosClient({ products, clients }: ProdutosClientProps) {
 
                     <div className="relative">
                       <button
+                        aria-label={`Mais ações para ${product.name}`}
                         onClick={(e) => {
                           e.stopPropagation()
                           setActiveDropdownId(activeDropdownId === product.id ? null : product.id)
                         }}
-                        className="p-2 border border-[#eceef4] rounded-lg text-[#47464b] hover:bg-[#f1f3fa] transition-colors cursor-pointer flex items-center justify-center"
+                        className="p-2 border border-[#e8e4de] rounded-lg text-[#625f59] hover:bg-[#f1efeb] transition-colors cursor-pointer flex items-center justify-center"
                       >
                         <span className="material-symbols-outlined text-lg leading-none">more_vert</span>
                       </button>
@@ -385,13 +373,13 @@ export function ProdutosClient({ products, clients }: ProdutosClientProps) {
                             className="fixed inset-0 z-10"
                             onClick={() => setActiveDropdownId(null)}
                           />
-                          <div className="absolute right-0 bottom-full mb-2 w-32 bg-white rounded-lg shadow-lg border border-[#eceef4] py-1 z-20 animate-in fade-in slide-in-from-bottom-2 duration-150">
+                          <div className="absolute right-0 bottom-full mb-2 w-32 bg-white rounded-lg shadow-lg border border-[#e8e4de] py-1 z-20 animate-in fade-in slide-in-from-bottom-2 duration-150">
                             <button
                               onClick={() => {
                                 handleEdit(product)
                                 setActiveDropdownId(null)
                               }}
-                              className="w-full text-left px-4 py-2 text-xs text-[#181c21] hover:bg-[#f1f3fa] transition-colors flex items-center gap-2 cursor-pointer"
+                              className="w-full text-left px-4 py-2 text-xs text-[#242321] hover:bg-[#f1efeb] transition-colors flex items-center gap-2 cursor-pointer"
                             >
                               <span className="material-symbols-outlined text-sm">edit</span>
                               Editar
@@ -401,7 +389,7 @@ export function ProdutosClient({ products, clients }: ProdutosClientProps) {
                                 handleToggleStatus(product.id, product.is_active)
                                 setActiveDropdownId(null)
                               }}
-                              className="w-full text-left px-4 py-2 text-xs text-[#181c21] hover:bg-[#f1f3fa] transition-colors flex items-center gap-2 cursor-pointer"
+                              className="w-full text-left px-4 py-2 text-xs text-[#242321] hover:bg-[#f1efeb] transition-colors flex items-center gap-2 cursor-pointer"
                             >
                               <span className="material-symbols-outlined text-sm">power_settings_new</span>
                               {product.is_active ? 'Desativar' : 'Ativar'}
@@ -429,13 +417,13 @@ export function ProdutosClient({ products, clients }: ProdutosClientProps) {
           {/* Empty State / Add New Card Placeholder */}
           <div
             onClick={handleCreateNew}
-            className="bg-transparent border-2 border-dashed border-[#eceef4] rounded-xl flex flex-col items-center justify-center p-6 text-center hover:bg-[#f8f9ff] transition-colors duration-200 cursor-pointer min-h-[380px]"
+            className="bg-transparent border-2 border-dashed border-[#e8e4de] rounded-xl flex flex-col items-center justify-center p-6 text-center hover:bg-[#f6f5f2] transition-colors duration-200 cursor-pointer min-h-[380px]"
           >
             <div className="w-16 h-16 rounded-full bg-[#C79A4A]/10 flex items-center justify-center mb-4 text-[#C79A4A]">
               <span className="material-symbols-outlined text-3xl">add</span>
             </div>
-            <h3 className="font-montserrat text-base font-bold text-[#1a1a1d] mb-1">Adicionar Novo</h3>
-            <p className="text-xs text-[#47464b]">Cadastre um novo produto no seu catálogo.</p>
+            <h3 className="font-montserrat text-base font-bold text-[#20201f] mb-1">Adicionar Novo</h3>
+            <p className="text-xs text-[#625f59]">Cadastre um novo produto no seu catálogo.</p>
           </div>
         </div>
       )}
@@ -473,7 +461,7 @@ export function ProdutosClient({ products, clients }: ProdutosClientProps) {
           <div className="space-y-4">
             {/* Product selection */}
             <div className="space-y-1.5">
-              <label className="text-xs font-bold text-[#858387] uppercase tracking-wider">Produto</label>
+              <label className="text-xs font-bold text-[#8b8379] uppercase tracking-wider">Produto</label>
               {sellingProduct ? (
                 <div className="relative">
                   <select
@@ -485,7 +473,7 @@ export function ProdutosClient({ products, clients }: ProdutosClientProps) {
                         setSellQuantity(1)
                       }
                     }}
-                    className="w-full appearance-none bg-[#f1f3fa] border border-[#eceef4] rounded-lg pl-4 pr-10 py-3 text-sm text-[#181c21] focus:border-[#C79A4A] focus:ring-1 focus:ring-[#C79A4A] outline-none transition-colors"
+                    className="w-full appearance-none bg-[#f1efeb] border border-[#e8e4de] rounded-lg pl-4 pr-10 py-3 text-sm text-[#242321] focus:border-[#C79A4A] focus:ring-1 focus:ring-[#C79A4A] outline-none transition-colors"
                   >
                     {activeProductsWithStock.map((prod) => (
                       <option key={prod.id} value={prod.id}>
@@ -493,7 +481,7 @@ export function ProdutosClient({ products, clients }: ProdutosClientProps) {
                       </option>
                     ))}
                   </select>
-                  <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-[#47464b] pointer-events-none">expand_more</span>
+                  <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-[#625f59] pointer-events-none">expand_more</span>
                 </div>
               ) : (
                 <p className="text-sm text-red-500 bg-red-50 border border-red-100 p-3 rounded-lg">
@@ -504,15 +492,15 @@ export function ProdutosClient({ products, clients }: ProdutosClientProps) {
 
             {/* Price and Stock Stats */}
             {sellingProduct && (
-              <div className="flex bg-[#f8f9ff] rounded-lg p-4 justify-between items-center border border-[#eceef4] gap-4">
+              <div className="flex bg-[#f6f5f2] rounded-lg p-4 justify-between items-center border border-[#e8e4de] gap-4">
                 <div className="flex flex-col">
-                  <span className="text-[10px] font-bold text-[#858387] uppercase tracking-wider mb-1">Preço Unitário</span>
-                  <span className="font-montserrat text-base font-bold text-[#181c21]">{formatPrice(sellingProduct.sale_price)}</span>
+                  <span className="text-[10px] font-bold text-[#8b8379] uppercase tracking-wider mb-1">Preço Unitário</span>
+                  <span className="font-montserrat text-base font-bold text-[#242321]">{formatPrice(sellingProduct.sale_price)}</span>
                 </div>
-                <div className="h-8 w-[1px] bg-[#eceef4]"></div>
+                <div className="h-8 w-[1px] bg-[#e8e4de]"></div>
                 <div className="flex flex-col items-end">
-                  <span className="text-[10px] font-bold text-[#858387] uppercase tracking-wider mb-1">Estoque</span>
-                  <span className="text-xs font-semibold text-[#181c21] flex items-center gap-1.5">
+                  <span className="text-[10px] font-bold text-[#8b8379] uppercase tracking-wider mb-1">Estoque</span>
+                  <span className="text-xs font-semibold text-[#242321] flex items-center gap-1.5">
                     <span className={cn(
                       "w-2 h-2 rounded-full",
                       sellingProduct.stock_quantity <= 3 ? "bg-[#ba1a1a]" : "bg-green-500"
@@ -525,25 +513,25 @@ export function ProdutosClient({ products, clients }: ProdutosClientProps) {
 
             {/* Quantity Selector */}
             {sellingProduct && (
-              <div className="flex items-center justify-between py-2 border-b border-[#eceef4]/60">
-                <label className="text-xs font-bold text-[#858387] uppercase tracking-wider">Quantidade</label>
+              <div className="flex items-center justify-between py-2 border-b border-[#e8e4de]/60">
+                <label className="text-xs font-bold text-[#8b8379] uppercase tracking-wider">Quantidade</label>
                 <div className="flex items-center gap-3">
                   <button
                     type="button"
                     onClick={() => setSellQuantity(q => Math.max(1, q - 1))}
                     disabled={sellQuantity <= 1}
-                    className="w-8 h-8 flex items-center justify-center rounded border border-[#eceef4] text-[#181c21] hover:bg-[#f1f3fa] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-8 h-8 flex items-center justify-center rounded border border-[#e8e4de] text-[#242321] hover:bg-[#f1efeb] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <span className="material-symbols-outlined text-[16px] leading-none">remove</span>
                   </button>
-                  <span className="w-12 text-center font-montserrat text-lg font-bold text-[#181c21] select-none">
+                  <span className="w-12 text-center font-montserrat text-lg font-bold text-[#242321] select-none">
                     {sellQuantity}
                   </span>
                   <button
                     type="button"
                     onClick={() => setSellQuantity(q => Math.min(sellingProduct.stock_quantity, q + 1))}
                     disabled={sellQuantity >= sellingProduct.stock_quantity}
-                    className="w-8 h-8 flex items-center justify-center rounded border border-[#eceef4] text-[#181c21] hover:bg-[#f1f3fa] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-8 h-8 flex items-center justify-center rounded border border-[#e8e4de] text-[#242321] hover:bg-[#f1efeb] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <span className="material-symbols-outlined text-[16px] leading-none">add</span>
                   </button>
@@ -554,11 +542,11 @@ export function ProdutosClient({ products, clients }: ProdutosClientProps) {
             {/* Client input (Search-styled select dropdown) */}
             <div className="space-y-1.5 relative">
               <div className="flex justify-between items-center">
-                <label className="text-xs font-bold text-[#858387] uppercase tracking-wider">Cliente (Opcional)</label>
-                <span className="text-[10px] font-bold text-[#858387] uppercase tracking-wider">Vincular venda</span>
+                <label className="text-xs font-bold text-[#8b8379] uppercase tracking-wider">Cliente (Opcional)</label>
+                <span className="text-[10px] font-bold text-[#8b8379] uppercase tracking-wider">Vincular venda</span>
               </div>
               <div className="relative">
-                <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[#47464b] text-[20px]">person_search</span>
+                <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[#625f59] text-[20px]">person_search</span>
                 <input
                   type="text"
                   value={clientSearch}
@@ -570,7 +558,7 @@ export function ProdutosClient({ products, clients }: ProdutosClientProps) {
                     }
                   }}
                   onFocus={() => setIsClientDropdownOpen(true)}
-                  className="w-full pl-10 pr-10 py-3 bg-white border border-[#eceef4] rounded-lg text-sm text-[#181c21] focus:border-[#C79A4A] focus:ring-1 focus:ring-[#C79A4A] outline-none transition-colors placeholder-[#858387]"
+                  className="w-full pl-10 pr-10 py-3 bg-white border border-[#e8e4de] rounded-lg text-sm text-[#242321] focus:border-[#C79A4A] focus:ring-1 focus:ring-[#C79A4A] outline-none transition-colors placeholder-[#8b8379]"
                   placeholder="Buscar por nome..."
                 />
                 {clientSearch && (
@@ -581,7 +569,7 @@ export function ProdutosClient({ products, clients }: ProdutosClientProps) {
                       setSellClientId('')
                       setIsClientDropdownOpen(false)
                     }}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[#47464b] hover:text-[#181c21] flex items-center justify-center"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[#625f59] hover:text-[#242321] flex items-center justify-center"
                   >
                     <span className="material-symbols-outlined text-base">close</span>
                   </button>
@@ -595,7 +583,7 @@ export function ProdutosClient({ products, clients }: ProdutosClientProps) {
                     className="fixed inset-0 z-30"
                     onClick={() => setIsClientDropdownOpen(false)}
                   />
-                  <div className="absolute left-0 right-0 top-full mt-1 max-h-48 overflow-y-auto bg-white border border-[#eceef4] rounded-lg shadow-lg z-40 py-1">
+                  <div className="absolute left-0 right-0 top-full mt-1 max-h-48 overflow-y-auto bg-white border border-[#e8e4de] rounded-lg shadow-lg z-40 py-1">
                     {filteredClients.map((client) => (
                       <button
                         key={client.id}
@@ -605,7 +593,7 @@ export function ProdutosClient({ products, clients }: ProdutosClientProps) {
                           setClientSearch(client.name)
                           setIsClientDropdownOpen(false)
                         }}
-                        className="w-full text-left px-4 py-2.5 text-xs font-semibold text-[#181c21] hover:bg-[#f1f3fa] transition-colors"
+                        className="w-full text-left px-4 py-2.5 text-xs font-semibold text-[#242321] hover:bg-[#f1efeb] transition-colors"
                       >
                         {client.name}
                       </button>
@@ -617,7 +605,7 @@ export function ProdutosClient({ products, clients }: ProdutosClientProps) {
 
             {/* Payment Method */}
             <div className="space-y-2">
-              <label className="text-xs font-bold text-[#858387] uppercase tracking-wider block">Método de Pagamento</label>
+              <label className="text-xs font-bold text-[#8b8379] uppercase tracking-wider block">Método de Pagamento</label>
               <div className="grid grid-cols-3 gap-3">
                 {[
                   { value: 'credit_card', label: 'Cartão', icon: 'credit_card' },
@@ -633,7 +621,7 @@ export function ProdutosClient({ products, clients }: ProdutosClientProps) {
                       onChange={() => setSellPaymentMethod(method.value)}
                       className="peer sr-only"
                     />
-                    <div className="flex flex-col items-center justify-center p-3 rounded-lg border border-[#eceef4] bg-white peer-checked:border-[#C79A4A] peer-checked:bg-[#C79A4A]/5 transition-all text-[#47464b] peer-checked:text-[#C79A4A] hover:bg-[#f8f9ff]">
+                    <div className="flex flex-col items-center justify-center p-3 rounded-lg border border-[#e8e4de] bg-white peer-checked:border-[#C79A4A] peer-checked:bg-[#C79A4A]/5 transition-all text-[#625f59] peer-checked:text-[#C79A4A] hover:bg-[#f6f5f2]">
                       <span className="material-symbols-outlined mb-1 text-[24px]" style={{ fontVariationSettings: "'FILL' 1" }}>
                         {method.icon}
                       </span>
@@ -649,17 +637,17 @@ export function ProdutosClient({ products, clients }: ProdutosClientProps) {
 
           {/* Sticky Total & Register Button */}
           {sellingProduct && (
-            <div className="pt-4 border-t border-[#eceef4] space-y-4">
+            <div className="pt-4 border-t border-[#e8e4de] space-y-4">
               <div className="flex justify-between items-end">
-                <span className="text-xs font-semibold text-[#858387]">Total da Venda</span>
-                <span className="font-montserrat text-2xl font-extrabold text-[#181c21] leading-none tracking-tight">
+                <span className="text-xs font-semibold text-[#8b8379]">Total da Venda</span>
+                <span className="font-montserrat text-2xl font-extrabold text-[#242321] leading-none tracking-tight">
                   {formatPrice(sellingProduct.sale_price * sellQuantity)}
                 </span>
               </div>
               <button
                 type="submit"
                 disabled={isPending || sellingProduct.stock_quantity <= 0}
-                className="w-full bg-[#C79A4A] hover:bg-[#b0863f] text-[#1a1a1d] font-montserrat text-xs font-bold py-3.5 px-6 rounded-lg flex items-center justify-center gap-2 transition-all duration-200 cursor-pointer shadow-sm disabled:opacity-50"
+                className="w-full bg-[#C79A4A] hover:bg-[#b0863f] text-[#20201f] font-montserrat text-xs font-bold py-3.5 px-6 rounded-lg flex items-center justify-center gap-2 transition-all duration-200 cursor-pointer shadow-sm disabled:opacity-50"
               >
                 <span className="material-symbols-outlined text-lg leading-none">check_circle</span>
                 {isPending ? 'Registrando...' : 'Registrar venda'}

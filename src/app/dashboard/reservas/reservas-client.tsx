@@ -90,7 +90,7 @@ function StatusBadge({ status }: { status: AppointmentStatus }) {
 
 function ClientAvatar({ name }: { name: string }) {
   return (
-    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#eceef4] font-montserrat text-xs font-bold text-[#181c21]">
+    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#e8e4de] font-montserrat text-xs font-bold text-[#242321]">
       {initials(name)}
     </span>
   )
@@ -127,8 +127,8 @@ export function ReservasClient({ initialAppointments }: ReservasClientProps) {
     setSelected(appointment)
 
   return (
-    <div className="min-h-full bg-[#f8f9ff] font-inter text-[#181c21]">
-      <header className="border-b border-[#c8c5cb]/30 bg-[#f8f9ff] px-4 py-7 sm:px-6 md:px-8">
+    <div className="min-h-full bg-[#f6f5f2] font-inter text-[#242321]">
+      <header className="border-b border-[#c9c3b9]/30 bg-[#f6f5f2] px-4 py-7 sm:px-6 md:px-8">
         <div className="mb-2 flex items-center gap-2 text-[#9a6c19]">
           <span className="material-symbols-outlined text-[16px]">history</span>
           <span className="text-[11px] font-bold uppercase tracking-[0.18em]">
@@ -140,11 +140,11 @@ export function ReservasClient({ initialAppointments }: ReservasClientProps) {
             <h1 className="font-montserrat text-2xl font-extrabold tracking-[-0.02em] text-black md:text-[32px]">
               Histórico de reservas
             </h1>
-            <p className="mt-1 text-sm text-[#47464b]">
+            <p className="mt-1 text-sm text-[#625f59]">
               Consulte, filtre e revise todos os atendimentos registrados.
             </p>
           </div>
-          <span className="w-fit rounded-full bg-[#eceef4] px-3 py-1.5 text-xs font-semibold text-[#47464b]">
+          <span className="w-fit rounded-full bg-[#e8e4de] px-3 py-1.5 text-xs font-semibold text-[#625f59]">
             {appointments.length} reservas encontradas
           </span>
         </div>
@@ -154,12 +154,12 @@ export function ReservasClient({ initialAppointments }: ReservasClientProps) {
         <div className="flex flex-col gap-3 sm:flex-row">
           <label className="relative min-w-0 flex-1 sm:max-w-xl">
             <span className="sr-only">Buscar reservas</span>
-            <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-[20px] text-[#77767b]">
+            <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-[20px] text-[#625f59]">
               search
             </span>
             <input
               aria-label="Buscar reservas"
-              className="h-11 w-full rounded-lg border border-[#c8c5cb]/80 bg-white pl-12 pr-4 text-sm text-[#181c21] shadow-sm outline-none transition placeholder:text-[#858387] focus:border-[#C79A4A] focus:ring-2 focus:ring-[#C79A4A]/20"
+              className="h-11 w-full rounded-lg border border-[#c9c3b9]/80 bg-white pl-12 pr-4 text-sm text-[#242321] shadow-sm outline-none transition placeholder:text-[#8b8379] focus:border-[#C79A4A] focus:ring-2 focus:ring-[#C79A4A]/20"
               onChange={(event) => setSearch(event.target.value)}
               placeholder="Nome ou telefone do cliente"
               type="search"
@@ -169,12 +169,12 @@ export function ReservasClient({ initialAppointments }: ReservasClientProps) {
 
           <label className="relative sm:w-52">
             <span className="sr-only">Filtrar por status</span>
-            <span className="material-symbols-outlined pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-[18px] text-[#77767b]">
+            <span className="material-symbols-outlined pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-[18px] text-[#625f59]">
               filter_list
             </span>
             <select
               aria-label="Filtrar reservas por status"
-              className="h-11 w-full appearance-none rounded-lg border border-[#c8c5cb]/80 bg-white pl-10 pr-10 text-sm font-medium text-[#47464b] shadow-sm outline-none transition focus:border-[#C79A4A] focus:ring-2 focus:ring-[#C79A4A]/20"
+              className="h-11 w-full appearance-none rounded-lg border border-[#c9c3b9]/80 bg-white pl-10 pr-10 text-sm font-medium text-[#625f59] shadow-sm outline-none transition focus:border-[#C79A4A] focus:ring-2 focus:ring-[#C79A4A]/20"
               onChange={(event) =>
                 setStatus(event.target.value as 'all' | AppointmentStatus)
               }
@@ -187,18 +187,18 @@ export function ReservasClient({ initialAppointments }: ReservasClientProps) {
               <option value="cancelled">Canceladas</option>
               <option value="no_show">Não compareceu</option>
             </select>
-            <span className="material-symbols-outlined pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[18px] text-[#77767b]">
+            <span className="material-symbols-outlined pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[18px] text-[#625f59]">
               expand_more
             </span>
           </label>
         </div>
 
-        <section className="overflow-hidden rounded-xl border border-[#c8c5cb]/50 bg-white shadow-[0_4px_12px_rgba(27,27,30,0.04)]">
+        <section className="overflow-hidden rounded-xl border border-[#c9c3b9]/50 bg-white shadow-[0_4px_12px_rgba(27,27,30,0.04)]">
           {appointments.length > 0 ? (
             <>
               <table className="hidden md:table w-full table-fixed border-collapse text-left">
                 <thead>
-                  <tr className="border-b border-[#c8c5cb]/50 bg-[#f1f3fa] text-[10px] font-bold uppercase tracking-[0.08em] text-[#47464b]">
+                  <tr className="border-b border-[#c9c3b9]/50 bg-[#f1efeb] text-[10px] font-bold uppercase tracking-[0.08em] text-[#625f59]">
                     <th className="w-[13%] px-5 py-4">Data e hora</th>
                     <th className="w-[25%] px-4 py-4">Cliente</th>
                     <th className="w-[18%] px-4 py-4">Serviço</th>
@@ -210,13 +210,13 @@ export function ReservasClient({ initialAppointments }: ReservasClientProps) {
                     </th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#c8c5cb]/30">
+                <tbody className="divide-y divide-[#c9c3b9]/30">
                   {appointments.map((appointment) => {
                     const config = statusConfig[appointment.status]
                     return (
                       <tr
                         aria-label={`Abrir reserva de ${appointment.client.name}`}
-                        className={`group relative cursor-pointer outline-none transition-colors hover:bg-[#f8f9ff] focus-visible:bg-[#f1f3fa] focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#C79A4A] ${
+                        className={`group relative cursor-pointer outline-none transition-colors hover:bg-[#f6f5f2] focus-visible:bg-[#f1efeb] focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#C79A4A] ${
                           appointment.status === 'cancelled' ? 'opacity-70' : ''
                         }`}
                         key={appointment.id}
@@ -237,7 +237,7 @@ export function ReservasClient({ initialAppointments }: ReservasClientProps) {
                           <span className="block font-montserrat text-sm font-bold text-black">
                             {compactDate(appointment.startAt)}
                           </span>
-                          <span className="mt-0.5 block text-xs text-[#47464b]">
+                          <span className="mt-0.5 block text-xs text-[#625f59]">
                             {time(appointment.startAt)}
                           </span>
                         </td>
@@ -245,19 +245,19 @@ export function ReservasClient({ initialAppointments }: ReservasClientProps) {
                           <div className="flex min-w-0 items-center gap-3">
                             <ClientAvatar name={appointment.client.name} />
                             <div className="min-w-0">
-                              <span className="block truncate text-sm font-semibold text-[#181c21]">
+                              <span className="block truncate text-sm font-semibold text-[#242321]">
                                 {appointment.client.name}
                               </span>
-                              <span className="block truncate text-xs text-[#77767b]">
+                              <span className="block truncate text-xs text-[#625f59]">
                                 {appointment.client.phone}
                               </span>
                             </div>
                           </div>
                         </td>
-                        <td className="truncate px-4 py-4 text-sm text-[#181c21]">
+                        <td className="truncate px-4 py-4 text-sm text-[#242321]">
                           {appointment.serviceName}
                         </td>
-                        <td className="truncate px-4 py-4 text-sm text-[#181c21]">
+                        <td className="truncate px-4 py-4 text-sm text-[#242321]">
                           {appointment.barberName}
                         </td>
                         <td className="px-4 py-4 text-right font-montserrat text-sm font-bold text-black">
@@ -267,7 +267,7 @@ export function ReservasClient({ initialAppointments }: ReservasClientProps) {
                           <StatusBadge status={appointment.status} />
                         </td>
                         <td className="py-4 pr-4 text-right">
-                          <span className="material-symbols-outlined text-[20px] text-[#77767b] transition group-hover:translate-x-0.5 group-hover:text-black">
+                          <span className="material-symbols-outlined text-[20px] text-[#625f59] transition group-hover:translate-x-0.5 group-hover:text-black">
                             chevron_right
                           </span>
                         </td>
@@ -277,13 +277,13 @@ export function ReservasClient({ initialAppointments }: ReservasClientProps) {
                 </tbody>
               </table>
 
-              <div className="divide-y divide-[#c8c5cb]/30 md:hidden">
+              <div className="divide-y divide-[#c9c3b9]/30 md:hidden">
                 {appointments.map((appointment) => {
                   const config = statusConfig[appointment.status]
                   return (
                     <button
                       aria-label={`Abrir reserva de ${appointment.client.name}`}
-                      className={`relative w-full p-4 text-left outline-none transition-colors hover:bg-[#f8f9ff] focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#C79A4A] ${
+                      className={`relative w-full p-4 text-left outline-none transition-colors hover:bg-[#f6f5f2] focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#C79A4A] ${
                         appointment.status === 'cancelled' ? 'opacity-70' : ''
                       }`}
                       key={appointment.id}
@@ -300,7 +300,7 @@ export function ReservasClient({ initialAppointments }: ReservasClientProps) {
                             <span className="block truncate font-montserrat text-sm font-bold text-black">
                               {appointment.client.name}
                             </span>
-                            <span className="mt-0.5 block truncate text-xs text-[#47464b]">
+                            <span className="mt-0.5 block truncate text-xs text-[#625f59]">
                               {appointment.serviceName} · {appointment.barberName}
                             </span>
                           </span>
@@ -309,7 +309,7 @@ export function ReservasClient({ initialAppointments }: ReservasClientProps) {
                           <span className="block font-montserrat text-sm font-bold text-black">
                             {compactDate(appointment.startAt)}
                           </span>
-                          <span className="block text-xs text-[#47464b]">
+                          <span className="block text-xs text-[#625f59]">
                             {time(appointment.startAt)}
                           </span>
                         </span>
@@ -318,7 +318,7 @@ export function ReservasClient({ initialAppointments }: ReservasClientProps) {
                         <StatusBadge status={appointment.status} />
                         <span className="flex items-center gap-1 font-montserrat text-sm font-bold text-black">
                           {money(appointment.attendanceTotal)}
-                          <span className="material-symbols-outlined text-[18px] text-[#77767b]">
+                          <span className="material-symbols-outlined text-[18px] text-[#625f59]">
                             chevron_right
                           </span>
                         </span>
@@ -330,15 +330,15 @@ export function ReservasClient({ initialAppointments }: ReservasClientProps) {
             </>
           ) : (
             <div className="flex min-h-72 flex-col items-center justify-center px-6 py-14 text-center">
-              <span className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-[#f1f3fa] text-[#77767b]">
+              <span className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-[#f1efeb] text-[#625f59]">
                 <span className="material-symbols-outlined text-[26px]">
                   search_off
                 </span>
               </span>
-              <h2 className="font-montserrat text-base font-bold text-[#181c21]">
+              <h2 className="font-montserrat text-base font-bold text-[#242321]">
                 Nenhuma reserva encontrada
               </h2>
-              <p className="mt-1 max-w-sm text-sm text-[#47464b]">
+              <p className="mt-1 max-w-sm text-sm text-[#625f59]">
                 Ajuste a busca ou o status para encontrar outros atendimentos.
               </p>
             </div>
@@ -360,10 +360,10 @@ export function ReservasClient({ initialAppointments }: ReservasClientProps) {
                   {initials(selected.client.name)}
                 </span>
                 <div className="min-w-0">
-                  <h3 className="truncate font-montserrat text-base font-bold text-[#181c21]">
+                  <h3 className="truncate font-montserrat text-base font-bold text-[#242321]">
                     {selected.client.name}
                   </h3>
-                  <p className="mt-0.5 text-xs text-[#47464b]">
+                  <p className="mt-0.5 text-xs text-[#625f59]">
                     {selected.client.phone}
                   </p>
                 </div>
@@ -373,57 +373,57 @@ export function ReservasClient({ initialAppointments }: ReservasClientProps) {
 
             <dl className="grid grid-cols-2 gap-x-5 gap-y-5">
               <div>
-                <dt className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#77767b]">
+                <dt className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#625f59]">
                   Serviço
                 </dt>
-                <dd className="mt-1 font-semibold text-[#181c21]">
+                <dd className="mt-1 font-semibold text-[#242321]">
                   {selected.serviceName}
                 </dd>
               </div>
               <div>
-                <dt className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#77767b]">
+                <dt className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#625f59]">
                   Profissional
                 </dt>
-                <dd className="mt-1 font-semibold text-[#181c21]">
+                <dd className="mt-1 font-semibold text-[#242321]">
                   {selected.barberName}
                 </dd>
               </div>
               <div>
-                <dt className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#77767b]">
+                <dt className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#625f59]">
                   Horário
                 </dt>
-                <dd className="mt-1 text-[#181c21]">
+                <dd className="mt-1 text-[#242321]">
                   {fullDate(selected.startAt)} · {time(selected.startAt)}
                 </dd>
               </div>
               <div>
-                <dt className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#77767b]">
+                <dt className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#625f59]">
                   Duração
                 </dt>
-                <dd className="mt-1 text-[#181c21]">
+                <dd className="mt-1 text-[#242321]">
                   {selected.totalDurationMinutes} min
                 </dd>
               </div>
             </dl>
 
             <section>
-              <h3 className="mb-3 font-montserrat text-sm font-bold text-[#181c21]">
+              <h3 className="mb-3 font-montserrat text-sm font-bold text-[#242321]">
                 Atendimento
               </h3>
-              <dl className="space-y-3 rounded-xl border border-[#c8c5cb]/30 bg-[#f8f9ff] p-4">
-                <div className="flex justify-between gap-4 text-[#47464b]">
+              <dl className="space-y-3 rounded-xl border border-[#c9c3b9]/30 bg-[#f6f5f2] p-4">
+                <div className="flex justify-between gap-4 text-[#625f59]">
                   <dt>Preço do serviço</dt>
                   <dd>{money(selected.servicePrice)}</dd>
                 </div>
                 <div>
-                  <dt className="font-semibold text-[#181c21]">Adicionais</dt>
+                  <dt className="font-semibold text-[#242321]">Adicionais</dt>
                   <dd className="mt-2 space-y-2">
                     {selected.addOns.length === 0 ? (
-                      <span className="text-[#77767b]">Nenhum adicional</span>
+                      <span className="text-[#625f59]">Nenhum adicional</span>
                     ) : (
                       selected.addOns.map((item, index) => (
                         <span
-                          className="flex justify-between gap-4 text-[#47464b]"
+                          className="flex justify-between gap-4 text-[#625f59]"
                           key={`${item.name}-${index}`}
                         >
                           <span>
@@ -435,7 +435,7 @@ export function ReservasClient({ initialAppointments }: ReservasClientProps) {
                     )}
                   </dd>
                 </div>
-                <div className="flex justify-between gap-4 border-t border-[#c8c5cb]/30 pt-3 font-bold text-[#181c21]">
+                <div className="flex justify-between gap-4 border-t border-[#c9c3b9]/30 pt-3 font-bold text-[#242321]">
                   <dt>Total do atendimento</dt>
                   <dd className="font-montserrat">
                     {money(selected.attendanceTotal)}
@@ -479,17 +479,17 @@ export function ReservasClient({ initialAppointments }: ReservasClientProps) {
             )}
 
             <section>
-              <h3 className="mb-3 font-montserrat text-sm font-bold text-[#181c21]">
+              <h3 className="mb-3 font-montserrat text-sm font-bold text-[#242321]">
                 Produtos
               </h3>
-              <div className="rounded-xl border border-[#c8c5cb]/30 bg-[#f8f9ff] p-4">
+              <div className="rounded-xl border border-[#c9c3b9]/30 bg-[#f6f5f2] p-4">
                 {selectedProducts.length === 0 ? (
-                  <p className="text-[#77767b]">Nenhum produto registrado.</p>
+                  <p className="text-[#625f59]">Nenhum produto registrado.</p>
                 ) : (
                   <div className="space-y-2">
                     {selectedProducts.map((product, index) => (
                       <div
-                        className="flex justify-between gap-4 text-[#47464b]"
+                        className="flex justify-between gap-4 text-[#625f59]"
                         key={`${product.name}-${index}`}
                       >
                         <span>
@@ -502,7 +502,7 @@ export function ReservasClient({ initialAppointments }: ReservasClientProps) {
                     ))}
                   </div>
                 )}
-                <div className="mt-3 flex justify-between gap-4 border-t border-[#c8c5cb]/30 pt-3 font-bold text-[#181c21]">
+                <div className="mt-3 flex justify-between gap-4 border-t border-[#c9c3b9]/30 pt-3 font-bold text-[#242321]">
                   <span>Subtotal dos produtos</span>
                   <span className="font-montserrat">
                     {money(productSubtotal)}
@@ -511,8 +511,8 @@ export function ReservasClient({ initialAppointments }: ReservasClientProps) {
               </div>
             </section>
 
-            <section className="flex items-center justify-between gap-4 rounded-xl border border-[#c8c5cb]/40 bg-[#eceef4] p-4">
-              <span className="font-montserrat text-sm font-bold text-[#181c21]">
+            <section className="flex items-center justify-between gap-4 rounded-xl border border-[#c9c3b9]/40 bg-[#e8e4de] p-4">
+              <span className="font-montserrat text-sm font-bold text-[#242321]">
                 Total na barbearia
               </span>
               <span className="font-montserrat text-xl font-extrabold text-black">
@@ -522,10 +522,10 @@ export function ReservasClient({ initialAppointments }: ReservasClientProps) {
 
             {selected.notes && (
               <section>
-                <h3 className="mb-2 text-[10px] font-bold uppercase tracking-[0.12em] text-[#77767b]">
+                <h3 className="mb-2 text-[10px] font-bold uppercase tracking-[0.12em] text-[#625f59]">
                   Observações
                 </h3>
-                <p className="rounded-lg border border-[#c8c5cb]/30 bg-[#f8f9ff] p-3 text-sm italic leading-relaxed text-[#47464b]">
+                <p className="rounded-lg border border-[#c9c3b9]/30 bg-[#f6f5f2] p-3 text-sm italic leading-relaxed text-[#625f59]">
                   {selected.notes}
                 </p>
               </section>

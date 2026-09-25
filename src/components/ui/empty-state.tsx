@@ -12,19 +12,19 @@ export function EmptyState({ icon, title, description, action, className, ...pro
   return (
     <div
       className={cn(
-        "flex min-h-[400px] flex-col items-center justify-center rounded-xl border border-dashed bg-zinc-50/50 p-8 text-center animate-in fade-in-50 dark:bg-zinc-900/20",
+        "flex min-h-48 flex-col items-center justify-center border-t border-[#e2ded7] px-6 py-10 text-center",
         className
       )}
       {...props}
     >
       {icon && (
-        <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-muted">
+        <div className="mx-auto flex h-9 w-9 items-center justify-center text-[#77716a]">
           {icon}
         </div>
       )}
-      <h3 className="mt-4 text-lg font-semibold">{title}</h3>
+      <h3 className="mt-2 text-sm font-semibold text-[#242321]">{title}</h3>
       {description && (
-        <p className="mt-2 mb-4 text-sm text-muted-foreground max-w-sm mx-auto">
+        <p className="mx-auto mt-1 max-w-sm text-xs text-[#625e58]">
           {description}
         </p>
       )}

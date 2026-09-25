@@ -44,6 +44,7 @@ import { ImageWithFallback } from '@/components/ui/image-with-fallback'
 import { BookingProductStep } from './booking-product-step'
 import { BookingProgress } from './booking-progress'
 import { BookingSuccess } from './booking-success'
+import { BookingConfirming } from './booking-confirming'
 import { BookingSummaryBar } from './booking-summary-bar'
 import { BookingCoveragePreviewCard } from './booking-coverage-preview-card'
 
@@ -90,8 +91,8 @@ function SelectionMark({ selected }: { selected: boolean }) {
     <span
       className={`grid size-6 shrink-0 place-items-center rounded-full border transition ${
         selected
-          ? 'border-[#C79A4A] bg-[#C79A4A] text-[#1A1A1D]'
-          : 'border-white/20 text-transparent'
+          ? 'border-[#B78635] bg-[#B78635] text-white'
+          : 'border-[#B9B3A8] text-transparent'
       }`}
     >
       <Check className="size-3.5" strokeWidth={3} />
@@ -110,13 +111,13 @@ function SectionHeading({
 }) {
   return (
     <div className="mb-7">
-      <p className="mb-2 text-[11px] font-bold uppercase tracking-[0.24em] text-[#C79A4A]">
+      <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.18em] text-[#986F2E]">
         {eyebrow}
       </p>
-      <h1 className="font-[var(--font-montserrat)] text-2xl font-semibold tracking-tight text-white sm:text-3xl">
+      <h1 className="font-[var(--font-montserrat)] text-[clamp(1.8rem,3vw,2.7rem)] font-semibold leading-tight tracking-[-.045em] text-[#242321]">
         {title}
       </h1>
-      <p className="mt-2 text-sm leading-6 text-white/55">{description}</p>
+      <p className="mt-3 max-w-[550px] text-sm leading-6 text-[#625F59]">{description}</p>
     </div>
   )
 }
@@ -160,6 +161,7 @@ export function BookingClient({
   const [submitting, startSubmitting] = useTransition()
   const [error, setError] = useState('')
   const [receipt, setReceipt] = useState<CreatedBookingReceipt | null>(null)
+  const [showReceipt, setShowReceipt] = useState(false)
   const [coveragePreview, setCoveragePreview] =
     useState<BookingCoveragePreview | null>(null)
 
@@ -452,6 +454,7 @@ export function BookingClient({
     setSlotsError('')
     setError('')
     setReceipt(null)
+    setShowReceipt(false)
     setCoveragePreview(null)
   }
 
@@ -516,6 +519,7 @@ export function BookingClient({
   }
 
   if (receipt) {
+    if (!showReceipt) return <BookingConfirming onComplete={() => setShowReceipt(true)} />
     return (
       <BookingSuccess
         barbershopName={barbershop.name}
@@ -526,8 +530,8 @@ export function BookingClient({
   }
 
   return (
-    <div className="min-h-dvh bg-[#1A1A1D] text-white">
-      <header className="fixed inset-x-0 top-0 z-40 border-b border-white/10 bg-[#1A1A1D]/95 backdrop-blur-xl">
+    <div className="hb-booking min-h-dvh bg-[#F8F7F4] text-[#242321]">
+      <header className="sticky top-0 z-40 border-b border-[#4B4842] bg-[#232220] text-white">
         <div className="mx-auto flex h-16 max-w-5xl items-center justify-between px-4 sm:px-6">
           <button
             type="button"
@@ -535,7 +539,7 @@ export function BookingClient({
             className="flex items-center gap-3 text-left"
             aria-label={`Sair do agendamento de ${barbershop.name}`}
           >
-            <span className="grid size-9 place-items-center rounded-full border border-[#C79A4A]/45 bg-[#C79A4A]/10 text-[#C79A4A]">
+            <span className="grid size-9 place-items-center border border-[#C79A4A]/45 text-[#C79A4A]">
               <Scissors className="size-4" />
             </span>
             <span className="font-[var(--font-montserrat)] text-sm font-semibold">
@@ -545,7 +549,7 @@ export function BookingClient({
           <button
             type="button"
             onClick={() => router.push('/')}
-            className="flex items-center gap-2 rounded-full border border-white/10 px-3 py-2 text-xs font-semibold text-white/60"
+            className="flex items-center gap-2 px-3 py-2 text-xs font-semibold text-white/60 hover:text-white"
           >
             <X className="size-3.5" />
             Sair
@@ -553,40 +557,42 @@ export function BookingClient({
         </div>
       </header>
 
-      <div className="fixed inset-x-0 top-16 z-30 border-b border-white/10 bg-[#1A1A1D]/95 backdrop-blur-xl">
+      <div className="sticky top-16 z-30 border-b border-[#4B4842] bg-[#232220] text-white">
         <div className="mx-auto w-full max-w-3xl px-4 sm:px-6">
           <BookingProgress steps={STEPS} currentStep={currentStep} />
         </div>
       </div>
 
-      <main className="mx-auto w-full max-w-3xl px-4 pb-40 pt-40 sm:px-6 sm:pt-48">
+      <main className="hb-booking-main mx-auto w-full max-w-3xl px-4 pb-36 pt-10 sm:px-6 sm:pt-14">
         {currentStep === 1 && (
           <section>
             <SectionHeading
               eyebrow="Etapa 01"
-              title="Escolha seu profissional"
-              description="O preço, a duração e os serviços disponíveis dependem do profissional."
+              title="Com quem você quer marcar?"
+              description="Escolha o profissional. Depois você vê os serviços e horários disponíveis."
             />
-            <div className="grid gap-3 sm:grid-cols-2">
-              {barbers.map((item) => {
+            <div className="border-y border-[#DCD7CF]">
+              {barbers.map((item, index) => {
                 const selected = selectedBarber === item.id
                 return (
                   <button
                     type="button"
                     key={item.id}
+                    aria-pressed={selected}
                     onClick={() => chooseBarber(item.id)}
-                    className={`flex items-center gap-4 rounded-2xl border p-4 text-left transition ${
+                    className={`flex w-full items-center gap-4 border-b border-[#DCD7CF] px-1 py-5 text-left transition last:border-b-0 hover:bg-[#F0EDE6] ${
                       selected
-                        ? 'border-[#C79A4A] bg-[#C79A4A]/10'
-                        : 'border-white/10 bg-white/[0.035] hover:border-white/25'
+                        ? 'bg-[#F3EBDD]'
+                        : ''
                     }`}
                   >
+                    <span className="w-6 shrink-0 text-xs font-semibold text-[#986F2E]">{String(index + 1).padStart(2, '0')}</span>
                     <ImageWithFallback
                       src={item.avatar_url}
                       alt={item.name}
-                      className="size-14 shrink-0 rounded-full object-cover ring-1 ring-white/10"
+                      className="size-12 shrink-0 rounded-full object-cover ring-1 ring-[#DDD7CD]"
                       fallback={
-                        <span className="grid size-14 shrink-0 place-items-center rounded-full bg-white/5 text-white/45">
+                        <span className="grid size-12 shrink-0 place-items-center rounded-full bg-[#EAE7E1] text-[#625F59]">
                           <UserRound className="size-5" />
                         </span>
                       }
@@ -595,7 +601,7 @@ export function BookingClient({
                       <span className="block truncate font-[var(--font-montserrat)] text-sm font-semibold">
                         {item.name}
                       </span>
-                      <span className="mt-1 line-clamp-2 text-xs leading-5 text-white/45">
+                      <span className="mt-1 line-clamp-2 text-xs leading-5 text-[#625F59]">
                         {item.bio || 'Profissional da equipe'}
                       </span>
                     </span>
@@ -615,12 +621,12 @@ export function BookingClient({
               description={`Veja os serviços configurados para ${barber?.name || 'o profissional selecionado'}.`}
             />
             {loadingServices ? (
-              <div aria-live="polite" className="grid gap-3 sm:grid-cols-2">
+              <div aria-live="polite" className="space-y-2">
                 <span className="sr-only">Carregando serviços</span>
                 {Array.from({ length: 4 }, (_, index) => (
                   <div
                     key={index}
-                    className="h-40 animate-pulse rounded-2xl bg-white/5"
+                    className="h-20 animate-pulse bg-[#EAE7E1]"
                   />
                 ))}
               </div>
@@ -647,38 +653,39 @@ export function BookingClient({
                 </button>
               </div>
             ) : (
-              <div className="grid gap-3 sm:grid-cols-2">
+              <div className="border-y border-[#DCD7CF]">
                 {barberServices.map((item) => {
                   const selected = selectedServiceId === item.id
                   return (
                     <button
                       type="button"
                       key={item.id}
+                      aria-pressed={selected}
                       onClick={() => chooseService(item)}
-                      className={`flex min-h-40 flex-col rounded-2xl border p-5 text-left transition ${
+                      className={`flex w-full flex-col border-b border-[#DCD7CF] px-2 py-5 text-left transition last:border-b-0 hover:bg-[#F0EDE6] ${
                         selected
-                          ? 'border-[#C79A4A] bg-[#C79A4A]/10'
-                          : 'border-white/10 bg-white/[0.035] hover:border-white/25'
+                          ? 'bg-[#F3EBDD]'
+                          : ''
                       }`}
                     >
                       <span className="flex w-full items-start justify-between">
-                        <Scissors className="size-5 text-[#C79A4A]" />
+                        <Scissors className="size-4 text-[#986F2E]" />
                         <SelectionMark selected={selected} />
                       </span>
-                      <span className="mt-5 font-[var(--font-montserrat)] font-semibold">
+                      <span className="mt-2 font-[var(--font-montserrat)] font-semibold">
                         {item.name}
                       </span>
                       {item.description && (
-                        <span className="mt-1 line-clamp-2 text-xs text-white/45">
+                        <span className="mt-1 line-clamp-2 text-xs text-[#625F59]">
                           {item.description}
                         </span>
                       )}
-                      <span className="mt-auto flex items-end justify-between gap-4 pt-4">
-                        <span className="flex items-center gap-1.5 text-xs text-white/45">
+                      <span className="mt-auto flex items-end justify-between gap-4 pt-3">
+                        <span className="flex items-center gap-1.5 text-xs text-[#625F59]">
                           <Clock3 className="size-3.5" />
                           {item.durationMinutes} min
                         </span>
-                        <span className="font-semibold text-[#C79A4A]">
+                        <span className="font-semibold text-[#795A29]">
                           {formatCurrency(item.price)}
                         </span>
                       </span>
@@ -710,7 +717,7 @@ export function BookingClient({
                 Nenhum adicional disponível para este agendamento.
               </div>
             ) : (
-              <div className="space-y-3">
+              <div className="border-y border-[#DCD7CF]">
                 {barberAddOns.map((item) => {
                   const selected = selectedAddOns.includes(item.id)
                   return (
@@ -719,10 +726,10 @@ export function BookingClient({
                       key={item.id}
                       aria-pressed={selected}
                       onClick={() => toggleAddOn(item.id)}
-                      className={`flex w-full items-center gap-4 rounded-2xl border p-4 text-left ${
+                      className={`flex w-full items-center gap-4 border-b border-[#DCD7CF] px-2 py-5 text-left last:border-b-0 hover:bg-[#F0EDE6] ${
                         selected
-                          ? 'border-[#C79A4A] bg-[#C79A4A]/10'
-                          : 'border-white/10 bg-white/[0.035]'
+                          ? 'bg-[#F3EBDD]'
+                          : ''
                       }`}
                     >
                       <Sparkles className="size-4 text-[#C79A4A]" />
@@ -730,10 +737,10 @@ export function BookingClient({
                         {item.name}
                       </span>
                       <span className="flex flex-col items-end gap-1 text-sm">
-                        <span className="text-[#C79A4A]">
+                        <span className="text-[#795A29]">
                           + {formatCurrency(item.price)}
                         </span>
-                        <span className="flex items-center gap-1 text-xs text-white/45">
+                        <span className="flex items-center gap-1 text-xs text-[#625F59]">
                           <Clock3 className="size-3" />+ {item.durationMinutes}{' '}
                           min
                         </span>
@@ -782,10 +789,10 @@ export function BookingClient({
                     type="button"
                     key={day.value}
                     onClick={() => chooseDate(day.value)}
-                    className={`flex min-w-20 flex-col items-center rounded-2xl border px-3 py-4 ${
+                    className={`flex min-w-20 flex-col items-center border px-3 py-4 transition-colors ${
                       selected
-                        ? 'border-[#C79A4A] bg-[#C79A4A] text-[#1A1A1D]'
-                        : 'border-white/10 bg-white/[0.035]'
+                        ? 'border-[#B78635] bg-[#B78635] text-[#211B12]'
+                        : 'border-[#DCD7CF] bg-white hover:border-[#B78635]'
                     }`}
                   >
                     <span className="text-[10px] font-bold uppercase opacity-60">
@@ -799,7 +806,7 @@ export function BookingClient({
                 )
               })}
             </div>
-            <div className="mt-8 flex items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-white/45">
+            <div className="mt-8 flex items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-[#625F59]">
               <Clock3 className="size-4 text-[#C79A4A]" />
               Horários disponíveis
             </div>
@@ -842,10 +849,10 @@ export function BookingClient({
                       setSelectedTime(slot)
                       setError('')
                     }}
-                    className={`rounded-xl border px-3 py-3 text-sm font-semibold ${
+                    className={`border px-3 py-3 text-sm font-semibold ${
                       selectedTime === slot
-                        ? 'border-[#C79A4A] bg-[#C79A4A] text-[#1A1A1D]'
-                        : 'border-white/10 bg-white/[0.035]'
+                        ? 'border-[#B78635] bg-[#B78635] text-[#211B12]'
+                        : 'border-[#DCD7CF] bg-white hover:border-[#B78635]'
                     }`}
                   >
                     {slot}
@@ -863,7 +870,7 @@ export function BookingClient({
               title="Como podemos falar com você?"
               description="Usaremos estes dados para identificar e confirmar seu agendamento."
             />
-            <div className="space-y-4 rounded-2xl border border-white/10 bg-white/[0.035] p-5">
+            <div className="space-y-4 border-t border-[#DCD7CF] pt-6">
               <label className="block">
                 <span className="mb-2 flex items-center gap-2 text-xs font-semibold text-white/60">
                   <UserRound className="size-3.5 text-[#C79A4A]" />
@@ -873,7 +880,7 @@ export function BookingClient({
                   value={clientName}
                   onChange={(event) => setClientName(event.target.value)}
                   autoComplete="name"
-                  className="h-12 w-full rounded-xl border border-white/10 bg-[#111113] px-4 text-sm outline-none focus:border-[#C79A4A]"
+                  className="h-12 w-full border border-[#DCD7CF] bg-white px-4 text-sm outline-none focus:border-[#B78635]"
                 />
               </label>
               <label className="block">
@@ -890,7 +897,7 @@ export function BookingClient({
                   }}
                   inputMode="tel"
                   autoComplete="tel"
-                  className="h-12 w-full rounded-xl border border-white/10 bg-[#111113] px-4 text-sm outline-none focus:border-[#C79A4A]"
+                  className="h-12 w-full border border-[#DCD7CF] bg-white px-4 text-sm outline-none focus:border-[#B78635]"
                 />
               </label>
               <label className="block">
@@ -903,7 +910,7 @@ export function BookingClient({
                   onChange={(event) => setClientEmail(event.target.value)}
                   type="email"
                   autoComplete="email"
-                  className="h-12 w-full rounded-xl border border-white/10 bg-[#111113] px-4 text-sm outline-none focus:border-[#C79A4A]"
+                  className="h-12 w-full border border-[#DCD7CF] bg-white px-4 text-sm outline-none focus:border-[#B78635]"
                 />
               </label>
               <label className="block">
@@ -914,7 +921,7 @@ export function BookingClient({
                   value={notes}
                   onChange={(event) => setNotes(event.target.value)}
                   rows={3}
-                  className="w-full resize-none rounded-xl border border-white/10 bg-[#111113] px-4 py-3 text-sm outline-none focus:border-[#C79A4A]"
+                  className="w-full resize-none border border-[#DCD7CF] bg-white px-4 py-3 text-sm outline-none focus:border-[#B78635]"
                 />
               </label>
             </div>
@@ -928,7 +935,7 @@ export function BookingClient({
               title="Tudo certo para confirmar?"
               description="Confira os detalhes antes de criar o agendamento."
             />
-            <div className="overflow-hidden rounded-2xl border border-white/10 bg-white/[0.035]">
+            <div className="overflow-hidden border-y border-[#DCD7CF] bg-white">
               <div className="border-b border-white/10 p-5">
                 <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#C79A4A]">
                   Atendimento

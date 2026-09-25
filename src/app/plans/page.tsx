@@ -9,7 +9,7 @@ import { formatPlanAmount, hasProductAccess, PLAN_DETAILS, type BillingPlan } fr
 
 const features = [
   'Todas as funcionalidades inclusas',
-  'Até 2 barbeiros inclusos',
+  'Cadastre quantos barbeiros quiser',
   'Agenda, financeiro e clientes em um só lugar',
 ]
 
@@ -42,14 +42,14 @@ export default async function PlansPage({
   const billingReady = isBillingEnvironmentConfigured()
 
   return (
-    <main className="min-h-screen bg-[#f8f9ff] text-[#181c21]">
+    <main className="min-h-screen bg-[#f6f5f2] text-[#242321]">
       <header className="border-b border-[#c8c5cb]/40 bg-white">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-5">
           <Link href="/" aria-label="HeadBarber" className="flex items-center gap-3">
             <Image src="/brand/headbarber_logo_dourada_com_texto_transparente.png" alt="HeadBarber" width={1014} height={761} className="h-20 w-auto" priority />
           </Link>
           <form action="/auth/signout" method="post">
-            <button className="flex cursor-pointer items-center gap-2 text-xs font-semibold uppercase tracking-wider text-[#47464b] transition-colors hover:text-[#1A1A1D]">
+            <button className="flex cursor-pointer items-center gap-2 text-xs font-semibold uppercase tracking-wider text-[#625f59] transition-colors hover:text-[#1A1A1D]">
               <LogOut className="h-4 w-4" />
               Sair
             </button>
@@ -66,7 +66,7 @@ export default async function PlansPage({
           <h1 className="font-montserrat text-3xl font-bold tracking-[-0.02em] text-[#1A1A1D] md:text-4xl">
             Escolha como investir na sua gestão
           </h1>
-          <p className="mt-4 text-base leading-relaxed text-[#47464b]">
+          <p className="mt-4 text-base leading-relaxed text-[#625f59]">
             Sua conta está pronta. Selecione a recorrência para liberar a configuração da barbearia e todo o painel HeadBarber.
           </p>
         </div>
@@ -99,7 +99,7 @@ export default async function PlansPage({
                   </div>
                 )}
 
-                <p className={`text-xs font-semibold uppercase tracking-widest ${annual ? 'text-[#C79A4A]' : 'text-[#47464b]'}`}>
+                <p className={`text-xs font-semibold uppercase tracking-widest ${annual ? 'text-[#C79A4A]' : 'text-[#625f59]'}`}>
                   {details.eyebrow}
                 </p>
                 <h2 className="mt-2 font-montserrat text-2xl font-semibold">{details.name}</h2>
@@ -108,7 +108,7 @@ export default async function PlansPage({
                   <strong className="font-montserrat text-5xl font-bold tracking-tight">
                     {formatPlanAmount(details.amount).replace('R$', '').trim()}
                   </strong>
-                  <span className={`pb-1 text-sm ${annual ? 'text-[#c8c6ca]' : 'text-[#47464b]'}`}>
+                  <span className={`pb-1 text-sm ${annual ? 'text-[#c8c6ca]' : 'text-[#625f59]'}`}>
                     {details.suffix}
                   </span>
                 </div>
@@ -124,7 +124,7 @@ export default async function PlansPage({
                   {features.map((feature) => (
                     <li key={feature} className="flex items-start gap-3 text-sm">
                       <Check className="mt-0.5 h-5 w-5 shrink-0 text-[#C79A4A]" />
-                      <span className={annual ? 'text-white' : 'text-[#181c21]'}>{feature}</span>
+                      <span className={annual ? 'text-white' : 'text-[#242321]'}>{feature}</span>
                     </li>
                   ))}
                 </ul>
@@ -146,7 +146,7 @@ export default async function PlansPage({
           })}
         </div>
 
-        <div className="mx-auto mt-10 flex max-w-3xl items-center justify-center gap-3 text-center text-xs leading-relaxed text-[#77767b]">
+        <div className="mx-auto mt-10 flex max-w-3xl items-center justify-center gap-3 text-center text-xs leading-relaxed text-[#625f59]">
           <ShieldCheck className="h-5 w-5 shrink-0 text-[#C79A4A]" />
           Pagamento processado com segurança pela Stripe. O acesso é liberado somente após a confirmação da assinatura.
         </div>

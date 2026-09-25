@@ -37,11 +37,11 @@ export default async function SubscriptionConfirmPage({
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-[#f8f9ff] p-6">
+    <main className="flex min-h-screen items-center justify-center bg-[#f6f5f2] p-6">
       <div className="w-full max-w-md rounded-xl border border-[#c8c5cb]/60 bg-white p-8 text-center shadow-[0_12px_40px_rgba(26,26,29,0.04)]">
         <Clock3 className="mx-auto h-10 w-10 text-[#C79A4A]" />
         <h1 className="mt-5 font-montserrat text-2xl font-semibold text-[#1A1A1D]">Confirmando assinatura</h1>
-        <p className="mt-3 text-sm leading-relaxed text-[#47464b]">
+        <p className="mt-3 text-sm leading-relaxed text-[#625f59]">
           A Stripe ainda está processando a confirmação. Aguarde alguns segundos e tente novamente.
         </p>
         <Link href={`/subscription/confirm?session_id=${sessionId}`} className="mt-6 inline-flex rounded-lg bg-[#C79A4A] px-5 py-3 text-xs font-bold uppercase tracking-widest text-[#1A1A1D]">

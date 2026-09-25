@@ -61,27 +61,27 @@ export default function ResetPasswordPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#F8F6F1] p-4 font-sans select-none antialiased">
+    <div className="min-h-screen flex items-center justify-center bg-[#F6F5F2] p-4 font-sans select-none antialiased">
       <div className="w-full max-w-[440px] space-y-6 animate-in fade-in slide-in-from-bottom-3 duration-300">
         
         {/* Logo superior */}
         <div className="flex flex-col items-center">
           <Link href="/" className="flex items-center gap-2.5 mb-6 hover:opacity-90 transition-opacity">
-            <div className="w-9 h-9 bg-[#1D1C19] rounded-lg flex items-center justify-center shadow-sm">
+            <div className="w-9 h-9 bg-[#242321] rounded-lg flex items-center justify-center shadow-sm">
               <img 
                 src="/brand/headbarber_simbolo_duas_cores_transparente.png"
                 alt="Logo HeadBarber" 
                 className="w-5.5 h-5.5 object-contain"
               />
             </div>
-            <span className="text-xl font-bold tracking-tight text-[#1D1C19]">
+            <span className="text-xl font-bold tracking-tight text-[#242321]">
               Head<span className="text-[#A87935]">Barber</span>
             </span>
           </Link>
           
-          <Card className="w-full bg-[#FEFCF8] border-[#DEDAD2] text-[#1D1C19] shadow-sm rounded-xl overflow-hidden">
+          <Card className="w-full bg-[#FFFFFF] border-[#DEDAD2] text-[#242321] shadow-sm rounded-xl overflow-hidden">
             <CardHeader className="text-left space-y-1.5 p-6 pb-4">
-              <CardTitle className="text-xl font-semibold tracking-tight text-[#1D1C19]">Nova Senha</CardTitle>
+              <CardTitle className="text-xl font-semibold tracking-tight text-[#242321]">Nova Senha</CardTitle>
               <CardDescription className="text-[#77736A] text-sm leading-normal">
                 Defina uma nova senha de acesso segura para a sua conta.
               </CardDescription>
@@ -114,13 +114,13 @@ export default function ResetPasswordPage() {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       required
-                      className="w-full bg-[#FEFCF8] border-[#DEDAD2] text-[#1D1C19] placeholder:text-[#AAA49A] h-11 pl-10 pr-10 rounded-lg focus-visible:ring-2 focus-visible:ring-[#A87935]/20 focus-visible:ring-offset-0 focus-visible:border-[#A87935] hover:border-[#A87935]/50 transition-all duration-150"
+                      className="w-full bg-[#FFFFFF] border-[#DEDAD2] text-[#242321] placeholder:text-[#625F59] h-11 pl-10 pr-10 rounded-lg focus-visible:ring-2 focus-visible:ring-[#A87935]/20 focus-visible:ring-offset-0 focus-visible:border-[#A87935] hover:border-[#A87935]/50 transition-all duration-150"
                     />
-                    <Lock className="absolute left-3.5 top-3.5 w-4 h-4 text-[#AAA49A]" />
+                    <Lock className="absolute left-3.5 top-3.5 w-4 h-4 text-[#625F59]" />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3.5 top-3.5 text-[#AAA49A] hover:text-[#1D1C19] cursor-pointer"
+                      className="absolute right-3.5 top-3.5 text-[#625F59] hover:text-[#242321] cursor-pointer"
                       aria-label={showPassword ? "Ocultar senha" : "Exibir senha"}
                     >
                       {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -138,15 +138,15 @@ export default function ResetPasswordPage() {
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
                       required
-                      className="w-full bg-[#FEFCF8] border-[#DEDAD2] text-[#1D1C19] placeholder:text-[#AAA49A] h-11 pl-10 pr-10 rounded-lg focus-visible:ring-2 focus-visible:ring-[#A87935]/20 focus-visible:ring-offset-0 focus-visible:border-[#A87935] hover:border-[#A87935]/50 transition-all duration-150"
+                      className="w-full bg-[#FFFFFF] border-[#DEDAD2] text-[#242321] placeholder:text-[#625F59] h-11 pl-10 pr-10 rounded-lg focus-visible:ring-2 focus-visible:ring-[#A87935]/20 focus-visible:ring-offset-0 focus-visible:border-[#A87935] hover:border-[#A87935]/50 transition-all duration-150"
                     />
-                    <Lock className="absolute left-3.5 top-3.5 w-4 h-4 text-[#AAA49A]" />
+                    <Lock className="absolute left-3.5 top-3.5 w-4 h-4 text-[#625F59]" />
                   </div>
                 </div>
 
                 <Button 
                   type="submit" 
-                  className="w-full h-11 bg-[#1D1C19] hover:bg-[#35332E] active:bg-[#1D1C19] text-[#FEFCF8] font-semibold rounded-lg shadow-sm transition-all duration-150 flex items-center justify-center gap-2 cursor-pointer mt-2 hover:-translate-y-[1px] active:translate-y-0" 
+                  className="w-full h-11 bg-[#242321] hover:bg-[#35332E] active:bg-[#242321] text-[#FFFFFF] font-semibold rounded-lg shadow-sm transition-all duration-150 flex items-center justify-center gap-2 cursor-pointer mt-2 hover:-translate-y-[1px] active:translate-y-0"
                   disabled={loading}
                 >
                   {loading ? 'Redefinindo senha...' : 'Confirmar Nova Senha'}

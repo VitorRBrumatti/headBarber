@@ -267,7 +267,7 @@ export default function LoginPage() {
       {/* ─── FORM PANEL (Right) ─── */}
       <section
         className={`
-          auth-sliding-panel w-full md:w-1/2 bg-[#f8f9ff] flex items-center justify-center
+          auth-sliding-panel w-full md:w-1/2 bg-[#f6f5f2] flex items-center justify-center
           p-6 md:p-12 z-10
           ${mode === 'register' ? 'md:-translate-x-full' : 'md:translate-x-0'}
         `}
@@ -284,7 +284,7 @@ export default function LoginPage() {
                 transition-all duration-300 cursor-pointer
                 ${mode === 'login'
                   ? 'bg-white text-[#1A1A1D] shadow-sm'
-                  : 'text-[#47464b] hover:text-[#1A1A1D]'
+                  : 'text-[#625f59] hover:text-[#1A1A1D]'
                 }
               `}
             >
@@ -298,7 +298,7 @@ export default function LoginPage() {
                 transition-all duration-300 cursor-pointer
                 ${mode === 'register'
                   ? 'bg-white text-[#1A1A1D] shadow-sm'
-                  : 'text-[#47464b] hover:text-[#1A1A1D]'
+                  : 'text-[#625f59] hover:text-[#1A1A1D]'
                 }
               `}
             >
@@ -339,14 +339,14 @@ export default function LoginPage() {
                 <h2 className="font-montserrat text-[24px] font-semibold text-[#1A1A1D] mb-2 leading-[1.3]">
                   Acesse sua conta
                 </h2>
-                <p className="text-[14px] text-[#47464b] leading-normal">
+                <p className="text-[14px] text-[#625f59] leading-normal">
                   Entre para gerenciar sua barbearia.
                 </p>
               </div>
 
               <form onSubmit={handleLogin} className="space-y-6">
                 <div className="space-y-1">
-                  <label htmlFor="login-email" className="text-[12px] font-semibold text-[#47464b] uppercase tracking-wider cursor-pointer">
+                  <label htmlFor="login-email" className="text-[12px] font-semibold text-[#625f59] uppercase tracking-wider cursor-pointer">
                     E-mail
                   </label>
                   <input
@@ -356,14 +356,14 @@ export default function LoginPage() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
-                    className="w-full px-4 py-3 rounded-[4px] bg-[#f8f9ff] border border-[#c8c5cb] text-[#181c21] placeholder:text-[#77767b] text-[14px]
+                    className="w-full px-4 py-3 rounded-[4px] bg-[#f6f5f2] border border-[#c8c5cb] text-[#242321] placeholder:text-[#625f59] text-[14px]
                       focus:border-[#C79A4A] focus:ring-1 focus:ring-[#C79A4A] transition-all outline-none"
                   />
                 </div>
 
                 <div className="space-y-1">
                   <div className="flex justify-between items-center">
-                    <label htmlFor="login-password" className="text-[12px] font-semibold text-[#47464b] uppercase tracking-wider cursor-pointer">
+                    <label htmlFor="login-password" className="text-[12px] font-semibold text-[#625f59] uppercase tracking-wider cursor-pointer">
                       Senha
                     </label>
                     <Link
@@ -380,7 +380,7 @@ export default function LoginPage() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
-                    className="w-full px-4 py-3 rounded-[4px] bg-[#f8f9ff] border border-[#c8c5cb] text-[#181c21] placeholder:text-[#77767b] text-[14px]
+                    className="w-full px-4 py-3 rounded-[4px] bg-[#f6f5f2] border border-[#c8c5cb] text-[#242321] placeholder:text-[#625f59] text-[14px]
                       focus:border-[#C79A4A] focus:ring-1 focus:ring-[#C79A4A] transition-all outline-none"
                   />
                 </div>
@@ -399,7 +399,7 @@ export default function LoginPage() {
                 {/* Divider */}
                 <div className="relative flex items-center py-2">
                   <div className="flex-grow border-t border-[#c8c5cb]/30" />
-                  <span className="flex-shrink mx-4 text-[12px] text-[#47464b] uppercase tracking-widest font-semibold">
+                  <span className="flex-shrink mx-4 text-[12px] text-[#625f59] uppercase tracking-widest font-semibold">
                     ou entre com
                   </span>
                   <div className="flex-grow border-t border-[#c8c5cb]/30" />
@@ -428,7 +428,7 @@ export default function LoginPage() {
                   type="button"
                   onClick={handleMagicLink}
                   disabled={loading}
-                  className="w-full text-[12px] text-[#47464b] hover:text-[#C79A4A] transition-colors
+                  className="w-full text-[12px] text-[#625f59] hover:text-[#C79A4A] transition-colors
                     font-semibold flex items-center justify-center gap-2 cursor-pointer py-2"
                 >
                   <svg className="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
@@ -439,7 +439,7 @@ export default function LoginPage() {
               </form>
 
               <div className="mt-10 pt-8 border-t border-[#c8c5cb]/30 text-center">
-                <p className="text-[12px] text-[#47464b] font-semibold">
+                <p className="text-[12px] text-[#625f59] font-semibold">
                   Não possui uma conta?{' '}
                   <button
                     onClick={() => switchMode('register')}
@@ -465,12 +465,12 @@ export default function LoginPage() {
                     <span className="w-5 h-5 rounded-full bg-[#C79A4A] text-white flex items-center justify-center text-[10px]">1</span>
                     Conta
                   </div>
-                  <div className="text-[#47464b] pb-2 text-[11px] font-bold uppercase tracking-widest flex items-center gap-2 opacity-50">
-                    <span className="w-5 h-5 rounded-full bg-[#e0e2e9] flex items-center justify-center text-[10px]">2</span>
+                  <div className="text-[#625f59] pb-2 text-[11px] font-bold uppercase tracking-widest flex items-center gap-2 opacity-50">
+                    <span className="w-5 h-5 rounded-full bg-[#dedad2] flex items-center justify-center text-[10px]">2</span>
                     Plano
                   </div>
-                  <div className="text-[#47464b] pb-2 text-[11px] font-bold uppercase tracking-widest flex items-center gap-2 opacity-50">
-                    <span className="w-5 h-5 rounded-full bg-[#e0e2e9] flex items-center justify-center text-[10px]">3</span>
+                  <div className="text-[#625f59] pb-2 text-[11px] font-bold uppercase tracking-widest flex items-center gap-2 opacity-50">
+                    <span className="w-5 h-5 rounded-full bg-[#dedad2] flex items-center justify-center text-[10px]">3</span>
                     Barbearia
                   </div>
                 </div>
@@ -478,14 +478,14 @@ export default function LoginPage() {
                 <h2 className="font-montserrat text-[24px] font-semibold text-[#1A1A1D] mb-2 leading-[1.3]">
                   Crie sua conta
                 </h2>
-                <p className="text-[14px] text-[#47464b] leading-normal">
+                <p className="text-[14px] text-[#625f59] leading-normal">
                   Depois do cadastro, você será direcionado para o plano Premium.
                 </p>
               </div>
 
               <form onSubmit={handleRegister} className="space-y-4">
                 <div className="space-y-1">
-                  <label htmlFor="reg-name" className="text-[12px] font-semibold text-[#47464b] uppercase tracking-wider cursor-pointer">
+                  <label htmlFor="reg-name" className="text-[12px] font-semibold text-[#625f59] uppercase tracking-wider cursor-pointer">
                     Nome Completo
                   </label>
                   <input
@@ -495,13 +495,13 @@ export default function LoginPage() {
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     required
-                    className="w-full px-4 py-3 rounded-[4px] bg-[#f8f9ff] border border-[#c8c5cb] text-[#181c21] placeholder:text-[#77767b] text-[14px]
+                    className="w-full px-4 py-3 rounded-[4px] bg-[#f6f5f2] border border-[#c8c5cb] text-[#242321] placeholder:text-[#625f59] text-[14px]
                       focus:border-[#C79A4A] focus:ring-1 focus:ring-[#C79A4A] transition-all outline-none"
                   />
                 </div>
 
                 <div className="space-y-1">
-                  <label htmlFor="reg-email" className="text-[12px] font-semibold text-[#47464b] uppercase tracking-wider cursor-pointer">
+                  <label htmlFor="reg-email" className="text-[12px] font-semibold text-[#625f59] uppercase tracking-wider cursor-pointer">
                     E-mail Profissional
                   </label>
                   <input
@@ -511,14 +511,14 @@ export default function LoginPage() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
-                    className="w-full px-4 py-3 rounded-[4px] bg-[#f8f9ff] border border-[#c8c5cb] text-[#181c21] placeholder:text-[#77767b] text-[14px]
+                    className="w-full px-4 py-3 rounded-[4px] bg-[#f6f5f2] border border-[#c8c5cb] text-[#242321] placeholder:text-[#625f59] text-[14px]
                       focus:border-[#C79A4A] focus:ring-1 focus:ring-[#C79A4A] transition-all outline-none"
                   />
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-1">
-                    <label htmlFor="reg-password" className="text-[12px] font-semibold text-[#47464b] uppercase tracking-wider cursor-pointer">
+                    <label htmlFor="reg-password" className="text-[12px] font-semibold text-[#625f59] uppercase tracking-wider cursor-pointer">
                       Senha
                     </label>
                     <input
@@ -528,12 +528,12 @@ export default function LoginPage() {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       required
-                      className="w-full px-4 py-3 rounded-[4px] bg-[#f8f9ff] border border-[#c8c5cb] text-[#181c21] placeholder:text-[#77767b] text-[14px]
+                      className="w-full px-4 py-3 rounded-[4px] bg-[#f6f5f2] border border-[#c8c5cb] text-[#242321] placeholder:text-[#625f59] text-[14px]
                         focus:border-[#C79A4A] focus:ring-1 focus:ring-[#C79A4A] transition-all outline-none"
                     />
                   </div>
                   <div className="space-y-1">
-                    <label htmlFor="reg-confirm" className="text-[12px] font-semibold text-[#47464b] uppercase tracking-wider cursor-pointer">
+                    <label htmlFor="reg-confirm" className="text-[12px] font-semibold text-[#625f59] uppercase tracking-wider cursor-pointer">
                       Confirmar
                     </label>
                     <input
@@ -543,7 +543,7 @@ export default function LoginPage() {
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
                       required
-                      className="w-full px-4 py-3 rounded-[4px] bg-[#f8f9ff] border border-[#c8c5cb] text-[#181c21] placeholder:text-[#77767b] text-[14px]
+                      className="w-full px-4 py-3 rounded-[4px] bg-[#f6f5f2] border border-[#c8c5cb] text-[#242321] placeholder:text-[#625f59] text-[14px]
                         focus:border-[#C79A4A] focus:ring-1 focus:ring-[#C79A4A] transition-all outline-none"
                     />
                   </div>
@@ -558,7 +558,7 @@ export default function LoginPage() {
                     checked={agreedToTerms}
                     onChange={(e) => setAgreedToTerms(e.target.checked)}
                   />
-                  <label className="text-[12px] text-[#47464b] leading-relaxed cursor-pointer font-semibold" htmlFor="terms">
+                  <label className="text-[12px] text-[#625f59] leading-relaxed cursor-pointer font-semibold" htmlFor="terms">
                     Concordo com os{' '}
                     <a className="text-[#C79A4A] font-bold hover:underline" href="#">Termos de Uso</a>
                     {' '}e{' '}
@@ -581,7 +581,7 @@ export default function LoginPage() {
                 <div className="mt-6 space-y-4">
                   <div className="relative flex items-center py-2">
                     <div className="flex-grow border-t border-[#c8c5cb]/30" />
-                    <span className="flex-shrink mx-4 text-[12px] text-[#47464b] uppercase tracking-widest font-semibold">
+                    <span className="flex-shrink mx-4 text-[12px] text-[#625f59] uppercase tracking-widest font-semibold">
                       ou cadastre-se com
                     </span>
                     <div className="flex-grow border-t border-[#c8c5cb]/30" />
@@ -608,7 +608,7 @@ export default function LoginPage() {
               </form>
 
               <div className="mt-8 pt-6 border-t border-[#c8c5cb]/30 text-center">
-                <p className="text-[12px] text-[#47464b] font-semibold">
+                <p className="text-[12px] text-[#625f59] font-semibold">
                   Já tem uma conta?{' '}
                   <button
                     onClick={() => switchMode('login')}
@@ -623,9 +623,9 @@ export default function LoginPage() {
 
           {/* Footer Links */}
           <div className="mt-8 flex justify-center gap-8 opacity-60">
-            <a className="text-[12px] font-semibold hover:text-[#C79A4A] transition-colors text-[#47464b]" href="#">Suporte</a>
-            <a className="text-[12px] font-semibold hover:text-[#C79A4A] transition-colors text-[#47464b]" href="#">Ajuda</a>
-            <Link className="text-[12px] font-semibold hover:text-[#C79A4A] transition-colors text-[#47464b]" href="/">HeadBarber Web</Link>
+            <a className="text-[12px] font-semibold hover:text-[#C79A4A] transition-colors text-[#625f59]" href="#">Suporte</a>
+            <a className="text-[12px] font-semibold hover:text-[#C79A4A] transition-colors text-[#625f59]" href="#">Ajuda</a>
+            <Link className="text-[12px] font-semibold hover:text-[#C79A4A] transition-colors text-[#625f59]" href="/">HeadBarber Web</Link>
           </div>
         </div>
       </section>

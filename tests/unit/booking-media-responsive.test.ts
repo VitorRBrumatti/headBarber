@@ -9,24 +9,24 @@ function bookingSource(filename: string) {
 }
 
 describe('public booking media and responsive progress', () => {
-  it('uses a bounded compact mobile summary and seven-column desktop track', () => {
+  it('uses one bounded linear progress track on every viewport', () => {
     const progress = bookingSource('booking-progress.tsx')
 
-    expect(progress).toContain('Etapa {currentStep} de {steps.length}')
-    expect(progress).toContain('sm:hidden')
-    expect(progress).toContain('sm:grid')
-    expect(progress).toContain('grid-cols-7')
-    expect(progress).toContain('absolute left-1/2')
-    expect(progress).not.toContain('last:flex-none')
+    expect(progress).toContain('role="progressbar"')
+    expect(progress).toContain('aria-valuemax={steps.length}')
+    expect(progress).toContain('style={{ width: `${progress}%` }}')
+    expect(progress).toContain('steps[currentStep - 1]?.name')
+    expect(progress).not.toContain('grid-cols-7')
     expect(progress).not.toContain('w-screen')
   })
 
-  it('contains the fixed progress track and leaves breathing room below it', () => {
+  it('contains the sticky progress track and leaves breathing room below it', () => {
     const client = bookingSource('booking-client.tsx')
 
     expect(client).toContain('mx-auto w-full max-w-3xl px-4 sm:px-6')
-    expect(client).toContain('pb-40 pt-40')
-    expect(client).toContain('sm:pt-48')
+    expect(client).toContain('sticky top-16')
+    expect(client).toContain('pb-36 pt-10')
+    expect(client).toContain('sm:pt-14')
     expect(client).not.toContain('w-screen')
   })
 

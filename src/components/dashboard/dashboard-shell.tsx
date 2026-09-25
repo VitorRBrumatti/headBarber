@@ -1,7 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import { Sidebar } from './sidebar'
 
 interface DashboardShellProps {
@@ -11,133 +12,116 @@ interface DashboardShellProps {
   isDemo: boolean
 }
 
+const pageNames: Record<string, string> = {
+  '/dashboard': 'Visão geral',
+  '/dashboard/agenda': 'Agenda',
+  '/dashboard/reservas': 'Reservas',
+  '/dashboard/clientes': 'Clientes',
+  '/dashboard/servicos': 'Serviços',
+  '/dashboard/adicionais': 'Adicionais',
+  '/dashboard/produtos': 'Produtos',
+  '/dashboard/barbeiros': 'Barbeiros',
+  '/dashboard/financeiro': 'Financeiro',
+  '/dashboard/financeiro/assinaturas': 'Assinaturas de clientes',
+  '/dashboard/planos-mensais': 'Assinatura HeadBarber',
+  '/dashboard/configuracoes': 'Configurações',
+}
+
 export function DashboardShell({ children, userEmail, barbershopName, isDemo }: DashboardShellProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false)
+  const pathname = usePathname()
+  const pageName = pageNames[pathname] ?? 'Painel'
+  const initials = userEmail ? userEmail.split('@')[0].slice(0, 2).toUpperCase() : 'HB'
 
-  // Get user initials for profile fallback
-  const getInitials = (email: string) => {
-    if (!email) return 'HB'
-    const name = email.split('@')[0]
-    return name.substring(0, 2).toUpperCase()
-  }
+  useEffect(() => {
+    if (!mobileMenuOpen && !profileDropdownOpen) return
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setMobileMenuOpen(false)
+        setProfileDropdownOpen(false)
+      }
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [mobileMenuOpen, profileDropdownOpen])
 
   return (
-    <div className="min-h-screen bg-[#f8f9ff] text-[#181c21] flex relative">
-      {/* Sidebar (Desktop) */}
-      <aside className="hidden md:block fixed left-0 top-0 h-screen w-[260px] z-50">
+    <div className="hb-app flex min-h-screen text-[#242321]">
+      <aside className="fixed inset-y-0 left-0 z-40 hidden w-[224px] md:block">
         <Sidebar isDemo={isDemo} />
       </aside>
 
-      {/* Main Content Area */}
-      <div className="min-h-screen min-w-0 flex-1 md:pl-[260px] flex flex-col transition-all duration-300">
-        {/* Top Navigation */}
-        <header className="h-16 flex items-center justify-between px-6 bg-white border-b border-[#eceef4] sticky top-0 z-45 shadow-sm">
-          {/* Mobile Menu Button & Brand Symbol */}
-          <div className="flex items-center gap-4 md:hidden">
+      <div className="flex min-h-screen min-w-0 flex-1 flex-col md:pl-[224px]">
+        <header className="hb-topbar sticky top-0 z-30 flex h-14 items-center justify-between px-4 sm:px-6">
+          <div className="flex min-w-0 items-center gap-3">
             <button
+              type="button"
               onClick={() => setMobileMenuOpen(true)}
-              className="text-[#181c21] hover:text-[#C79A4A] transition-colors p-1"
+              aria-label="Abrir navegação"
+              aria-expanded={mobileMenuOpen}
+              aria-controls="mobile-navigation"
+              className="hb-icon-button md:hidden"
             >
-              <span className="material-symbols-outlined text-2xl">menu</span>
+              <span className="material-symbols-outlined" aria-hidden="true">menu</span>
             </button>
-            <Link href="/dashboard" className="flex items-center gap-1.5 hover:opacity-90">
-              <img 
-                src="/brand/headbarber_simbolo_duas_cores_transparente.png"
-                alt="Símbolo HeadBarber"
-                className="h-6 w-auto object-contain"
-              />
-              <span className="font-montserrat font-extrabold tracking-tight text-black text-sm">HeadBarber</span>
-            </Link>
+            <Link href="/dashboard" className="hidden text-xs font-medium text-[#69655f] hover:text-[#242321] sm:block">HeadBarber</Link>
+            <span className="hidden text-[#c7c1b8] sm:block" aria-hidden="true">/</span>
+            <span className="truncate text-sm font-semibold text-[#242321]">{pageName}</span>
           </div>
 
-          {/* Search Bar (Hidden or smaller on mobile) */}
-          <div className="hidden sm:flex items-center gap-3 bg-[#f1f3fa] px-4 py-1.5 rounded-full w-full max-w-xs md:max-w-md">
-            <span className="material-symbols-outlined text-[#77767b] text-lg">search</span>
-            <input 
-              className="bg-transparent border-none outline-none focus:ring-0 w-full text-xs font-medium placeholder:text-[#858387] text-[#181c21]" 
-              placeholder="Buscar reservas, clientes..." 
-              type="text"
-            />
-          </div>
-
-          {/* Actions & Profile */}
-          <div className="flex items-center gap-4 md:gap-6 ml-auto">
-            <button className="text-[#47464b] hover:text-[#C79A4A] transition-all p-1 cursor-pointer hidden sm:block">
-              <span className="material-symbols-outlined text-xl">help_outline</span>
-            </button>
-
-            <div className="h-6 w-px bg-[#c8c5cb] mx-1 hidden sm:block"></div>
-
-            {/* Profile Dropdown Trigger */}
-            <div className="relative">
-              <div 
-                className="flex items-center gap-3 cursor-pointer group select-none"
-                onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
-              >
-                <div className="text-right hidden md:block">
-                  <p className="font-semibold text-xs text-[#181c21] leading-none group-hover:text-[#C79A4A] transition-colors">{userEmail.split('@')[0]}</p>
-                  <p className="text-[9px] uppercase text-[#47464b] tracking-wider font-semibold mt-0.5">{barbershopName}</p>
-                </div>
-                <div className="w-9 h-9 rounded-full border border-[#C79A4A] p-0.5 overflow-hidden flex items-center justify-center bg-[#1b1b1e] text-[#C79A4A] text-xs font-bold font-mono">
-                  {getInitials(userEmail)}
-                </div>
-              </div>
-
-              {/* Profile Dropdown Menu */}
-              {profileDropdownOpen && (
-                <>
-                  <div 
-                    className="fixed inset-0 z-45"
-                    onClick={() => setProfileDropdownOpen(false)}
-                  />
-                  <div className="absolute right-0 mt-2 w-48 bg-white border border-[#eceef4] rounded-xl shadow-xl z-50 py-2 animate-fade-in-down">
-                    <div className="px-4 py-2 border-b border-[#eceef4] md:hidden">
-                      <p className="font-semibold text-xs text-[#181c21] truncate">{userEmail}</p>
-                      <p className="text-[9px] uppercase text-[#47464b] tracking-wider font-semibold mt-0.5 truncate">{barbershopName}</p>
-                    </div>
-                    <form action="/auth/signout" method="post" className="w-full">
-                      <button 
-                        type="submit" 
-                        className="w-full text-left px-4 py-2 text-xs text-[#ba1a1a] hover:bg-[#ffdad6]/20 transition-colors flex items-center gap-2 cursor-pointer"
-                      >
-                        <span className="material-symbols-outlined text-sm">logout</span>
-                        Sair do Painel
-                      </button>
-                    </form>
-                  </div>
-                </>
-              )}
+          <div className="relative ml-4 flex items-center gap-3">
+            <div className="hidden max-w-44 truncate text-right sm:block">
+              <span className="block truncate text-xs font-semibold leading-4">{barbershopName}</span>
+              <span className="block truncate text-[11px] leading-4 text-[#69655f]">{userEmail}</span>
             </div>
+            <button
+              type="button"
+              aria-label="Abrir menu da conta"
+              aria-expanded={profileDropdownOpen}
+              onClick={() => setProfileDropdownOpen((open) => !open)}
+              className="hb-account-button"
+            >
+              {initials}
+            </button>
+            {profileDropdownOpen && (
+              <>
+                <button type="button" className="fixed inset-0 z-40 cursor-default" aria-label="Fechar menu da conta" onClick={() => setProfileDropdownOpen(false)} />
+                <div className="hb-account-menu absolute right-0 top-11 z-50 w-56">
+                  <div className="border-b border-[#e2ded7] px-4 py-3 sm:hidden">
+                    <p className="truncate text-xs font-semibold">{barbershopName}</p>
+                    <p className="truncate text-xs text-[#69655f]">{userEmail}</p>
+                  </div>
+                  <form action="/auth/signout" method="post">
+                    <button type="submit" className="flex min-h-11 w-full items-center gap-2 px-4 text-left text-sm hover:bg-[#f5f2ed]">
+                      <span className="material-symbols-outlined text-lg" aria-hidden="true">logout</span>
+                      Sair do painel
+                    </button>
+                  </form>
+                </div>
+              </>
+            )}
           </div>
         </header>
 
         {isDemo && (
-          <div className="flex items-start gap-3 border-b border-[#ead6ad] bg-[#fff8e8] px-5 py-3 text-sm text-[#5f4518] sm:items-center sm:px-6">
-            <span className="material-symbols-outlined mt-0.5 text-lg text-[#9b6f21] sm:mt-0" aria-hidden="true">visibility</span>
-            <p className="leading-5">
-              <strong>Modo demonstração.</strong> Explore os dados à vontade. Cadastros, preços e configurações estão protegidos; você pode criar agendamentos de teste.
-            </p>
+          <div className="flex items-start gap-2 border-b border-[#ead6ad] bg-[#fff8e8] px-4 py-2 text-xs text-[#5f4518] sm:items-center sm:px-6">
+            <span className="material-symbols-outlined text-base" aria-hidden="true">visibility</span>
+            <p><strong>Modo demonstração.</strong> Dados fictícios; cadastros, preços e configurações protegidos. Agendamentos de teste estão disponíveis.</p>
           </div>
         )}
 
-        {/* Page Content */}
-        <main className="min-w-0 flex-1 overflow-x-hidden">
-          {children}
-        </main>
+        <main className="min-w-0 flex-1 overflow-x-hidden">{children}</main>
       </div>
 
-      {/* Mobile Drawer Sidebar */}
       {mobileMenuOpen && (
         <>
-          {/* Overlay */}
-          <div 
-            className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs transition-opacity duration-300 md:hidden"
-            onClick={() => setMobileMenuOpen(false)}
-          />
-          {/* Sliding Aside */}
-          <aside className="fixed inset-y-0 left-0 w-[260px] h-full z-55 transform transition-transform duration-350 ease-in-out md:hidden translate-x-0">
+          <button type="button" className="fixed inset-0 z-40 bg-black/50 md:hidden" aria-label="Fechar navegação" onClick={() => setMobileMenuOpen(false)} />
+          <aside id="mobile-navigation" className="fixed inset-y-0 left-0 z-50 w-[min(280px,85vw)] md:hidden">
             <Sidebar isDemo={isDemo} onLinkClick={() => setMobileMenuOpen(false)} />
+            <button type="button" className="absolute right-3 top-3 rounded p-2 text-white md:hidden" aria-label="Fechar navegação" onClick={() => setMobileMenuOpen(false)}>
+              <span className="material-symbols-outlined" aria-hidden="true">close</span>
+            </button>
           </aside>
         </>
       )}

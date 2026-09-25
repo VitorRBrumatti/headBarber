@@ -20,7 +20,7 @@ export default async function DemoPage({
   const bookingSlug = process.env.DEMO_BOOKING_SLUG || 'headbarber-demo'
 
   return (
-    <main className="min-h-screen bg-[#f8f9ff] px-5 py-8 text-[#181c21] sm:px-8 sm:py-12">
+    <main className="min-h-screen bg-[#f6f5f2] px-5 py-8 text-[#242321] sm:px-8 sm:py-12">
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-8">
         <header className="flex items-center justify-between gap-6">
           <Link href="/" aria-label="Voltar para a página inicial" className="flex items-center gap-2.5">
@@ -38,7 +38,7 @@ export default async function DemoPage({
           </Link>
           <Link
             href="/"
-            className="text-sm font-semibold text-[#47464b] transition-colors hover:text-[#181c21] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#C79A4A]"
+            className="text-sm font-semibold text-[#625f59] transition-colors hover:text-[#242321] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#C79A4A]"
           >
             Voltar ao site
           </Link>
@@ -111,7 +111,7 @@ export default async function DemoPage({
               </p>
               <div className="mt-5 flex flex-wrap gap-2" aria-label="Áreas disponíveis">
                 {visibleAreas.map((area) => (
-                  <span key={area} className="rounded-full bg-[#f1f3fa] px-3 py-1 text-xs font-semibold text-[#47464b]">
+                  <span key={area} className="rounded-full bg-[#f1f3fa] px-3 py-1 text-xs font-semibold text-[#625f59]">
                     {area}
                   </span>
                 ))}

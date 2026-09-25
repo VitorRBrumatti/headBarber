@@ -21,137 +21,54 @@ export function BookingProductStep({
   onSkip,
 }: BookingProductStepProps) {
   if (products.length === 0) {
-    return (
-      <div className="rounded-xl border border-white/10 bg-white/[0.03] px-6 py-12 text-center">
-        <Package className="mx-auto h-10 w-10 text-white/25" />
-        <h3 className="mt-4 font-montserrat text-lg font-semibold text-white">
-          Nenhum produto disponível
-        </h3>
-        <p className="mt-2 font-inter text-sm text-white/50">
-          Você pode continuar normalmente com seu agendamento.
-        </p>
-        <button
-          type="button"
-          onClick={onSkip}
-          className="mt-6 rounded-lg border border-white/15 px-5 py-3 font-inter text-xs font-semibold uppercase tracking-[0.08em] text-white transition-colors hover:border-white/35"
-        >
-          Continuar sem produtos
-        </button>
-      </div>
-    )
+    return <div className="border-y border-[#DCD7CF] px-4 py-12 text-center">
+      <Package className="mx-auto size-10 text-[#A59E92]" />
+      <h3 className="mt-4 font-montserrat text-lg font-semibold text-[#242321]">Nenhum produto disponível</h3>
+      <p className="mt-2 text-sm text-[#625F59]">Você pode continuar normalmente com seu agendamento.</p>
+      <button type="button" onClick={onSkip} className="mt-6 min-h-11 border border-[#B78635] px-5 text-sm font-semibold text-[#795A29] hover:bg-[#F3EBDD]">Continuar sem produtos</button>
+    </div>
   }
 
-  return (
-    <div>
-      <div className="mb-5 flex items-end justify-between gap-4">
-        <p className="font-inter text-xs text-white/45">
-          Pagamento e retirada na barbearia
-        </p>
-        <button
-          type="button"
-          onClick={onSkip}
-          className="font-inter text-xs font-semibold text-white/55 underline decoration-white/25 underline-offset-4 transition-colors hover:text-white"
-        >
-          Pular produtos
-        </button>
-      </div>
-
-      <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-        {products.map((product) => {
-          const quantity = quantities[product.id] ?? 0
-          const isSoldOut = product.stock_quantity <= 0
-          const hasChangedStock = unavailableProductIds.has(product.id)
-
-          return (
-            <article
-              key={product.id}
-              role="group"
-              aria-label={product.name}
-              className={`relative overflow-hidden rounded-xl border p-4 transition-colors ${
-                isSoldOut
-                  ? 'border-white/[0.06] bg-white/[0.02] opacity-60'
-                  : hasChangedStock
-                    ? 'border-red-400/60 bg-red-400/[0.06]'
-                    : quantity > 0
-                      ? 'border-[#C79A4A] bg-[#C79A4A]/[0.07]'
-                      : 'border-white/10 bg-white/[0.035] hover:border-white/25'
-              }`}
-            >
-              <div className="flex gap-4">
-                <div className="grid h-20 w-20 shrink-0 place-items-center overflow-hidden rounded-lg bg-white/[0.06]">
-                  <ImageWithFallback
-                    src={product.image_url}
-                    alt={product.name}
-                    className="h-full w-full object-cover"
-                    fallback={<Package className="h-7 w-7 text-white/25" />}
-                  />
-                </div>
-
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="min-w-0">
-                      <h3 className="truncate font-montserrat text-sm font-semibold text-white">
-                        {product.name}
-                      </h3>
-                      {product.description && (
-                        <p className="mt-1 line-clamp-2 font-inter text-xs leading-5 text-white/45">
-                          {product.description}
-                        </p>
-                      )}
-                    </div>
-                    <span className="shrink-0 font-montserrat text-sm font-semibold text-white">
-                      {formatCurrency(product.sale_price)}
-                    </span>
-                  </div>
-
-                  <div className="mt-4 flex items-center justify-between gap-3">
-                    <span
-                      className={`font-inter text-[10px] font-semibold uppercase tracking-[0.08em] ${
-                        isSoldOut ? 'text-red-300' : product.stock_quantity <= 3 ? 'text-[#C79A4A]' : 'text-white/40'
-                      }`}
-                    >
-                      {isSoldOut ? 'Esgotado' : `${product.stock_quantity} em estoque`}
-                    </span>
-
-                    {!isSoldOut && (
-                      <div className="flex items-center rounded-lg border border-white/10 bg-black/20 p-1">
-                        <button
-                          type="button"
-                          aria-label={`Diminuir quantidade de ${product.name}`}
-                          onClick={() => onQuantityChange(product, quantity - 1)}
-                          disabled={quantity === 0}
-                          className="grid h-7 w-7 place-items-center rounded-md text-white/65 transition-colors hover:bg-white/10 hover:text-white disabled:cursor-not-allowed disabled:opacity-25"
-                        >
-                          <Minus className="h-3.5 w-3.5" />
-                        </button>
-                        <output className="w-7 text-center font-inter text-xs font-semibold text-white">
-                          {quantity}
-                        </output>
-                        <button
-                          type="button"
-                          aria-label={`Aumentar quantidade de ${product.name}`}
-                          onClick={() => onQuantityChange(product, quantity + 1)}
-                          disabled={quantity >= product.stock_quantity}
-                          className="grid h-7 w-7 place-items-center rounded-md bg-[#C79A4A] text-[#1A1A1D] transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-25"
-                        >
-                          <Plus className="h-3.5 w-3.5" />
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              {hasChangedStock && (
-                <p className="mt-3 flex items-center gap-2 border-t border-red-400/20 pt-3 font-inter text-xs text-red-200">
-                  <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
-                  O estoque mudou. Ajuste a quantidade para continuar.
-                </p>
-              )}
-            </article>
-          )
-        })}
-      </div>
+  return <div>
+    <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+      <p className="text-sm text-[#625F59]">Escolha os produtos para incluir na sua reserva.</p>
+      <button type="button" onClick={onSkip} className="min-h-11 text-sm font-semibold text-[#795A29] underline underline-offset-4 hover:text-[#242321]">Pular produtos</button>
     </div>
-  )
+
+    <div className="grid gap-5 sm:grid-cols-2">
+      {products.map(product => {
+        const quantity = quantities[product.id] ?? 0
+        const isSoldOut = product.stock_quantity <= 0
+        const hasChangedStock = unavailableProductIds.has(product.id)
+
+        return <article key={product.id} role="group" aria-label={product.name} className={`booking-product-card flex min-w-0 flex-col overflow-hidden rounded-xl border bg-white transition-colors ${
+          isSoldOut ? 'border-[#DCD7CF]' : hasChangedStock ? 'border-red-500' : quantity > 0 ? 'border-[#B78635] ring-1 ring-[#B78635]/30' : 'border-[#DCD7CF] hover:border-[#B78635]/70'
+        }`}>
+          <div className="relative flex aspect-[4/3] items-center justify-center overflow-hidden border-b border-[#E7E2D9] bg-[#F1EFEA]">
+            <ImageWithFallback src={product.image_url} alt={product.name} className={`h-full w-full object-contain p-4 ${isSoldOut ? 'grayscale' : ''}`} fallback={<div className="flex flex-col items-center gap-3 text-[#A59E92]"><Package className="size-16" strokeWidth={1.1} /><span className="text-xs">Imagem indisponível</span></div>} />
+            {isSoldOut && <span className="hb-soldout-badge absolute left-4 top-4 rounded-md bg-[#242321] px-3 py-1.5 text-xs font-semibold">Esgotado</span>}
+            {quantity > 0 && !isSoldOut && <span className="absolute right-4 top-4 rounded-md bg-[#B78635] px-3 py-1.5 text-xs font-semibold text-[#211B12]">Na reserva · {quantity}</span>}
+          </div>
+
+          <div className="flex flex-1 flex-col p-5">
+            <p className="text-[11px] font-bold uppercase tracking-[.13em] text-[#986F2E]">{product.category || 'Produto'}</p>
+            <h3 className="mt-2 font-montserrat text-lg font-semibold leading-snug text-[#242321]">{product.name}</h3>
+            {product.description && <p className="mt-2 line-clamp-2 min-h-10 text-sm leading-5 text-[#625F59]">{product.description}</p>}
+            <div className="mt-auto pt-5">
+              <p className="font-montserrat text-2xl font-bold tracking-[-.04em] text-[#242321]">{formatCurrency(product.sale_price)}</p>
+              <p className={`mt-1 text-xs ${isSoldOut ? 'text-[#9D4C45]' : product.stock_quantity <= 3 ? 'text-[#795A29]' : 'text-[#625F59]'}`}>
+                {isSoldOut ? 'Indisponível no momento' : product.stock_quantity <= 3 ? `Últimas ${product.stock_quantity} unidades` : `${product.stock_quantity} disponíveis`}
+              </p>
+              {!isSoldOut && <div className="mt-5 flex h-12 items-center justify-between overflow-hidden rounded-md border border-[#DCD7CF] bg-[#F8F7F4]">
+                <button type="button" aria-label={`Diminuir quantidade de ${product.name}`} onClick={() => onQuantityChange(product, quantity - 1)} disabled={quantity === 0} className="grid h-full w-12 place-items-center text-[#242321] hover:bg-[#EAE5DC] disabled:cursor-not-allowed disabled:opacity-30"><Minus className="size-4" /></button>
+                <output aria-label={`Quantidade de ${product.name}`} className="text-sm font-bold text-[#242321]">{quantity}</output>
+                <button type="button" aria-label={`Aumentar quantidade de ${product.name}`} onClick={() => onQuantityChange(product, quantity + 1)} disabled={quantity >= product.stock_quantity} className="grid h-full w-12 place-items-center bg-[#B78635] text-[#211B12] hover:bg-[#C79A4A] disabled:cursor-not-allowed disabled:opacity-30"><Plus className="size-4" /></button>
+              </div>}
+            </div>
+            {hasChangedStock && <p className="mt-4 flex items-start gap-2 border-t border-red-200 pt-3 text-xs text-red-700"><AlertTriangle className="size-4 shrink-0" />O estoque mudou. Ajuste a quantidade para continuar.</p>}
+          </div>
+        </article>
+      })}
+    </div>
+  </div>
 }

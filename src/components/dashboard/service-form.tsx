@@ -78,8 +78,9 @@ export function ServiceForm({
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
       <div className="space-y-1.5">
-        <label className="text-sm font-medium">Nome do serviço *</label>
+        <label htmlFor="service-name" className="text-sm font-medium">Nome do serviço *</label>
         <Input
+          id="service-name"
           name="name"
           defaultValue={service?.name}
           placeholder="Ex: Corte de cabelo"
@@ -88,8 +89,9 @@ export function ServiceForm({
       </div>
 
       <div className="space-y-1.5">
-        <label className="text-sm font-medium">Descrição</label>
+        <label htmlFor="service-description" className="text-sm font-medium">Descrição</label>
         <Textarea
+          id="service-description"
           name="description"
           defaultValue={service?.description ?? ''}
           placeholder="Descreva o serviço brevemente..."

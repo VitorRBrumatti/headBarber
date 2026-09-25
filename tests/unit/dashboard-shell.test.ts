@@ -15,13 +15,14 @@ describe('dashboard shell', () => {
         {
           userEmail: 'cliente@headbarber.com.br',
           barbershopName: 'Barbearia Teste',
+          isDemo: false,
         },
         createElement('p', null, 'Conteúdo'),
       ),
     )
 
     expect(markup).not.toContain('>notifications<')
-    expect(markup).toContain('>help_outline<')
-    expect(markup).toContain('cliente')
+    expect(markup).toContain('aria-label="Abrir menu da conta"')
+    expect(markup).toContain('CL')
   })
 })

@@ -6,27 +6,27 @@ const source = (path: string) => readFileSync(resolve(process.cwd(), path), 'utf
 
 describe('home partner banner and sidebar navigation', () => {
   it('shows the official partner banner on the landing page only', () => {
-    const landingPage = source('src/app/page.tsx')
+    const landingPage = source('src/app/landing-redesign.tsx')
     const dashboard = source('src/app/dashboard/page.tsx')
 
-    expect(landingPage).toContain('aria-label="Parceiro Oficial"')
-    expect(landingPage).toContain('Parceiro Oficial')
+    expect(landingPage).toContain('aria-label="Parceiro oficial"')
+    expect(landingPage).toContain('Parceiro oficial')
     expect(landingPage).toContain('/brand/partners/hoffmanns-barber.png')
     expect(landingPage).toContain('width={3817}')
     expect(landingPage).toContain('height={2176}')
-    expect(dashboard).not.toContain('aria-label="Parceiro Oficial"')
+    expect(dashboard).not.toContain('aria-label="Parceiro oficial"')
     expect(dashboard).not.toContain('/brand/partners/hoffmanns-barber.png')
   })
 
-  it('places Financeiro after Agenda and removes Admin Master from the sidebar', () => {
+  it('groups Financeiro under Gestão and removes Admin Master from the sidebar', () => {
     const sidebar = source('src/components/dashboard/sidebar.tsx')
     const agendaIndex = sidebar.indexOf("name: 'Agenda'")
     const financeiroIndex = sidebar.indexOf("name: 'Financeiro'")
-    const reservasIndex = sidebar.indexOf("name: 'Reservas'")
+    const gestaoIndex = sidebar.indexOf("label: 'Gestão'")
 
     expect(agendaIndex).toBeGreaterThan(-1)
-    expect(financeiroIndex).toBeGreaterThan(agendaIndex)
-    expect(financeiroIndex).toBeLessThan(reservasIndex)
+    expect(gestaoIndex).toBeGreaterThan(agendaIndex)
+    expect(financeiroIndex).toBeGreaterThan(gestaoIndex)
     expect(sidebar).not.toContain("name: 'Admin Master'")
   })
 })

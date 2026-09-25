@@ -71,10 +71,10 @@ export function AdicionaisClient({
     <div className="flex flex-1 flex-col space-y-6 p-6 md:p-8">
       <div className="flex flex-col gap-4 text-left sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1 className="font-montserrat text-3xl font-extrabold text-[#181c21]">
+          <h1 className="font-montserrat text-3xl font-extrabold text-[#242321]">
             Adicionais
           </h1>
-          <p className="mt-2 text-sm text-[#47464b]">
+          <p className="mt-2 text-sm text-[#625f59]">
             Configure preço, duração e disponibilidade de cada profissional.
           </p>
         </div>
@@ -94,11 +94,11 @@ export function AdicionaisClient({
       )}
 
       {addOns.length === 0 ? (
-        <div className="rounded-2xl border border-[#c8c5cb]/30 bg-white px-6 py-20 text-center">
-          <h2 className="text-xl font-bold text-[#181c21]">
+        <div className="rounded-2xl border border-[#c9c3b9]/30 bg-white px-6 py-20 text-center">
+          <h2 className="text-xl font-bold text-[#242321]">
             Nenhum adicional cadastrado
           </h2>
-          <p className="mt-2 text-sm text-[#47464b]">
+          <p className="mt-2 text-sm text-[#625f59]">
             Crie o primeiro adicional e vincule ao menos um profissional.
           </p>
           <button
@@ -118,32 +118,32 @@ export function AdicionaisClient({
             return (
               <article
                 key={addOn.id}
-                className={`overflow-hidden rounded-2xl border border-[#e0e2e9] bg-white shadow-sm ${
+                className={`overflow-hidden rounded-2xl border border-[#dedad2] bg-white shadow-sm ${
                   addOn.isActive ? '' : 'opacity-70'
                 }`}
               >
                 <div className="p-6">
                   <div className="flex items-start justify-between gap-3">
-                    <h2 className="font-montserrat font-bold text-[#181c21]">
+                    <h2 className="font-montserrat font-bold text-[#242321]">
                       {addOn.name}
                     </h2>
-                    <span className="rounded-md bg-[#f1f3fa] px-2 py-1 text-[10px] font-bold uppercase">
+                    <span className="rounded-md bg-[#f1efeb] px-2 py-1 text-[10px] font-bold uppercase">
                       {addOn.isActive ? 'Ativo' : 'Inativo'}
                     </span>
                   </div>
-                  <p className="mt-5 text-xl font-extrabold text-[#181c21]">
+                  <p className="mt-5 text-xl font-extrabold text-[#242321]">
                     {formatAddOnPriceRange(addOn.assignments)}
                   </p>
-                  <p className="mt-2 text-xs font-semibold text-[#47464b]">
+                  <p className="mt-2 text-xs font-semibold text-[#625f59]">
                     {formatAddOnDurationRange(addOn.assignments)}
                   </p>
-                  <p className="mt-3 text-xs text-[#77767b]">
+                  <p className="mt-3 text-xs text-[#625f59]">
                     {availableCount}{' '}
                     {availableCount === 1 ? 'profissional' : 'profissionais'}
                   </p>
                 </div>
-                <div className="flex items-center justify-between border-t border-[#e0e2e9] bg-[#f8f9ff] px-6 py-4">
-                  <label className="flex items-center gap-1 text-xs font-semibold text-[#47464b]">
+                <div className="flex items-center justify-between border-t border-[#dedad2] bg-[#f6f5f2] px-6 py-4">
+                  <label className="flex items-center gap-1 text-xs font-semibold text-[#625f59]">
                     <Switch
                       checked={addOn.isActive}
                       disabled={isPending}

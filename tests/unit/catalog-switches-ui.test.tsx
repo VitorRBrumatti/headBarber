@@ -40,7 +40,8 @@ describe('catalog switches', () => {
     )
 
     expect(switchCount(servicesMarkup)).toBe(1)
-    expect(servicesMarkup).toContain('Catálogo ativo')
+    expect(servicesMarkup).toContain('Ativo')
+    expect(servicesMarkup).toContain('no catálogo')
     expect(switchCount(addOnsMarkup)).toBe(1)
     expect(addOnsMarkup).toContain('Catálogo ativo')
   })

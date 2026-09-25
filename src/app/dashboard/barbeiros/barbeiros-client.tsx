@@ -133,26 +133,26 @@ export function BarbeirosClient({ barbers }: BarbeirosClientProps) {
   }
 
   return (
-    <div className="p-6 md:p-8 space-y-6">
+    <div className="mx-auto w-full max-w-[1400px] space-y-5 p-4 sm:p-6 lg:p-8">
       {/* Page Header */}
-      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-end gap-4 mb-8">
+      <header className="flex flex-col gap-4 border-b border-[#e2ded7] pb-5 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1 className="font-montserrat text-2xl md:text-3xl font-extrabold text-[#181c21] mb-2">Barbeiros</h1>
-          <p className="text-sm md:text-base text-[#47464b]">
-            Gerencie sua equipe, comissões e horários de atendimento.
+          <h1 className="font-montserrat text-[25px] font-bold leading-tight tracking-tight text-[#242321] sm:text-[28px]">Barbeiros</h1>
+          <p className="mt-1 text-xs text-[#69655f]">
+            Equipe, comissões e horários de atendimento
           </p>
         </div>
         <button
           onClick={handleCreateNew}
-          className="bg-[#7c5809] text-white text-xs font-bold px-6 py-3 rounded-lg flex items-center justify-center gap-2 hover:bg-[#5f4100] transition-colors shadow-sm shrink-0"
+          className="flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-[5px] bg-[#c79a4a] px-4 text-xs font-bold text-[#171614] transition-colors hover:bg-[#d6aa5b]"
         >
-          <span className="material-symbols-outlined text-[18px]">person_add</span>
+          <span className="material-symbols-outlined text-[18px]" aria-hidden="true">person_add</span>
           Novo barbeiro
         </button>
-      </div>
+      </header>
 
       {error && (
-        <div className="bg-red-500/10 border border-red-500/20 text-red-500 p-4 rounded-xl text-sm flex items-center gap-2">
+        <div role="alert" className="flex items-center gap-2 rounded-md border border-red-200 bg-red-50 p-4 text-sm text-red-800">
           <span className="material-symbols-outlined text-[20px]">error</span>
           <span>{error}</span>
         </div>
@@ -173,90 +173,76 @@ export function BarbeirosClient({ barbers }: BarbeirosClientProps) {
           }
         />
       ) : (
-        <div className="grid grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3 gap-6">
+        <div className="divide-y divide-[#e2ded7] overflow-hidden rounded-md border border-[#e2ded7] bg-white">
           {barbers.map((barber) => (
             <div
               key={barber.id}
-              className={`bg-white rounded-xl p-6 shadow-[0_4px_12px_rgba(0,0,0,0.04)] border border-[#e0e2e9] flex flex-col justify-between relative group hover:border-[#c8c5cb] transition-colors ${
-                !barber.is_active ? 'opacity-75 grayscale-[20%]' : ''
-              }`}
+              className="flex flex-col gap-3 p-4 md:flex-row md:items-center md:gap-5 md:px-5"
             >
-              <div>
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex items-center gap-4">
-                    <div className="w-14 h-14 rounded-full bg-[#eceef4] overflow-hidden shrink-0 flex items-center justify-center border border-[#e0e2e9]">
+              <div className="min-w-0 flex-1 md:flex md:items-center md:gap-5">
+                <div className="flex items-center gap-3 md:min-w-[190px]">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full border border-[#e2ded7] bg-[#f2f0ec]">
                       {barber.avatar_url ? (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img
                           src={barber.avatar_url}
-                          alt={barber.name}
+                          alt=""
                           className="w-full h-full object-cover"
                         />
                       ) : (
-                        <span className="text-base font-bold text-[#47464b] font-montserrat">
+                        <span className="font-montserrat text-xs font-bold text-[#625f59]">
                           {getInitials(barber.name)}
                         </span>
                       )}
                     </div>
-                    <div className="text-left">
-                      <h3 className="font-montserrat text-lg font-bold text-[#181c21]">{barber.name}</h3>
-                      {barber.is_active ? (
-                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#E8F5E9] text-[#2E7D32] mt-1">
-                          <span className="w-1.5 h-1.5 rounded-full bg-current"></span>
-                          <span className="text-xs font-semibold leading-none">Ativo</span>
-                        </span>
-                      ) : (
-                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#e0e2e9] text-[#47464b] mt-1">
-                          <span className="w-1.5 h-1.5 rounded-full bg-current"></span>
-                          <span className="text-xs font-semibold leading-none">Inativo</span>
-                        </span>
-                      )}
+                    <div className="min-w-0 text-left">
+                      <h2 className="truncate font-montserrat text-sm font-bold text-[#242321]">{barber.name}</h2>
+                      <span className="text-xs font-medium text-[#625e58]">{barber.is_active ? 'Ativo' : 'Inativo'}</span>
                     </div>
-                  </div>
                 </div>
 
-                <div className="mb-6 flex-1 text-left">
-                  <p className="text-sm text-[#47464b] mb-3 line-clamp-2 min-h-[2.5rem]">
-                    {barber.bio || 'Sem descrição ou biografia cadastrada para este profissional.'}
+                <div className="mt-3 min-w-0 text-left md:mt-0 md:flex-1">
+                  <p className="truncate text-xs text-[#625e58]">
+                    {barber.bio || 'Sem descrição cadastrada'}
                   </p>
-                  <div className="inline-flex items-center gap-2 bg-[#f8f9ff] p-2 rounded-lg border border-[#e0e2e9]">
-                    <span className="material-symbols-outlined text-[#7c5809] text-[18px]">percent</span>
-                    <span className="text-xs font-semibold text-[#181c21]">
-                      Comissão: <span className="text-[#7c5809] font-bold">{barber.commission_percentage}%</span>
+                  <div className="mt-1">
+                    <span className="text-xs text-[#625e58]">
+                      Comissão: <strong className="tabular-nums text-[#242321]">{barber.commission_percentage}%</strong>
                     </span>
                   </div>
                 </div>
               </div>
 
-              <div className="pt-4 border-t border-[#e0e2e9] flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2 border-t border-[#e2ded7] pt-3 md:border-t-0 md:pt-0">
                 {barber.is_active ? (
                   <button
                     onClick={() => handleManageSchedule(barber)}
                     disabled={isPending}
-                    className="flex-1 bg-[#ffcd77]/20 text-[#7c5809] hover:bg-[#ffcd77]/30 transition-colors py-2 rounded-lg text-xs font-bold flex items-center justify-center gap-2"
+                    className="flex min-h-10 flex-1 items-center justify-center gap-2 rounded-[5px] border border-[#d9d3ca] px-3 text-xs font-semibold text-[#473c29] transition-colors hover:bg-[#f4f1ec] md:flex-none"
                   >
-                    <span className="material-symbols-outlined text-[16px]">schedule</span>
+                    <span className="material-symbols-outlined text-[16px]" aria-hidden="true">schedule</span>
                     Expediente
                   </button>
                 ) : (
                   <button
                     disabled
-                    className="flex-1 bg-[#e0e2e9] text-[#47464b] py-2 rounded-lg text-xs font-semibold flex items-center justify-center gap-2 cursor-not-allowed"
+                    className="flex min-h-10 flex-1 cursor-not-allowed items-center justify-center gap-2 rounded-[5px] border border-[#e2ded7] px-3 text-xs font-semibold text-[#69655f] md:flex-none"
                   >
                     <span className="material-symbols-outlined text-[16px]">schedule</span>
                     Expediente
                   </button>
                 )}
 
-                <div className="flex gap-2">
+                <div className="flex gap-1">
                   {/* Status Toggle (Power symbol) */}
                   <button
                     onClick={() => handleToggleStatus(barber.id, barber.is_active)}
                     disabled={isPending}
-                    className={`w-9 h-9 rounded-lg border flex items-center justify-center transition-colors ${
+                    aria-label={`${barber.is_active ? 'Desativar' : 'Ativar'} ${barber.name}`}
+                    className={`flex h-10 w-10 items-center justify-center rounded-[5px] border transition-colors ${
                       barber.is_active
                         ? 'border-[#2E7D32]/30 text-[#2E7D32] hover:bg-[#E8F5E9] hover:border-[#2E7D32]'
-                        : 'border-[#c8c5cb] text-[#47464b] hover:text-[#181c21] hover:border-[#181c21]'
+                        : 'border-[#c9c3b9] text-[#625f59] hover:text-[#242321] hover:border-[#242321]'
                     }`}
                     title={barber.is_active ? 'Desativar barbeiro' : 'Ativar barbeiro'}
                   >
@@ -267,7 +253,8 @@ export function BarbeirosClient({ barbers }: BarbeirosClientProps) {
                   <button
                     onClick={() => handleEdit(barber)}
                     disabled={isPending}
-                    className="w-9 h-9 rounded-lg border border-[#c8c5cb] text-[#47464b] hover:text-[#181c21] hover:border-[#181c21] flex items-center justify-center transition-colors"
+                    aria-label={`Editar ${barber.name}`}
+                    className="flex h-10 w-10 items-center justify-center rounded-[5px] border border-[#d9d3ca] text-[#625f59] transition-colors hover:bg-[#f4f1ec]"
                     title="Editar"
                   >
                     <span className="material-symbols-outlined text-[18px]">edit</span>
@@ -277,7 +264,8 @@ export function BarbeirosClient({ barbers }: BarbeirosClientProps) {
                   <button
                     onClick={() => handleDeleteClick(barber.id)}
                     disabled={isPending}
-                    className="w-9 h-9 rounded-lg border border-[#c8c5cb] text-[#47464b] hover:text-[#ba1a1a] hover:border-[#ba1a1a] flex items-center justify-center transition-colors"
+                    aria-label={`Excluir ${barber.name}`}
+                    className="flex h-10 w-10 items-center justify-center rounded-[5px] border border-[#d9d3ca] text-[#625f59] transition-colors hover:border-[#ba1a1a] hover:text-[#ba1a1a]"
                     title="Excluir"
                   >
                     <span className="material-symbols-outlined text-[18px]">delete</span>
@@ -319,7 +307,7 @@ export function BarbeirosClient({ barbers }: BarbeirosClientProps) {
         <div className="space-y-6 py-4 flex flex-col h-[calc(100vh-180px)] text-left">
           <div className="flex-1 overflow-y-auto pr-1 space-y-4 drawer-scroll">
             {barberShifts.length === 0 ? (
-              <div className="text-center py-6 text-[#47464b] flex flex-col items-center gap-2">
+              <div className="text-center py-6 text-[#625f59] flex flex-col items-center gap-2">
                 <span className="material-symbols-outlined text-[32px] animate-spin">progress_activity</span>
                 <span className="text-sm">Carregando jornada de trabalho...</span>
               </div>
@@ -328,12 +316,12 @@ export function BarbeirosClient({ barbers }: BarbeirosClientProps) {
                 return (
                   <div
                     key={shift.id}
-                    className={`bg-[#f8f9ff] rounded-xl border border-[#e0e2e9] p-5 transition-opacity ${
+                    className={`bg-[#f6f5f2] rounded-xl border border-[#dedad2] p-5 transition-opacity ${
                       shift.is_active ? '' : 'opacity-60'
                     }`}
                   >
                     <div className="flex items-center justify-between mb-4">
-                      <span className="text-xs text-[#181c21] uppercase tracking-wider font-bold">
+                      <span className="text-xs text-[#242321] uppercase tracking-wider font-bold">
                         {WEEKDAYS[shift.day_of_week]}
                       </span>
                       
@@ -345,51 +333,51 @@ export function BarbeirosClient({ barbers }: BarbeirosClientProps) {
                           onChange={(e) => handleShiftChange(idx, 'is_active', e.target.checked)}
                           className="sr-only peer"
                         />
-                        <div className="w-10 h-5 bg-[#e0e2e9] rounded-full peer peer-checked:bg-[#7c5809] after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-[#c8c5cb] after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-5" />
+                        <div className="w-10 h-5 bg-[#dedad2] rounded-full peer peer-checked:bg-[#7c5809] after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-[#c9c3b9] after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-5" />
                       </label>
                     </div>
 
                     {shift.is_active ? (
                       <div className="grid grid-cols-2 gap-4">
                         <div>
-                          <label className="block text-xs text-[#47464b] mb-1.5 font-medium">Início</label>
+                          <label className="block text-xs text-[#625f59] mb-1.5 font-medium">Início</label>
                           <input
                             type="time"
                             value={shift.start_time.substring(0, 5)}
                             onChange={(e) => handleShiftChange(idx, 'start_time', `${e.target.value}:00`)}
-                            className="w-full bg-white border border-[#c8c5cb] text-[#181c21] text-sm rounded-lg px-3 py-2 focus:border-[#7c5809] focus:ring-1 focus:ring-[#7c5809] outline-none transition-colors"
+                            className="w-full bg-white border border-[#c9c3b9] text-[#242321] text-sm rounded-lg px-3 py-2 focus:border-[#7c5809] focus:ring-1 focus:ring-[#7c5809] outline-none transition-colors"
                           />
                         </div>
                         <div>
-                          <label className="block text-xs text-[#47464b] mb-1.5 font-medium">Fim</label>
+                          <label className="block text-xs text-[#625f59] mb-1.5 font-medium">Fim</label>
                           <input
                             type="time"
                             value={shift.end_time.substring(0, 5)}
                             onChange={(e) => handleShiftChange(idx, 'end_time', `${e.target.value}:00`)}
-                            className="w-full bg-white border border-[#c8c5cb] text-[#181c21] text-sm rounded-lg px-3 py-2 focus:border-[#7c5809] focus:ring-1 focus:ring-[#7c5809] outline-none transition-colors"
+                            className="w-full bg-white border border-[#c9c3b9] text-[#242321] text-sm rounded-lg px-3 py-2 focus:border-[#7c5809] focus:ring-1 focus:ring-[#7c5809] outline-none transition-colors"
                           />
                         </div>
                         <div>
-                          <label className="block text-xs text-[#47464b] mb-1.5 font-medium">Início Almoço</label>
+                          <label className="block text-xs text-[#625f59] mb-1.5 font-medium">Início Almoço</label>
                           <input
                             type="time"
                             value={shift.lunch_start_time ? shift.lunch_start_time.substring(0, 5) : '12:00'}
                             onChange={(e) => handleShiftChange(idx, 'lunch_start_time', `${e.target.value}:00`)}
-                            className="w-full bg-white border border-[#c8c5cb] text-[#181c21] text-sm rounded-lg px-3 py-2 focus:border-[#7c5809] focus:ring-1 focus:ring-[#7c5809] outline-none transition-colors"
+                            className="w-full bg-white border border-[#c9c3b9] text-[#242321] text-sm rounded-lg px-3 py-2 focus:border-[#7c5809] focus:ring-1 focus:ring-[#7c5809] outline-none transition-colors"
                           />
                         </div>
                         <div>
-                          <label className="block text-xs text-[#47464b] mb-1.5 font-medium">Fim Almoço</label>
+                          <label className="block text-xs text-[#625f59] mb-1.5 font-medium">Fim Almoço</label>
                           <input
                             type="time"
                             value={shift.lunch_end_time ? shift.lunch_end_time.substring(0, 5) : '13:00'}
                             onChange={(e) => handleShiftChange(idx, 'lunch_end_time', `${e.target.value}:00`)}
-                            className="w-full bg-white border border-[#c8c5cb] text-[#181c21] text-sm rounded-lg px-3 py-2 focus:border-[#7c5809] focus:ring-1 focus:ring-[#7c5809] outline-none transition-colors"
+                            className="w-full bg-white border border-[#c9c3b9] text-[#242321] text-sm rounded-lg px-3 py-2 focus:border-[#7c5809] focus:ring-1 focus:ring-[#7c5809] outline-none transition-colors"
                           />
                         </div>
                       </div>
                     ) : (
-                      <p className="text-sm text-[#47464b] mt-3 font-medium">Folga programada.</p>
+                      <p className="text-sm text-[#625f59] mt-3 font-medium">Folga programada.</p>
                     )}
                   </div>
                 )
@@ -404,7 +392,7 @@ export function BarbeirosClient({ barbers }: BarbeirosClientProps) {
             </div>
           )}
 
-          <div className="pt-4 border-t border-[#e0e2e9] bg-white shrink-0">
+          <div className="pt-4 border-t border-[#dedad2] bg-white shrink-0">
             <button
               onClick={handleSaveSchedule}
               disabled={isPending}

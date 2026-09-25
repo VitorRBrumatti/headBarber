@@ -51,26 +51,26 @@ export function BookingSuccess({
             : null
 
   return (
-    <main className="relative mx-auto flex min-h-screen w-full max-w-md flex-col items-center justify-center overflow-hidden px-4 py-16">
+    <main className="relative flex min-h-dvh w-full flex-col items-center justify-center bg-[#F8F7F4] px-4 py-16 text-[#242321]">
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 top-0 h-80 bg-[radial-gradient(circle_at_50%_0%,rgba(199,154,74,0.18),transparent_68%)]"
+        className="pointer-events-none absolute inset-x-0 top-0 h-80 bg-[radial-gradient(circle_at_50%_0%,rgba(199,154,74,0.12),transparent_68%)]"
       />
 
-      <div className="relative z-10 w-full text-center">
-        <div className="mx-auto grid h-20 w-20 place-items-center rounded-full border-2 border-[#C79A4A] bg-[#C79A4A]/10">
-          <Check className="h-9 w-9 text-[#C79A4A]" strokeWidth={2.5} />
+      <div className="relative z-10 w-full max-w-md text-center">
+        <div className="mx-auto grid h-16 w-16 place-items-center rounded-full border-2 border-[#B78635] bg-[#F3EBDD]">
+          <Check className="h-8 w-8 text-[#986F2E]" strokeWidth={2.5} />
         </div>
-        <h1 className="mt-7 text-2xl font-bold text-white">
+        <h1 className="mt-7 text-2xl font-bold text-[#242321]">
           Agendamento confirmado
         </h1>
-        <p className="mx-auto mt-2 max-w-sm text-sm leading-6 text-white/50">
+        <p className="mx-auto mt-2 max-w-sm text-sm leading-6 text-[#625F59]">
           Sua reserva na {barbershopName} foi criada. Este comprovante contém os
           valores confirmados pela barbearia.
         </p>
       </div>
 
-      <section className="relative z-10 mt-8 w-full rounded-xl border border-white/[0.07] bg-white/[0.035] p-5">
+      <section className="relative z-10 mt-8 w-full max-w-md border-y border-[#DCD7CF] bg-white p-5">
         <div className="space-y-4">
           <SummaryRow
             icon={Scissors}
@@ -101,19 +101,19 @@ export function BookingSuccess({
         </div>
 
         {(receipt.subscriptionPlanName || coverageLabel) && (
-          <div className="mt-5 rounded-lg border border-[#C79A4A]/30 bg-[#C79A4A]/10 px-3 py-2 text-left">
-            <p className="text-xs font-bold text-[#C79A4A]">
+          <div className="mt-5 border-l-2 border-[#B78635] bg-[#F3EBDD] px-3 py-2 text-left">
+            <p className="text-xs font-bold text-[#795A29]">
               {receipt.subscriptionPlanName
                 ? `Assinatura ${receipt.subscriptionPlanName}`
                 : 'Assinatura'}
             </p>
             {coverageLabel && (
-              <p className="mt-1 text-xs text-white/60">{coverageLabel}</p>
+              <p className="mt-1 text-xs text-[#625F59]">{coverageLabel}</p>
             )}
           </div>
         )}
 
-        <div className="mt-5 space-y-2 border-t border-white/10 pt-4">
+        <div className="mt-5 space-y-2 border-t border-[#DCD7CF] pt-4">
           <MoneyRow
             label="Serviço"
             value={formatReceiptMoney(receipt.servicePrice)}
@@ -139,11 +139,11 @@ export function BookingSuccess({
             label="Produtos reservados"
             value={formatReceiptMoney(receipt.productSubtotal)}
           />
-          <div className="mt-4 flex items-end justify-between gap-4 border-t border-white/10 pt-4">
-            <span className="text-xs font-semibold text-white/60">
+          <div className="mt-4 flex items-end justify-between gap-4 border-t border-[#DCD7CF] pt-4">
+            <span className="text-xs font-semibold text-[#625F59]">
               Total a pagar na barbearia
             </span>
-            <span className="text-xl font-bold text-[#C79A4A]">
+            <span className="text-xl font-bold text-[#795A29]">
               {formatReceiptMoney(receipt.totalAtShop)}
             </span>
           </div>
@@ -153,7 +153,7 @@ export function BookingSuccess({
       <button
         type="button"
         onClick={onReset}
-        className="relative z-10 mt-5 w-full rounded-lg border border-white/15 px-5 py-3.5 text-xs font-semibold uppercase tracking-[0.08em] text-white"
+        className="relative z-10 mt-5 w-full max-w-md border border-[#B78635] px-5 py-3.5 text-xs font-semibold uppercase tracking-[0.08em] text-[#795A29] hover:bg-[#F3EBDD]"
       >
         Fazer outro agendamento
       </button>
@@ -174,13 +174,13 @@ function SummaryRow({
 }) {
   return (
     <div className="flex items-center justify-between gap-4">
-      <span className="flex items-center gap-2 text-xs text-white/40">
+      <span className="flex items-center gap-2 text-xs text-[#625F59]">
         <Icon className="h-4 w-4 text-[#C79A4A]" />
         {label}
       </span>
       <span
         className={`text-right text-sm font-semibold ${
-          accent ? 'text-[#C79A4A]' : 'text-white'
+          accent ? 'text-[#795A29]' : 'text-[#242321]'
         }`}
       >
         {value}
@@ -199,7 +199,7 @@ function MoneyRow({
   value: string
 }) {
   return (
-    <div className="flex justify-between gap-4 text-xs text-white/45">
+    <div className="flex justify-between gap-4 text-xs text-[#625F59]">
       <span className="flex items-center gap-2">
         {Icon && <Icon className="h-3.5 w-3.5 text-[#C79A4A]" />}
         {label}

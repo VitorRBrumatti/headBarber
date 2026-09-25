@@ -36,7 +36,7 @@ export function Switch({
       />
       <span
         aria-hidden="true"
-        className="relative h-6 w-11 rounded-full bg-[#d8dae0] transition-colors duration-200 ease-out after:absolute after:left-0.5 after:top-0.5 after:h-5 after:w-5 after:rounded-full after:bg-white after:shadow-sm after:transition-transform after:duration-200 after:ease-out after:content-[''] peer-checked:bg-[#7c5809] peer-checked:after:translate-x-5 peer-focus-visible:ring-2 peer-focus-visible:ring-[#C79A4A] peer-focus-visible:ring-offset-2 peer-disabled:opacity-50 motion-reduce:transition-none motion-reduce:after:transition-none"
+        className="relative h-6 w-11 rounded-full bg-[#d7d2c9] transition-colors duration-200 ease-out after:absolute after:left-0.5 after:top-0.5 after:h-5 after:w-5 after:rounded-full after:bg-white after:shadow-sm after:transition-transform after:duration-200 after:ease-out after:content-[''] peer-checked:bg-[#7c5809] peer-checked:after:translate-x-5 peer-focus-visible:ring-2 peer-focus-visible:ring-[#C79A4A] peer-focus-visible:ring-offset-2 peer-disabled:opacity-50 motion-reduce:transition-none motion-reduce:after:transition-none"
       />
     </span>
   )

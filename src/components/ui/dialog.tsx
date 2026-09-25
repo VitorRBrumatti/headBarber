@@ -45,13 +45,13 @@ export function Dialog({
       {/* Dialog Box */}
       <div
         className={cn(
-          'relative w-full max-w-md rounded-xl bg-white border border-[#eceef4] text-[#181c21] shadow-2xl p-6',
+          'relative w-full max-w-md rounded-xl bg-white border border-[#e8e4de] text-[#242321] shadow-2xl p-6',
           'animate-in fade-in zoom-in-95 duration-200'
         )}
       >
-        <h2 className="font-montserrat text-base font-bold text-[#181c21]">{title}</h2>
+        <h2 className="font-montserrat text-base font-bold text-[#242321]">{title}</h2>
         {description && (
-          <p className="mt-2 text-xs text-[#47464b] font-medium leading-normal">{description}</p>
+          <p className="mt-2 text-xs text-[#625f59] font-medium leading-normal">{description}</p>
         )}
         <div className="mt-6 flex gap-3 justify-end">
           <Button variant="outline" onClick={onClose} disabled={loading} className="cursor-pointer">

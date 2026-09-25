@@ -36,14 +36,14 @@ export function BookingSummaryBar({
   const isFinalStep = currentStep === totalSteps
 
   return (
-    <div className="fixed inset-x-0 bottom-0 z-40 border-t border-white/10 bg-[#1A1A1D]/95 shadow-[0_-14px_32px_rgba(0,0,0,0.24)] backdrop-blur-xl">
+    <div className="fixed inset-x-0 bottom-0 z-40 border-t border-[#DDD7CD] bg-white shadow-[0_-8px_24px_rgba(36,35,33,0.08)]">
       <div className="mx-auto flex max-w-5xl items-center gap-3 px-4 py-3 sm:px-6 sm:py-4">
         {currentStep > 1 && (
           <button
             type="button"
             onClick={onBack}
             disabled={isSubmitting}
-            className="grid h-11 w-11 shrink-0 place-items-center rounded-lg border border-white/15 text-white transition-colors hover:border-white/35 disabled:opacity-40 sm:w-auto sm:px-4"
+            className="grid h-11 w-11 shrink-0 place-items-center border border-[#D9D4CB] text-[#242321] transition-colors hover:bg-[#F6F5F2] disabled:opacity-40 sm:w-auto sm:px-4"
           >
             <ArrowLeft className="h-4 w-4" />
             <span className="sr-only sm:not-sr-only sm:ml-2 sm:font-inter sm:text-xs sm:font-semibold sm:uppercase sm:tracking-[0.08em]">
@@ -53,12 +53,12 @@ export function BookingSummaryBar({
         )}
 
         <div className="min-w-0 flex-1">
-          <p className="font-inter text-[10px] font-semibold uppercase tracking-[0.1em] text-white/40">
+          <p className="font-inter text-[10px] font-semibold uppercase tracking-[0.1em] text-[#625F59]">
             {productSubtotal > 0
               ? 'Total a pagar na barbearia'
               : 'Total do atendimento'}
           </p>
-          <p className="mt-0.5 truncate font-montserrat text-lg font-bold text-white">
+          <p className="mt-0.5 truncate font-montserrat text-lg font-bold text-[#242321]">
             {formatCurrency(total)}
           </p>
           {coveragePreview &&
@@ -72,7 +72,7 @@ export function BookingSummaryBar({
               </p>
             )}
           {productSubtotal > 0 && (
-            <p className="hidden font-inter text-[10px] text-white/35 sm:block">
+              <p className="hidden font-inter text-[10px] text-[#625F59] sm:block">
               Atendimento {formatCurrency(serviceSubtotal)} · Produtos{' '}
               {formatCurrency(productSubtotal)}
             </p>
@@ -83,7 +83,7 @@ export function BookingSummaryBar({
           type="button"
           onClick={isFinalStep ? onConfirm : onNext}
           disabled={isSubmitting || !canContinue}
-          className="flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-lg bg-[#C79A4A] px-5 font-inter text-xs font-bold uppercase tracking-[0.07em] text-[#1A1A1D] transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40 sm:px-7"
+          className="flex min-h-11 shrink-0 items-center justify-center gap-2 bg-[#B78635] px-5 font-inter text-xs font-bold uppercase tracking-[0.07em] text-[#211B12] transition-colors hover:bg-[#C79A4A] disabled:cursor-not-allowed disabled:opacity-40 sm:px-7"
         >
           {isSubmitting ? (
             <>
