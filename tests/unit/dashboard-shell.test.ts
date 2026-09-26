@@ -10,15 +10,12 @@ vi.mock('next/navigation', () => ({
 describe('dashboard shell', () => {
   it('does not render a notification action when notifications are unsupported', () => {
     const markup = renderToStaticMarkup(
-      createElement(
-        DashboardShell,
-        {
-          userEmail: 'cliente@headbarber.com.br',
-          barbershopName: 'Barbearia Teste',
-          isDemo: false,
-        },
-        createElement('p', null, 'Conteúdo'),
-      ),
+      createElement(DashboardShell, {
+        userEmail: 'cliente@headbarber.com.br',
+        barbershopName: 'Barbearia Teste',
+        isDemo: false,
+        children: createElement('p', null, 'Conteúdo'),
+      }),
     )
 
     expect(markup).not.toContain('>notifications<')
