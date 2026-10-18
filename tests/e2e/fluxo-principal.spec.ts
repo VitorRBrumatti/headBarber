@@ -14,7 +14,7 @@ test.describe('HeadBarber - Fluxo Principal (Fase 5 - Financeiro)', () => {
     await page.fill('input[name="commission_percentage"]', '35')
     await page.fill('textarea[name="bio"]', 'Especialista em cortes clássicos e barba.')
     await page.click('button:has-text("Criar profissional")')
-    await expect(page.locator(`h3:has-text("${uniqueBarberName}")`)).toBeVisible()
+    await expect(page.getByRole('heading', { name: uniqueBarberName, exact: true })).toBeVisible()
 
     const uniqueProductName = `Produto E2E ${Date.now()}`
     await page.goto('/dashboard/produtos')
@@ -24,7 +24,7 @@ test.describe('HeadBarber - Fluxo Principal (Fase 5 - Financeiro)', () => {
     await page.fill('input[name="stock_quantity"]', '5')
     await page.click('button:has-text("Criar produto")')
 
-    const productCard = page.locator(`div.group:has(h3:has-text("${uniqueProductName}"))`).first()
+    const productCard = page.getByRole('heading', { name: uniqueProductName, exact: true }).locator('..')
     await expect(productCard).toBeVisible()
     await productCard.locator('button:has-text("Vender")').click()
 

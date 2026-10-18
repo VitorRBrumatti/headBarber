@@ -1,0 +1,1773 @@
+[
+  {
+    "name": "visualize\r",
+    "path": "C:/Users/Vitão/.codex/plugins/cache/openai-bundled\\visualize\\1.0.50\\skills\\visualize\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "E99B3DBD273D81A42BA20ED4B6E574435BDFA8EF4782F71F177A02FBE3871309"
+  },
+  {
+    "name": "computer-use\r",
+    "path": "C:/Users/Vitão/.codex/plugins/cache/openai-bundled\\computer-use\\26.1013.31256\\skills\\computer-use\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "8211E4B11A19A0DC4F0ACE91096C74C5B36037CA4CB2C8988F0F535BB209E951"
+  },
+  {
+    "name": "web-perf\r",
+    "path": "C:/Projects/headBarber/.agents/skills\\web-perf\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "DA4E967BA1544477BA2CE2BC9E6EB86F5EEC48997C7773023154A9EAF189965E"
+  },
+  {
+    "name": "web-design-guidelines\r",
+    "path": "C:/Projects/headBarber/.agents/skills\\web-design-guidelines\\SKILL.md",
+    "version": "1.0.0\"\r",
+    "state": "available",
+    "sha256": "17E48DA905F83A19C174079B50760A98C069527BA50079239B3C187236627C29"
+  },
+  {
+    "name": "vercel-react-best-practices\r",
+    "path": "C:/Projects/headBarber/.agents/skills\\vercel-react-best-practices\\SKILL.md",
+    "version": "1.0.0\"\r",
+    "state": "available",
+    "sha256": "3286ACE648B4D740317B9C1CB7FBD38600EAACC62A8B57EA5E06FD2992B5582E"
+  },
+  {
+    "name": "gsap-react\r",
+    "path": "C:/Projects/headBarber/.agents/skills\\gsap-react\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "FD1CE4FA883A256E6578F13A4271B494A18DFFAAA6111AB64CA1BC97D4DD8B21"
+  },
+  {
+    "name": "gsap-plugins\r",
+    "path": "C:/Projects/headBarber/.agents/skills\\gsap-plugins\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "A755F587A107AE5C9F4F35702F6E0D870774C6930E28A082C4E9EBB1D2C7BF06"
+  },
+  {
+    "name": "gsap-performance\r",
+    "path": "C:/Projects/headBarber/.agents/skills\\gsap-performance\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "2DD51F19A7FCABE1C06CAEE9E61554485696D05003396C528237ABA970A959CE"
+  },
+  {
+    "name": "template-creator\r",
+    "path": "C:/Users/Vitão/.codex/plugins/cache/openai-primary-runtime\\template-creator\\26.1015.12040\\skills\\template-creator\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "244BFEF01D3E17C6013952CCF34621A90DDFEE9C7828058245C3C46F51114944"
+  },
+  {
+    "name": "update-pet",
+    "path": "C:/Users/Vitão/.codex/plugins/cache/openai-curated-remote\\work-pets\\0.1.6\\skills\\update-pet\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "C63C98D67B6AD781A72A8F9837BA1FB5E2D2A8054A2562E4025890A97D8A0E67"
+  },
+  {
+    "name": "gsap-frameworks\r",
+    "path": "C:/Projects/headBarber/.agents/skills\\gsap-frameworks\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "3D7E8C2F6BDDB32FFC1763B17BBA9A8A3DCBC3BD5BF6815D921D3C5A4ADED85D"
+  },
+  {
+    "name": "ui-ux-pro-max\r",
+    "path": "C:/Projects/headBarber/.agents/skills\\ui-ux-pro-max\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "88AADD21220542083A455E373BD162FFE7843266A71F06F4D837BB3B34F9C9C7"
+  },
+  {
+    "name": "gsap-core\r",
+    "path": "C:/Projects/headBarber/.agents/skills\\gsap-core\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "DE938EEFD9A5BC6335216A17783788CD21408923EAD290CDA5871B7D61DB66B8"
+  },
+  {
+    "name": "product-launch-video",
+    "path": "C:/Users/Vitão/.codex/skills\\product-launch-video\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "3DDF2EBA0CDE37175178CDCF0127570A04A7051482C844E81AC5179DD6783B93"
+  },
+  {
+    "name": "frontend-design\r",
+    "path": "C:/Projects/headBarber/.agents/skills\\frontend-design\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "B8009AE690DFA69EDC7F08BB8715F32DB8817112CFA4388741DBAF876C237DF8"
+  },
+  {
+    "name": "pets",
+    "path": "C:/Users/Vitão/.codex/plugins/cache/openai-curated-remote\\work-pets\\0.1.6\\skills\\pets\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "1BF5D45FD6A6390AAB777229293FB05CEF7CF898AAC882F8955E40C378E52FCD"
+  },
+  {
+    "name": "fixing-accessibility\r",
+    "path": "C:/Projects/headBarber/.agents/skills\\fixing-accessibility\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "2C2A4623F333920B05E262017E92B15EEAFCA58F051B44D8E9E13FD4D1DA37A5"
+  },
+  {
+    "name": "find-skills",
+    "path": "C:/Projects/headBarber/.agents/skills\\find-skills\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "C00EEEA0E13E74FE4A9D84BA0A8542205A1B736D65F13134FE1A6647EB14976F"
+  },
+  {
+    "name": "create-pet",
+    "path": "C:/Users/Vitão/.codex/plugins/cache/openai-curated-remote\\work-pets\\0.1.6\\skills\\create-pet\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "841354FB8116F8FDFD3B643B30828F5180196C594D3FED9B669B948B88892AF1"
+  },
+  {
+    "name": "copywriting\r",
+    "path": "C:/Projects/headBarber/.agents/skills\\copywriting\\SKILL.md",
+    "version": "2.3.1\r",
+    "state": "available",
+    "sha256": "6E90506CB53D1B38EFDB55AC8BD395BA78E16310B8E3D08C88D606820F00F705"
+  },
+  {
+    "name": "Presentations\r",
+    "path": "C:/Users/Vitão/.codex/plugins/cache/openai-primary-runtime\\presentations\\26.1015.12040\\skills\\presentations\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "97FEDDE4BA6C9B9AA56E12B05B13ACF035C29F9CD2F6906B8F27CEAB11AEA9A8"
+  },
+  {
+    "name": "documents\r",
+    "path": "C:/Users/Vitão/.codex/plugins/cache/openai-primary-runtime\\documents\\26.1015.12040\\skills\\documents\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "E3E5486C9E9F8C59EC89DD9DE997BB76A4B65DB7960D72437DF2F5ED26A4DF7F"
+  },
+  {
+    "name": "plugin-management",
+    "path": "C:/Users/Vitão/.codex/plugins/cache/openai-curated-remote\\plugin-management\\0.1.0\\skills\\plugin-management\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "653841CC21205269F08B0CE135891E1518DAC616A766BCFB0B57D788D3F68B10"
+  },
+  {
+    "name": "make-interfaces-feel-better\r",
+    "path": "C:/Projects/headBarber/.agents/skills\\make-interfaces-feel-better\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "EE05E66E71BF3472DF02D29E3A88A659751B36B09CD5CC5D47F42DB5C5CAC07F"
+  },
+  {
+    "name": "Spreadsheets\"\r",
+    "path": "C:/Users/Vitão/.codex/plugins/cache/openai-primary-runtime\\spreadsheets\\26.1015.12040\\skills\\spreadsheets\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "B8290A0C6A18182DC1FBB9432AAE518A25BF5354978B7D4C60A834D0E79821AA"
+  },
+  {
+    "name": "gsap-utils\r",
+    "path": "C:/Projects/headBarber/.agents/skills\\gsap-utils\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "F71503F423561EEB5567AE8EE41E4363C85FD3970A8FEAEAC2C2B18309596BAB"
+  },
+  {
+    "name": "supabase-postgres-best-practices\r",
+    "path": "C:/Projects/headBarber/.agents/skills\\supabase-postgres-best-practices\\SKILL.md",
+    "version": "1.1.1\"\r",
+    "state": "available",
+    "sha256": "BE9A8DCECB83376F38EF92AAD6AE78F28A23865501ABA941FDCE213B58F00996"
+  },
+  {
+    "name": "gsap-timeline\r",
+    "path": "C:/Projects/headBarber/.agents/skills\\gsap-timeline\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "FBE7A2B9E66E66D2C956F650583D48385498B677BA1292F1DCE9D1FFB1A77EA0"
+  },
+  {
+    "name": "writing-skills",
+    "path": "C:/Users/Vitão/.codex/plugins/cache/openai-curated-remote\\superpowers\\6.4.2\\skills\\writing-skills\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "BBDFE742F853562E643A3D40D64476359D47881E39CEF80A189283FA26D11AB9"
+  },
+  {
+    "name": "gsap-scrolltrigger\r",
+    "path": "C:/Projects/headBarber/.agents/skills\\gsap-scrolltrigger\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "E6612777BCCE1617D3B9E061B2F671FB0F36379684D0C61F7A1BAA06D7F7A989"
+  },
+  {
+    "name": "playwright-cli",
+    "path": "C:/Projects/headBarber/.agents/skills\\playwright-cli\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "9BBA755285A4C9AD72A4A41B9C7BAEF6FB516D329C0B44ED0573715F4479B906"
+  },
+  {
+    "name": "supabase\r",
+    "path": "C:/Projects/headBarber/.agents/skills\\supabase\\SKILL.md",
+    "version": "0.1.2\"\r",
+    "state": "available",
+    "sha256": "B618E9F7663AC495FE08C5F2835D58BC58E9D4043E1CED88CEFA9EFF7D18C5F6"
+  },
+  {
+    "name": "writing-plans",
+    "path": "C:/Users/Vitão/.codex/plugins/cache/openai-curated-remote\\superpowers\\6.4.2\\skills\\writing-plans\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "A6C67C1900064347C2A329990DD3C555657C51C3EC53B259A08AA01A2C26139A"
+  },
+  {
+    "name": "motion-design\r",
+    "path": "C:/Projects/headBarber/.agents/skills\\motion-design\\SKILL.md",
+    "version": "1.0.0\"\r",
+    "state": "available",
+    "sha256": "0FA7BD378776E776A9AF528DB040E5144127834C461BA7FB6805F47D13BC293D"
+  },
+  {
+    "name": "remotion-create",
+    "path": "C:/Users/Vitão/.agents/skills\\remotion-create\\SKILL.md",
+    "version": "4.0.526",
+    "state": "available",
+    "sha256": "89D705A0C9496914D5070B898F0BE508FAD5213594A1E7142962F22B3CF31DFC"
+  },
+  {
+    "name": "hyperframes-core",
+    "path": "C:/Users/Vitão/.agents/skills\\hyperframes-core\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "18AC7784765CC29AF5A4D88F2A63A15DEAF5395985009AF188B5E3718EDCFE3D"
+  },
+  {
+    "name": "verification-before-completion",
+    "path": "C:/Users/Vitão/.codex/plugins/cache/openai-curated-remote\\superpowers\\6.4.2\\skills\\verification-before-completion\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "2BEFE7FC55BCADAA3D97DD9E8EFEB633D2561C0EBE74C5A8B17C4D9E7E4520B3"
+  },
+  {
+    "name": "excel-live-control\"\r",
+    "path": "C:/Users/Vitão/.codex/plugins/cache/openai-primary-runtime\\spreadsheets\\26.1015.12040\\skills\\excel-live-control\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "55335802AEB641F8819F0020D4FA172B069376AAA00AB7934F3426D8A121509A"
+  },
+  {
+    "name": "hyperframes-cli",
+    "path": "C:/Users/Vitão/.agents/skills\\hyperframes-cli\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "8BBA949A98797FD01B4C88600486730083524A81377D0C0D44B07EE1CAE48321"
+  },
+  {
+    "name": "remotion-captions",
+    "path": "C:/Users/Vitão/.agents/skills\\remotion-captions\\SKILL.md",
+    "version": "4.0.527",
+    "state": "available",
+    "sha256": "2333A13378971F83488FD4E539C76D6EDAD6FBA9D6C586E19EFC64987AC4F7C4"
+  },
+  {
+    "name": "using-superpowers",
+    "path": "C:/Users/Vitão/.codex/plugins/cache/openai-curated-remote\\superpowers\\6.4.2\\skills\\using-superpowers\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "82C5C8866AD7F5DD4440CE66BD7806BA48A2F13771BEAE5CF112E53F08FE36BA"
+  },
+  {
+    "name": "artifact-template-three-statement-forecast",
+    "path": "C:/Users/Vitão/.codex/plugins/cache/openai-curated-remote\\openai-templates\\0.1.1\\skills\\artifact-template-three-statement-forecast\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "74F4A5CCCEC0107B861548B157E04C51D9B58EC13A990C86394B4C529B8ECF41"
+  },
+  {
+    "name": "cinematic-camera",
+    "path": "C:/Users/Vitão/.agents/skills\\cinematic-camera\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "CC970C456A4D77CA0E623585EFF55055588FE2CFC96E9949E242A70FA1180C9C"
+  },
+  {
+    "name": "artifact-template-investment-committee-memo",
+    "path": "C:/Users/Vitão/.codex/plugins/cache/openai-curated-remote\\openai-templates\\0.1.1\\skills\\artifact-template-investment-committee-memo\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "68ABD08CFE5E073E3C446A3F675F44C5BF98F57434DBA679E8ACD8A763379A8B"
+  },
+  {
+    "name": "caveman-stats\r",
+    "path": "C:/Users/Vitão/.agents/skills\\caveman-stats\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "7D6BA2EE3FB9B1629B6E95B326A0559F758D881D2BA826120FDFD625F578218D"
+  },
+  {
+    "name": "hyperframes-audio",
+    "path": "C:/Users/Vitão/.agents/skills\\hyperframes-audio\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "DAF3250390426EF096A7D2F71082919418099DECBD1F31288640A43B43C7E293"
+  },
+  {
+    "name": "caveman-review\r",
+    "path": "C:/Users/Vitão/.agents/skills\\caveman-review\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "F5FCB5EC7CB461BFD95A6F5EB6DBE624967057DCE7992E71213BCD3462ACE742"
+  },
+  {
+    "name": "pdf\"\r",
+    "path": "C:/Users/Vitão/.codex/plugins/cache/openai-primary-runtime\\pdf\\26.1015.12040\\skills\\pdf\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "5E14B4B8F944DC5E678EE703DFACF583010431D64D5D829902C5B2541F736C89"
+  },
+  {
+    "name": "remotion-best-practices",
+    "path": "C:/Users/Vitão/.agents/skills\\remotion-best-practices\\SKILL.md",
+    "version": "4.0.527",
+    "state": "available",
+    "sha256": "F39EAB0D39E1C5F068B37E61096DBA38ED534DF80233AC865116704C31A5221F"
+  },
+  {
+    "name": "using-git-worktrees",
+    "path": "C:/Users/Vitão/.codex/plugins/cache/openai-curated-remote\\superpowers\\6.4.2\\skills\\using-git-worktrees\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "8CFB86F121269E8F7F12361E6795C4F6738828340E28964C9229D365666C9EDD"
+  },
+  {
+    "name": "caveman-compress\r",
+    "path": "C:/Users/Vitão/.agents/skills\\caveman-compress\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "208475F3DCDD425F5452551B2B6ACB8C1879E19EDBBAD47450113904E5F9732E"
+  },
+  {
+    "name": "motionmaxxing",
+    "path": "C:/Users/Vitão/.codex/skills\\motionmaxxing\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "50710290ED55D2B8E1EA454A2A274345DA5FA47C224A38582D2F853E824C3CD2"
+  },
+  {
+    "name": "artifact-template-team-alignment",
+    "path": "C:/Users/Vitão/.codex/plugins/cache/openai-curated-remote\\openai-templates\\0.1.1\\skills\\artifact-template-team-alignment\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "26D7CAFDCD1899A937B325C5D02AC57C162D45002153BE33A934D35F81EB6110"
+  },
+  {
+    "name": "artifact-template-financial-budget",
+    "path": "C:/Users/Vitão/.codex/plugins/cache/openai-curated-remote\\openai-templates\\0.1.1\\skills\\artifact-template-financial-budget\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "C0B6B7A62A15597AAF2B1EC679E21DA48F533B756127F0AEF957CDFE9F3DA738"
+  },
+  {
+    "name": "test-driven-development",
+    "path": "C:/Users/Vitão/.codex/plugins/cache/openai-curated-remote\\superpowers\\6.4.2\\skills\\test-driven-development\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "64B03FCE4AEE5A97A93160CEA8111F3BA13A17B7C001DB4BD5836D67FD10705D"
+  },
+  {
+    "name": "caveman\r",
+    "path": "C:/Users/Vitão/.agents/skills\\caveman\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "69A75536AFF909AFC7F46ACF236F2A3D184B0870E2B5330659C84E6B9318ADB7"
+  },
+  {
+    "name": "brag\r",
+    "path": "C:/Users/Vitão/.agents/skills\\brag\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "66A767B799EA8C05CF572D725662404C88EC84EBBBFA1B30391F85B95D6BCD77"
+  },
+  {
+    "name": "hyperframes-animation",
+    "path": "C:/Users/Vitão/.agents/skills\\hyperframes-animation\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "B35F1F8EFF68E9FF480A5D5D343A1BF5A40EBB7D0D9BE20B0B980CFDB36047F3"
+  },
+  {
+    "name": "systematic-debugging",
+    "path": "C:/Users/Vitão/.codex/plugins/cache/openai-curated-remote\\superpowers\\6.4.2\\skills\\systematic-debugging\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "808FC5717AA88AD65EFFF312B11C186294D3E6EE301AFB584E2F86599B137787"
+  },
+  {
+    "name": "artifact-template-experiment-analysis",
+    "path": "C:/Users/Vitão/.codex/plugins/cache/openai-curated-remote\\openai-templates\\0.1.1\\skills\\artifact-template-experiment-analysis\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "0B05EFFC47DF0A14F8E0C3E3597E6722224747435546385D38A2CAE279BD20B9"
+  },
+  {
+    "name": "subagent-driven-development",
+    "path": "C:/Users/Vitão/.codex/plugins/cache/openai-curated-remote\\superpowers\\6.4.2\\skills\\subagent-driven-development\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "8DDE5589EE083FB4999106D116F01C8FDAF3116A8A9813FDEDEB80329DE49046"
+  },
+  {
+    "name": "artifact-template-system-design",
+    "path": "C:/Users/Vitão/.codex/plugins/cache/openai-curated-remote\\openai-templates\\0.1.1\\skills\\artifact-template-system-design\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "87F7B7ED1B0D8410F5E5971CD7F7DB9A4165E2F37069E97E52DBFB469B75A57C"
+  },
+  {
+    "name": "artifact-template-design-report",
+    "path": "C:/Users/Vitão/.codex/plugins/cache/openai-curated-remote\\openai-templates\\0.1.1\\skills\\artifact-template-design-report\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "563722F53854E606F8A9F87E37E72D7EF70A22D46D5836B8E4D6ABFB1B79E9E0"
+  },
+  {
+    "name": "requesting-code-review",
+    "path": "C:/Users/Vitão/.codex/plugins/cache/openai-curated-remote\\superpowers\\6.4.2\\skills\\requesting-code-review\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "CFCEE1B06774E7C0517F1E09BE1A11F2D5680257072723E709DDBCF7E08B795A"
+  },
+  {
+    "name": "deep-security-scan",
+    "path": "C:/Users/Vitão/.codex/plugins/cache/openai-curated-remote\\codex-security\\0.1.32\\skills\\deep-security-scan\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "D6AED0D9B47065A1384A96D0A45C843B0CDA8BA48E3D2CBE96C65357C6E55EE3"
+  },
+  {
+    "name": "vulnerability-writeup",
+    "path": "C:/Users/Vitão/.codex/plugins/cache/openai-curated-remote\\codex-security\\0.1.32\\skills\\vulnerability-writeup\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "D08582D9963CE3BFBC3FE81B6E85A01E6FE306713D7951BFD8DD2FBC3DF75DE4"
+  },
+  {
+    "name": "artifact-template-business-review",
+    "path": "C:/Users/Vitão/.codex/plugins/cache/openai-curated-remote\\openai-templates\\0.1.1\\skills\\artifact-template-business-review\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "27721FC1D67D1B41949CAA75AC8F94F81952FF124406878AF6524047929E60D2"
+  },
+  {
+    "name": "attack-path-analysis",
+    "path": "C:/Users/Vitão/.codex/plugins/cache/openai-curated-remote\\codex-security\\0.1.32\\skills\\attack-path-analysis\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "9465D2750182ACBF6DD8F61E60BB47DC1CA502BE5CC3F4A71DA7AD39935D1EB1"
+  },
+  {
+    "name": "hyperframes",
+    "path": "C:/Users/Vitão/.agents/skills\\hyperframes\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "A277E9E46B3B5B8619639A353A4AF3F46F8AE4F2E622BA802D5AF730D135F410"
+  },
+  {
+    "name": "verify-fix",
+    "path": "C:/Users/Vitão/.codex/plugins/cache/openai-curated-remote\\codex-security\\0.1.32\\skills\\verify-fix\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "3D4530484C7E4C18B6AFE7C6527247E96517DCE1EBD1BDA9D349CD367ECB0AE3"
+  },
+  {
+    "name": "receiving-code-review",
+    "path": "C:/Users/Vitão/.codex/plugins/cache/openai-curated-remote\\superpowers\\6.4.2\\skills\\receiving-code-review\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "091DF1629510AF1B92FC4ABD6F96732EBEDB4CB2C0F3457E8F2740B0504A2438"
+  },
+  {
+    "name": "artifact-template-strategy-memorandum",
+    "path": "C:/Users/Vitão/.codex/plugins/cache/openai-curated-remote\\openai-templates\\0.1.1\\skills\\artifact-template-strategy-memorandum\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "51D7882AC94E8E57B323394825728C33925AF878806E37277217C2DC12A912E5"
+  },
+  {
+    "name": "assess-patch-risk",
+    "path": "C:/Users/Vitão/.codex/plugins/cache/openai-curated-remote\\codex-security\\0.1.32\\skills\\assess-patch-risk\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "C3B62A8C1D6135945A055134F50329047BB908972FC7B320A592EDBC3D38B419"
+  },
+  {
+    "name": "artifact-template-analytics-dashboard",
+    "path": "C:/Users/Vitão/.codex/plugins/cache/openai-curated-remote\\openai-templates\\0.1.1\\skills\\artifact-template-analytics-dashboard\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "CF5360FD8B197673BB237C52C603C97FA319C875C3DFA2CD8EFFF52D4422F513"
+  },
+  {
+    "name": "finishing-a-development-branch",
+    "path": "C:/Users/Vitão/.codex/plugins/cache/openai-curated-remote\\superpowers\\6.4.2\\skills\\finishing-a-development-branch\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "8DB5A922B242DD4E1BF824CB91C13B3E8D8E8A86D6CEAF7F0774EB9CCE909D65"
+  },
+  {
+    "name": "figma-use-slides",
+    "path": "C:/Users/Vitão/.codex/plugins/cache/openai-curated-remote\\figma\\16.0.0\\skills\\figma-use-slides\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "0A69A65E686DCC223581AFB409A4D31CF318716E2C65CC9C926839A8737E71A4"
+  },
+  {
+    "name": "validation",
+    "path": "C:/Users/Vitão/.codex/plugins/cache/openai-curated-remote\\codex-security\\0.1.32\\skills\\validation\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "3C4660F79B12A92728E6BB25027064C3A911D0960D39AEAFC8FDA9E42CE517A5"
+  },
+  {
+    "name": "artifact-template-simple-light-mode",
+    "path": "C:/Users/Vitão/.codex/plugins/cache/openai-curated-remote\\openai-templates\\0.1.1\\skills\\artifact-template-simple-light-mode\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "7C68430C6CF57B55B457D4735DBD1A46B889BEF135A32222902DD0848B6E1752"
+  },
+  {
+    "name": "video-shotcraft\r",
+    "path": "C:/Users/Vitão/.agents/skills\\video-shotcraft\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "5BC6BBECC0FAA3944D82E3F6675CB77F894924AD4FA234EEFD7CE1B0DE81EFB0"
+  },
+  {
+    "name": "executing-plans",
+    "path": "C:/Users/Vitão/.codex/plugins/cache/openai-curated-remote\\superpowers\\6.4.2\\skills\\executing-plans\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "F38E8F2DDCF079F65493ADC713C1FED78421DFAF5F4DBF6B3A6B2B1D95466E71"
+  },
+  {
+    "name": "gpt-taste\r",
+    "path": "C:/Users/Vitão/.agents/skills\\gpt-taste\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "6A19B70E6B53761D5788F284C615BF93A07CD9F94D5F0A452520260D9D951523"
+  },
+  {
+    "name": "figma-use-motion",
+    "path": "C:/Users/Vitão/.codex/plugins/cache/openai-curated-remote\\figma\\16.0.0\\skills\\figma-use-motion\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "D74FA8C9435A5260F8A61E3A8FBF11C068F940AE3423E9BE2EFDE8B5E785D78C"
+  },
+  {
+    "name": "design-taste-frontend\r",
+    "path": "C:/Users/Vitão/.agents/skills\\design-taste-frontend\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "D7C61A01295AAFA62705B48B3732C8AA60F217B2DBE98C505CE757A8C9672CAF"
+  },
+  {
+    "name": "dispatching-parallel-agents",
+    "path": "C:/Users/Vitão/.codex/plugins/cache/openai-curated-remote\\superpowers\\6.4.2\\skills\\dispatching-parallel-agents\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "1968923066F3B707EB01D1992CDF4C42284C3855F70253B9CD5000FF45FCA13C"
+  },
+  {
+    "name": "product-launch-video",
+    "path": "C:/Users/Vitão/.agents/skills\\product-launch-video\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "3DDF2EBA0CDE37175178CDCF0127570A04A7051482C844E81AC5179DD6783B93"
+  },
+  {
+    "name": "figma-use-figjam",
+    "path": "C:/Users/Vitão/.codex/plugins/cache/openai-curated-remote\\figma\\16.0.0\\skills\\figma-use-figjam\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "8D566444A1AAF31C122682A5FBE3D6F14C6A844A4E05164CDA3DE872752CEA24"
+  },
+  {
+    "name": "artifact-template-simple-dark-mode",
+    "path": "C:/Users/Vitão/.codex/plugins/cache/openai-curated-remote\\openai-templates\\0.1.1\\skills\\artifact-template-simple-dark-mode\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "B7C8D0C05F75878B9BC21E56A57C41EC1AA29700ACA0A24822BE0F9F1BD53207"
+  },
+  {
+    "name": "figma-use",
+    "path": "C:/Users/Vitão/.codex/plugins/cache/openai-curated-remote\\figma\\16.0.0\\skills\\figma-use\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "AC385B80A05C850B5ABC6BCAE7C56625C4576318510545453A568AA5F21B8A95"
+  },
+  {
+    "name": "impeccable",
+    "path": "C:/Users/Vitão/.agents/skills\\impeccable\\SKILL.md",
+    "version": "4.3.1",
+    "state": "available",
+    "sha256": "38C2E839E130008B6DA814AB9C16F3FCBBEDFDF721A9638EEBD31A9E65341A7A"
+  },
+  {
+    "name": "triage-finding",
+    "path": "C:/Users/Vitão/.codex/plugins/cache/openai-curated-remote\\codex-security\\0.1.32\\skills\\triage-finding\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "83081950BD4B29FF37CF82D137AEC164532AE56B03DBAAD3F4DD1D5423E758A7"
+  },
+  {
+    "name": "artifact-template-operating-calendar",
+    "path": "C:/Users/Vitão/.codex/plugins/cache/openai-curated-remote\\openai-templates\\0.1.1\\skills\\artifact-template-operating-calendar\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "33BB660791A0B9A21628A42C34934932220203B6AABD84E98CB1B45327D0384C"
+  },
+  {
+    "name": "diagnosing-superpowers",
+    "path": "C:/Users/Vitão/.codex/plugins/cache/openai-curated-remote\\superpowers\\6.4.2\\skills\\diagnosing-superpowers\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "5A652F8132CC901EB5CA61F89157839F87A2F20AED037FC7A2B51051BC37CD19"
+  },
+  {
+    "name": "playwright-skill\r",
+    "path": "C:/Users/Vitão/.agents/skills\\playwright-skill\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "1F3116467BAEAB807DF4453F6A278C9B37532AC6ACF5A4584025BFD11C228921"
+  },
+  {
+    "name": "figma-swiftui",
+    "path": "C:/Users/Vitão/.codex/plugins/cache/openai-curated-remote\\figma\\16.0.0\\skills\\figma-swiftui\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "868C4DEFE2C0854F5A3E27594D3FA0F20347C86A9B15D103483B7488BFA8AFFE"
+  },
+  {
+    "name": "artifact-template-sales-pipeline",
+    "path": "C:/Users/Vitão/.codex/plugins/cache/openai-curated-remote\\openai-templates\\0.1.1\\skills\\artifact-template-sales-pipeline\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "15CFEEEDF440021F16ED3F3AD8C7C1EF6D48898B9447741E223D2FB41CFC9800"
+  },
+  {
+    "name": "figma-spec",
+    "path": "C:/Users/Vitão/.codex/plugins/cache/openai-curated-remote\\figma\\16.0.0\\skills\\figma-spec\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "7BC6C406D19906217724279F254D773193BAC45D385B35D5DB6B58673C73F7E3"
+  },
+  {
+    "name": "brainstorming",
+    "path": "C:/Users/Vitão/.codex/plugins/cache/openai-curated-remote\\superpowers\\6.4.2\\skills\\brainstorming\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "A32D2255354775AA124855AA7100CF276BEA096FFF4EBB3A0EDF57BE216E6C72"
+  },
+  {
+    "name": "motion-graphics",
+    "path": "C:/Users/Vitão/.agents/skills\\motion-graphics\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "D5E8F91176A6D8825F2EE435367503E9B56ED840D58FEFB9685A689F5E421C24"
+  },
+  {
+    "name": "figma-shaders",
+    "path": "C:/Users/Vitão/.codex/plugins/cache/openai-curated-remote\\figma\\16.0.0\\skills\\figma-shaders\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "C7E34C5A4EB316CFE84768CB419FE71B3CE840B29561ECD0F90EB402A72E1ADF"
+  },
+  {
+    "name": "artifact-template-project-tracker",
+    "path": "C:/Users/Vitão/.codex/plugins/cache/openai-curated-remote\\openai-templates\\0.1.1\\skills\\artifact-template-project-tracker\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "D97D5BE20189B7F53DD269B6E1C5F694EAF53E5A72F6559FCB1578911B7CDA82"
+  },
+  {
+    "name": "figma-implement-motion",
+    "path": "C:/Users/Vitão/.codex/plugins/cache/openai-curated-remote\\figma\\16.0.0\\skills\\figma-implement-motion\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "2E26E67284D47C6A74AEDF9DCA7543F4C8817DAFC59A11ABB156D4F7FEEDB2C2"
+  },
+  {
+    "name": "hyperframes-studio",
+    "path": "C:/Users/Vitão/.agents/skills\\hyperframes-studio\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "7449DA3952155E40E7D76FC29D4415B4030AB6F7F3FF9C3B94FA1B159CAD46C4"
+  },
+  {
+    "name": "artifact-template-minimal-letterhead",
+    "path": "C:/Users/Vitão/.codex/plugins/cache/openai-curated-remote\\openai-templates\\0.1.1\\skills\\artifact-template-minimal-letterhead\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "880EF094D4D0C89A7BDE5CE9BBE4086625C186651E9E6EFC8BA8BDD7CC77F9D5"
+  },
+  {
+    "name": "track-findings",
+    "path": "C:/Users/Vitão/.codex/plugins/cache/openai-curated-remote\\codex-security\\0.1.32\\skills\\track-findings\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "A6D2F30E6D5CA7BD9D74D83017F2F5481C5829585941208A1673B82C683D292B"
+  },
+  {
+    "name": "figma-generative-plugins",
+    "path": "C:/Users/Vitão/.codex/plugins/cache/openai-curated-remote\\figma\\16.0.0\\skills\\figma-generative-plugins\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "B97EB184A1F6B6545F3B8266A4D1A1E29304888904DB7DAED2864B9FD036B124"
+  },
+  {
+    "name": "artifact-template-project-kickoff",
+    "path": "C:/Users/Vitão/.codex/plugins/cache/openai-curated-remote\\openai-templates\\0.1.1\\skills\\artifact-template-project-kickoff\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "AA893EBD89E7C8D1DB4261D01CC2B1ADD35D78D00785871CCAAA5FC8DB783EC9"
+  },
+  {
+    "name": "hyperframes-registry",
+    "path": "C:/Users/Vitão/.agents/skills\\hyperframes-registry\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "F1925B202CABD125B509658B11DB593B55340B1926ECB056FC31AA4233A2B4F6"
+  },
+  {
+    "name": "figma-generate-library",
+    "path": "C:/Users/Vitão/.codex/plugins/cache/openai-curated-remote\\figma\\16.0.0\\skills\\figma-generate-library\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "B5277050191D1985F59E162E0ACC82523A0A39A8CF614069A3D63753D5990F27"
+  },
+  {
+    "name": "media-use",
+    "path": "C:/Users/Vitão/.agents/skills\\media-use\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "0F08FF6B493A46E0505DCC9C0C607E517E0EB70E7DC2B7B5C1F51B4F27BB6181"
+  },
+  {
+    "name": "motion-graphics",
+    "path": "C:/Users/Vitão/.codex/skills\\motion-graphics\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "0024B21E05CA584B81598347ABB58E4735988D56FE23721E70BE9B08B805FCE2"
+  },
+  {
+    "name": "threat-model",
+    "path": "C:/Users/Vitão/.codex/plugins/cache/openai-curated-remote\\codex-security\\0.1.32\\skills\\threat-model\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "42568E50C787C4C0BFB9495AD67E72AB6C1A951BB910ECBA2C67CFF8961C4D56"
+  },
+  {
+    "name": "artifact-template-market-trends-report",
+    "path": "C:/Users/Vitão/.codex/plugins/cache/openai-curated-remote\\openai-templates\\0.1.1\\skills\\artifact-template-market-trends-report\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "D58D019B89CB6F292AC3AB991D561489EEF477FF53CE05FB024A0C936F5AF26A"
+  },
+  {
+    "name": "artifact-template-operating-review",
+    "path": "C:/Users/Vitão/.codex/plugins/cache/openai-curated-remote\\openai-templates\\0.1.1\\skills\\artifact-template-operating-review\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "6D63C5CD025FFE936E7BAB5DB3023672BBAEC26AF55C2BB8B057D38C202C9C32"
+  },
+  {
+    "name": "hyperframes-keyframes",
+    "path": "C:/Users/Vitão/.agents/skills\\hyperframes-keyframes\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "D6484E8367ED522F2A89AF9EC30AE3CD86AE243B5A23C5AB00A7A682E3D1A791"
+  },
+  {
+    "name": "figma-generate-diagram",
+    "path": "C:/Users/Vitão/.codex/plugins/cache/openai-curated-remote\\figma\\16.0.0\\skills\\figma-generate-diagram\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "7297638DBF2130D1B37BFD85DF65D290A4DD0B11A11B54ABAFCF7D07565922B5"
+  },
+  {
+    "name": "artifact-template-legal-memorandum",
+    "path": "C:/Users/Vitão/.codex/plugins/cache/openai-curated-remote\\openai-templates\\0.1.1\\skills\\artifact-template-legal-memorandum\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "51FB9D21BAF6119C4CCB1903638A6BAC0E859210DE63460FFFA7025D52E997E0"
+  },
+  {
+    "name": "figma-generate-design",
+    "path": "C:/Users/Vitão/.codex/plugins/cache/openai-curated-remote\\figma\\16.0.0\\skills\\figma-generate-design\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "F4F05F29F69A5B4628D4574359910FEA926735AF78C5E264A1C4CD16F69315B0"
+  },
+  {
+    "name": "security-scan",
+    "path": "C:/Users/Vitão/.codex/plugins/cache/openai-curated-remote\\codex-security\\0.1.32\\skills\\security-scan\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "104E2F93FC965C34E91970F517A89E330D5B29DBB243DCEA5D95D83F14D135CF"
+  },
+  {
+    "name": "hyperframes-creative",
+    "path": "C:/Users/Vitão/.agents/skills\\hyperframes-creative\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "9DA7B7AC84C8D884B54125887ECCA1A645A38337013082B96AF2FDC0259C945A"
+  },
+  {
+    "name": "figma-design-to-code",
+    "path": "C:/Users/Vitão/.codex/plugins/cache/openai-curated-remote\\figma\\16.0.0\\skills\\figma-design-to-code\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "A6E852421E4DB72260B2CA641929B1F84684E5B067AEAD081E35111F5B5FEEE4"
+  },
+  {
+    "name": "sentry",
+    "path": "C:/Users/Vitão/.codex/plugins/cache/openai-curated-remote\\sentry\\0.1.2\\skills\\sentry\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "C8AE3A1F7521B9B560ADF8D0824C5FF49B1182D7F8870361B292AD1803B639C6"
+  },
+  {
+    "name": "figma-create-new-file",
+    "path": "C:/Users/Vitão/.codex/plugins/cache/openai-curated-remote\\figma\\16.0.0\\skills\\figma-create-new-file\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "BB7BC48C487F0AD7E738C23D0685BAD5EC0BBBCA8F5B5BB6295DC0666CC9DDF1"
+  },
+  {
+    "name": "security-diff-scan",
+    "path": "C:/Users/Vitão/.codex/plugins/cache/openai-curated-remote\\codex-security\\0.1.32\\skills\\security-diff-scan\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "F85962D46F141227D794A25253A39232BC4E1AD756509ECD3D8769B85B735136"
+  },
+  {
+    "name": "figma-code-workflows",
+    "path": "C:/Users/Vitão/.codex/plugins/cache/openai-curated-remote\\figma\\16.0.0\\skills\\figma-code-workflows\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "AC69B52D96A5D1B1832BE9F0BE99C221CFD861F8AAD2260A0508386229982C7C"
+  },
+  {
+    "name": "propose-security-hardening",
+    "path": "C:/Users/Vitão/.codex/plugins/cache/openai-curated-remote\\codex-security\\0.1.32\\skills\\propose-security-hardening\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "AD07D88DA7C2BC9E551849CDDE686B0DAAD380ED0AAC798E6C06444681D75959"
+  },
+  {
+    "name": "figma-code-connect",
+    "path": "C:/Users/Vitão/.codex/plugins/cache/openai-curated-remote\\figma\\16.0.0\\skills\\figma-code-connect\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "87AF3996EDB167D6AA3C044CB1BBB6A0D8E2D631C731BB896B1E1E8669640415"
+  },
+  {
+    "name": "fix-finding",
+    "path": "C:/Users/Vitão/.codex/plugins/cache/openai-curated-remote\\codex-security\\0.1.32\\skills\\fix-finding\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "BA7311F43B2C0742DA0D5C6BDB2F0B26601C09CC59747CF8C62A09F8D0BB86D2"
+  },
+  {
+    "name": "finding-discovery",
+    "path": "C:/Users/Vitão/.codex/plugins/cache/openai-curated-remote\\codex-security\\0.1.32\\skills\\finding-discovery\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "14CC797E750CA4BDD8B060C4CF96D7D32F25B132AA8F80D0A0837683FE010790"
+  },
+  {
+    "name": "define-security-policy",
+    "path": "C:/Users/Vitão/.codex/plugins/cache/openai-curated-remote\\codex-security\\0.1.32\\skills\\define-security-policy\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "2817E1A03980A7EBEA478C8D9E6C622E3C6205123E767A1E32F0204C06729CC7"
+  },
+  {
+    "name": "make-awesome-video",
+    "path": "C:/Users/Vitão/.agents/skills\\make-awesome-video\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "3DF9AD5E4FEF1EEEE596A152C71113C7AAAC3C0A8E7632025B1FF77B00671E51"
+  },
+  {
+    "name": "media-use",
+    "path": "C:/Users/Vitão/.codex/skills\\media-use\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "0F08FF6B493A46E0505DCC9C0C607E517E0EB70E7DC2B7B5C1F51B4F27BB6181"
+  },
+  {
+    "name": "sites",
+    "path": "C:/Users/Vitão/.codex/plugins/cache/openai-curated-remote\\sites\\1.0.1\\skills\\sites\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "88B4A1B923F34C77443290E4648A5F4B3E959D7628F02E169D984942D2430187"
+  },
+  {
+    "name": "produce",
+    "path": "C:/Users/Vitão/.codex/plugins/cache/openai-curated-remote\\creative-production\\0.1.25\\skills\\produce\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "056D2F32C7D27639C3CF861981D7331CAB8E7723DED1AE1966DE6EFD8CE01B7C"
+  },
+  {
+    "name": "supabase-postgres-best-practices",
+    "path": "C:/Users/Vitão/.codex/plugins/cache/openai-curated-remote\\build-web-apps\\0.1.2\\skills\\supabase-best-practices\\SKILL.md",
+    "version": "1.1.0",
+    "state": "available",
+    "sha256": "CFC4DA3ED47C14F4FB24C5B4DB4BE443FA200E12E71D674FB1270EECCE87A302"
+  },
+  {
+    "name": "intake",
+    "path": "C:/Users/Vitão/.codex/plugins/cache/openai-curated-remote\\creative-production\\0.1.25\\skills\\intake\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "8B5C1B507E48EF90ED1104EEE45D4A3F3C780F37683D487FF16DC635E1FE666E"
+  },
+  {
+    "name": "stripe-best-practices",
+    "path": "C:/Users/Vitão/.codex/plugins/cache/openai-curated-remote\\build-web-apps\\0.1.2\\skills\\stripe-best-practices\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "5062F0C980030AF377A0AC33B77C9D233676E2ECBB57B3D3CD8734FC0DA464B2"
+  },
+  {
+    "name": "shadcn",
+    "path": "C:/Users/Vitão/.codex/plugins/cache/openai-curated-remote\\build-web-apps\\0.1.2\\skills\\shadcn-best-practices\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "7678F5168D4EE6F3AE3CE4D3D41C654F0AEBC7B88CBC392A9504822DEC0DFF28"
+  },
+  {
+    "name": "gsd-mvp-phase",
+    "path": "C:/Users/Vitão/.codex/skills\\gsd-mvp-phase\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "D4E851C18E64ADA7D135444CC7D9C1A5625EBBD26585E80E9BE72CE8DD309BD8"
+  },
+  {
+    "name": "gsd-docs-update",
+    "path": "C:/Users/Vitão/.codex/skills\\gsd-docs-update\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "8901817AB779B8D506E64C0DD07D814AE0946BF125B8B1B1D403673279DA03AD"
+  },
+  {
+    "name": "gsd-discuss-phase",
+    "path": "C:/Users/Vitão/.codex/skills\\gsd-discuss-phase\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "33C8FA167E64DEA0D98F093D9ECBA00A8DC83B59CF70690936F86C77C8B6647E"
+  },
+  {
+    "name": "gsd-debug",
+    "path": "C:/Users/Vitão/.codex/skills\\gsd-debug\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "B27392E0BE36A286102FD1D57B3F4448B1CA5A969E555C5C901B24865841B530"
+  },
+  {
+    "name": "gsd-milestone-summary",
+    "path": "C:/Users/Vitão/.codex/skills\\gsd-milestone-summary\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "C9DCE0DFB9B6160BD6E059E55E2F309B352B2BF46859E13AA1C71A445B2DC19C"
+  },
+  {
+    "name": "gsd-config",
+    "path": "C:/Users/Vitão/.codex/skills\\gsd-config\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "7100F92CE840D80F41CFCFDA9D4A0880D4894783366BAA600B54073131AA0AC4"
+  },
+  {
+    "name": "gsd-complete-milestone",
+    "path": "C:/Users/Vitão/.codex/skills\\gsd-complete-milestone\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "D3AE2CE597F514BCF5B922695786F4F361BB4919F588724694A9E8E7885FBB5A"
+  },
+  {
+    "name": "gsd-code-review",
+    "path": "C:/Users/Vitão/.codex/skills\\gsd-code-review\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "4F7DCD75AF99E9DF7C055A54668B698CE82327F7E8DD78C3DF38050CD8E1421C"
+  },
+  {
+    "name": "gsd-cleanup",
+    "path": "C:/Users/Vitão/.codex/skills\\gsd-cleanup\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "47343B0A498F20C19143E923F913CEA9312BBA9CE18E6386493B1A28832E682D"
+  },
+  {
+    "name": "gsd-capture",
+    "path": "C:/Users/Vitão/.codex/skills\\gsd-capture\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "2B96082ABC0301EAEC452050F2F8718694F3BE66307C4FE0E04C48F81AF5E0D7"
+  },
+  {
+    "name": "gsd-ai-integration-phase",
+    "path": "C:/Users/Vitão/.codex/skills\\gsd-ai-integration-phase\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "EEE7C7F5BC5F7B32495EA4BAED86CD65DF652D660FE1627B0F053C7F9BD03574"
+  },
+  {
+    "name": "gsd-autonomous",
+    "path": "C:/Users/Vitão/.codex/skills\\gsd-autonomous\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "E6D46CF7E46C12415DD8E7FE1940347998D289B642CC2E8A6EF7850185962FA0"
+  },
+  {
+    "name": "gsd-map-codebase",
+    "path": "C:/Users/Vitão/.codex/skills\\gsd-map-codebase\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "3272B45441614A8E46F6CFA189E85BD54604C7A41CA00A1324948D8C51C505DA"
+  },
+  {
+    "name": "gsd-audit-uat",
+    "path": "C:/Users/Vitão/.codex/skills\\gsd-audit-uat\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "CB0C19994163ACC9FCE84EF5E5A293505F767370B0B6BCDA8BD9BF218B057160"
+  },
+  {
+    "name": "gsd-add-tests",
+    "path": "C:/Users/Vitão/.codex/skills\\gsd-add-tests\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "B387BC9BC85FE20DCA5D61B5B9126C5926EF743C3E62443CA20BFB85CEF6FC08"
+  },
+  {
+    "name": "hyperframes-studio",
+    "path": "C:/Users/Vitão/.codex/skills\\hyperframes-studio\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "7449DA3952155E40E7D76FC29D4415B4030AB6F7F3FF9C3B94FA1B159CAD46C4"
+  },
+  {
+    "name": "agent-browser",
+    "path": "C:/Users/Vitão/.codex/skills\\agent-browser\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "3A7520E64DE2DFAA516B6721C001E84E06E3C06A187B82AF029AE721540EBFAC"
+  },
+  {
+    "name": "gsd-audit-milestone",
+    "path": "C:/Users/Vitão/.codex/skills\\gsd-audit-milestone\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "4B0A174C5A8E8F6F5E65899364A859911E2BF13FC0D060229AED00A1B56B1B4F"
+  },
+  {
+    "name": "react-best-practices",
+    "path": "C:/Users/Vitão/.codex/plugins/cache/openai-curated-remote\\build-web-apps\\0.1.2\\skills\\react-best-practices\\SKILL.md",
+    "version": "1.0.0",
+    "state": "available",
+    "sha256": "CC7D03309817F392C419A203E1BC1F1759EF94831F7DBEDF39D91A35AC5BC86A"
+  },
+  {
+    "name": "gsd-audit-fix",
+    "path": "C:/Users/Vitão/.codex/skills\\gsd-audit-fix\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "43B4C5CE98D57C9DE54B3B6D7B0FD447821EF961E4932C6B1FAB966BC44E1A62"
+  },
+  {
+    "name": "hyperframes-registry",
+    "path": "C:/Users/Vitão/.codex/skills\\hyperframes-registry\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "F1925B202CABD125B509658B11DB593B55340B1926ECB056FC31AA4233A2B4F6"
+  },
+  {
+    "name": "gsd-forensics",
+    "path": "C:/Users/Vitão/.codex/skills\\gsd-forensics\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "ED5BAFC99684DD5EA862981586486BF9B01AEBD87F86C0B0A7F9350750276E35"
+  },
+  {
+    "name": "skill-installer\r",
+    "path": "C:/Users/Vitão/.codex/skills\\.system\\skill-installer\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "2892D8B2FB11631132118F340AED80AE17E59D5A571FC2C4F4A4A7E73F139D52"
+  },
+  {
+    "name": "gsd-fast",
+    "path": "C:/Users/Vitão/.codex/skills\\gsd-fast\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "61A3BA58CEFA12BBBA51EF5543496625279E4A0813B2D2D0EFB6EA12B7057188"
+  },
+  {
+    "name": "gsd-extract-learnings",
+    "path": "C:/Users/Vitão/.codex/skills\\gsd-extract-learnings\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "72108D6A9F888A7209FE940B207EA7D8C35B58BA7FC4CF3365A30CF4C639BAB4"
+  },
+  {
+    "name": "gsd-explore",
+    "path": "C:/Users/Vitão/.codex/skills\\gsd-explore\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "9E9246F4A6D024A43696FFCD93CE384A6EDC3CFAD4F4F9FABB295BF828B524C9"
+  },
+  {
+    "name": "hyperframes-keyframes",
+    "path": "C:/Users/Vitão/.codex/skills\\hyperframes-keyframes\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "D6484E8367ED522F2A89AF9EC30AE3CD86AE243B5A23C5AB00A7A682E3D1A791"
+  },
+  {
+    "name": "gsd-execute-phase",
+    "path": "C:/Users/Vitão/.codex/skills\\gsd-execute-phase\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "FFFBD470A01340F65324CF6146E3AA6F9C8DAA151452A12B50C0E072E2C17C10"
+  },
+  {
+    "name": "gsd-manager",
+    "path": "C:/Users/Vitão/.codex/skills\\gsd-manager\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "84C397BBFA283C690F8275C7E70DD7AB00128FA96CD59F79E3B0A70B48068996"
+  },
+  {
+    "name": "gsd-eval-review",
+    "path": "C:/Users/Vitão/.codex/skills\\gsd-eval-review\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "32D15A2C5BD8A136D32E7E1536E6BFBDC6C846D46003686767AEE188E8389EF2"
+  },
+  {
+    "name": "gsd-ingest-docs",
+    "path": "C:/Users/Vitão/.codex/skills\\gsd-ingest-docs\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "041EA388C83A9116747BF9A7FDD0E73813DB01CF94DF2D573207FEC36CF4D7B2"
+  },
+  {
+    "name": "frontend-testing-debugging",
+    "path": "C:/Users/Vitão/.codex/plugins/cache/openai-curated-remote\\build-web-apps\\0.1.2\\skills\\frontend-testing-debugging\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "03724620CF7E7DE425B607A5492F572D867B1CF5D9C92C74BF50D057D7415E0B"
+  },
+  {
+    "name": "gsd-help",
+    "path": "C:/Users/Vitão/.codex/skills\\gsd-help\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "D2D26FE46F2C7E24C86A180E82C6E5149934B0261C3BA2B614673E501812EB49"
+  },
+  {
+    "name": "skill-creator\r",
+    "path": "C:/Users/Vitão/.codex/skills\\.system\\skill-creator\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "CCCD291077EC57C6F50CA6529F0F3FB93212DA09473EFFB2FCEC808E81B21288"
+  },
+  {
+    "name": "gsd-health",
+    "path": "C:/Users/Vitão/.codex/skills\\gsd-health\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "769DFA92BB7AABEEA69AE0B8E38C728BBE896893F209E8A2825A6E1988F8E1D0"
+  },
+  {
+    "name": "frontend-app-builder",
+    "path": "C:/Users/Vitão/.codex/plugins/cache/openai-curated-remote\\build-web-apps\\0.1.2\\skills\\frontend-app-builder\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "9273DE02827B29534BE28FB2B37154C1571AC38B4E20D3EF5482B7E22AF67394"
+  },
+  {
+    "name": "gsd-graphify",
+    "path": "C:/Users/Vitão/.codex/skills\\gsd-graphify\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "095FC0F72F1D667CF37F2FC83BC2AD470D9EE43688A4B765F62680319776E251"
+  },
+  {
+    "name": "hyperframes-creative",
+    "path": "C:/Users/Vitão/.codex/skills\\hyperframes-creative\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "9DA7B7AC84C8D884B54125887ECCA1A645A38337013082B96AF2FDC0259C945A"
+  },
+  {
+    "name": "gsd-import",
+    "path": "C:/Users/Vitão/.codex/skills\\gsd-import\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "9663CD541F779952F02268FE092A522D7644471835C8D0F764FC27266D16FACD"
+  },
+  {
+    "name": "gsd-ship",
+    "path": "C:/Users/Vitão/.codex/skills\\gsd-ship\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "3D9D7FFD9EC55055AB937FD4FE5B3010445BBC8A1E88B8523C94A456221B3805"
+  },
+  {
+    "name": "gsd-inbox",
+    "path": "C:/Users/Vitão/.codex/skills\\gsd-inbox\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "A5B0AC4C35522571524E3E5AF68BF8846DC840090839F0570878C40C298B514E"
+  },
+  {
+    "name": "gsd-settings",
+    "path": "C:/Users/Vitão/.codex/skills\\gsd-settings\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "D2FF99665F253FC9577ABC56E07C091E19C87B46B28B705C964A7BD617532097"
+  },
+  {
+    "name": "gsd-secure-phase",
+    "path": "C:/Users/Vitão/.codex/skills\\gsd-secure-phase\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "4C62E67D8639E23F47C6B33F7E089B172960C3960E12FE68E67E387D77080B9A"
+  },
+  {
+    "name": "review-agent\r",
+    "path": "C:/Users/Vitão/.codex/skills\\.system\\review-agent\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "BB46315F6BC4B7051C05F807D19B1689B20418AC6C42590406D805C10FA2FD1A"
+  },
+  {
+    "name": "gsd-review-backlog",
+    "path": "C:/Users/Vitão/.codex/skills\\gsd-review-backlog\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "27B699D05B402222D3BC3DA543DEFD394CE8777797C3FAC5436D967816181D7E"
+  },
+  {
+    "name": "gsd-review",
+    "path": "C:/Users/Vitão/.codex/skills\\gsd-review\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "AA578B5BE60BC00AE7700FBC65C009F77D9F12E4B33A96EAA10874965B94DBF7"
+  },
+  {
+    "name": "openai-docs\"\r",
+    "path": "C:/Users/Vitão/.codex/skills\\.system\\openai-docs\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "8CE8021101BCEA594FF92EE6CFD8CA7641A49EE66D7BC6070555F1A33FC239D9"
+  },
+  {
+    "name": "gsd-resume-work",
+    "path": "C:/Users/Vitão/.codex/skills\\gsd-resume-work\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "C1B35EE3262D9EBC8F3DE4C6DDEACDBE878A0DB5378388AD87B548A831820CEB"
+  },
+  {
+    "name": "gsd-quick",
+    "path": "C:/Users/Vitão/.codex/skills\\gsd-quick\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "D62AA340F863262685CF1EEFED17640C4516236211B09F8B5E9DD726FFEF55A9"
+  },
+  {
+    "name": "gsd-validate-phase",
+    "path": "C:/Users/Vitão/.codex/skills\\gsd-validate-phase\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "405C872995A7ED8D9F6EFCE809464077435AFE9ECC7DB69E63D562DA6C124A30"
+  },
+  {
+    "name": "gsd-progress",
+    "path": "C:/Users/Vitão/.codex/skills\\gsd-progress\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "7329BB0B21E2D661EEDF912B004B3E4675019B6D50BF0965C96C1F8965460F84"
+  },
+  {
+    "name": "gsd-profile-user",
+    "path": "C:/Users/Vitão/.codex/skills\\gsd-profile-user\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "06ADC2E4B3C1910F202D4B0E60AB11A4078BC50729A8EA4D4E3B4FC09823DC8C"
+  },
+  {
+    "name": "gsd-update",
+    "path": "C:/Users/Vitão/.codex/skills\\gsd-update\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "FF3487D5A61EB3016B158E9DC44D02BB0BF2FC3DCBE98A9D5A8CB5E70E4C8333"
+  },
+  {
+    "name": "gsd-pr-branch",
+    "path": "C:/Users/Vitão/.codex/skills\\gsd-pr-branch\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "832F417EB943F1619D205124D06D8D25ACA202E4213A9587183FCA81C5C49AA3"
+  },
+  {
+    "name": "user-context",
+    "path": "C:/Users/Vitão/.codex/plugins/cache/openai-curated-remote\\product-design\\0.1.56\\skills\\user-context\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "5690A7F99CF896970493F5D0BD7F35F62AB9CBE21744352ACF84DC0CEEA4194C"
+  },
+  {
+    "name": "gsd-undo",
+    "path": "C:/Users/Vitão/.codex/skills\\gsd-undo\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "4585E676B01E86675CB166513221413FFD895D52ADC38D4FBE3F012FC5A5D091"
+  },
+  {
+    "name": "gsd-plan-review-convergence",
+    "path": "C:/Users/Vitão/.codex/skills\\gsd-plan-review-convergence\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "F0387782D880D0C9CAA2FEF11D5A1C7BFB6B177B0185FDFCCB2A37C3F4BD3AF7"
+  },
+  {
+    "name": "imagegen\"\r",
+    "path": "C:/Users/Vitão/.codex/skills\\.system\\imagegen\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "706D4D96E1D5C9E6023FE3CCABBA1BB34B364024D344FD25B8515EC7D28FE3C4"
+  },
+  {
+    "name": "gsd-ultraplan-phase",
+    "path": "C:/Users/Vitão/.codex/skills\\gsd-ultraplan-phase\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "DBE33A39ADF4C390B4CA472F58B96325914FBCA3FB3B3F12A47942557D20CA44"
+  },
+  {
+    "name": "gsd-plan-phase",
+    "path": "C:/Users/Vitão/.codex/skills\\gsd-plan-phase\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "3DAFC4B24C9FCC3D456506A150767FB3F5CB50CB6CB1A705AA1025A3B91721E1"
+  },
+  {
+    "name": "gsd-ui-review",
+    "path": "C:/Users/Vitão/.codex/skills\\gsd-ui-review\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "59AC1F01757CE485B23DCA2C4440C72CE5A5C5096779CF1A6681B450F4A84C3F"
+  },
+  {
+    "name": "gsd-phase",
+    "path": "C:/Users/Vitão/.codex/skills\\gsd-phase\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "2DEDC0F506EA1809076C4E1113E2AD3B9C2E9FD99282B2A9236BBA8EEDB98ABF"
+  },
+  {
+    "name": "gsd-ui-phase",
+    "path": "C:/Users/Vitão/.codex/skills\\gsd-ui-phase\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "604B5E82190522E9B4B357AE858B1B84E3C8F2C34E70F0699B79CC5D6AA762FE"
+  },
+  {
+    "name": "gsd-pause-work",
+    "path": "C:/Users/Vitão/.codex/skills\\gsd-pause-work\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "CB69B3F00F0FC66F5DCC2C6ABC73D836A3FF6C8E64F88F13CF79FAD82C92957E"
+  },
+  {
+    "name": "gsd-thread",
+    "path": "C:/Users/Vitão/.codex/skills\\gsd-thread\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "FC7B132EC5C1BFE62D1BE7EAFB07313B56546A2A028641EE664F221C4B25ACFF"
+  },
+  {
+    "name": "gsd-ns-workflow",
+    "path": "C:/Users/Vitão/.codex/skills\\gsd-ns-workflow\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "59593D8753FB68B95AE79F1FD0CACC890F0CA7D97B273FBF131B40686BE3BBA4"
+  },
+  {
+    "name": "url-to-code",
+    "path": "C:/Users/Vitão/.codex/plugins/cache/openai-curated-remote\\product-design\\0.1.56\\skills\\url-to-code\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "2624D0E2EC5F14BA2A4BF74FE05AAA23520B4FB76CA57973C9DADD54FD4B09D2"
+  },
+  {
+    "name": "gsd-ns-ideate",
+    "path": "C:/Users/Vitão/.codex/skills\\gsd-ns-ideate\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "56EC697C35C2DFE6900FD91F5823885E890A4568E54ADB9D879BFE80ACBF57B0"
+  },
+  {
+    "name": "gsd-ns-review",
+    "path": "C:/Users/Vitão/.codex/skills\\gsd-ns-review\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "B82DBE80EEEA42241F8708E33C4F588A522B3772461014388AEFF35BA40DCCB9"
+  },
+  {
+    "name": "gsd-stats",
+    "path": "C:/Users/Vitão/.codex/skills\\gsd-stats\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "F61C910AE95059450579CDD5968F41D96F01302AC38CF24EF5A29921B5A85A50"
+  },
+  {
+    "name": "gsd-ns-context",
+    "path": "C:/Users/Vitão/.codex/skills\\gsd-ns-context\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "BD43DFE04DBC3381A82F8F77802712AA8DD53A383AE6F35B24E387BD8CD692DA"
+  },
+  {
+    "name": "gsd-ns-project",
+    "path": "C:/Users/Vitão/.codex/skills\\gsd-ns-project\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "12CF0ACD1654024C4D0B50B2185520651929592E260120105ACA2DDFF034A9CD"
+  },
+  {
+    "name": "gsd-new-project",
+    "path": "C:/Users/Vitão/.codex/skills\\gsd-new-project\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "553A0DF72438C234BDB08C688DE38FDAB211256CFAD2A3034A35D6E38DE912C9"
+  },
+  {
+    "name": "share",
+    "path": "C:/Users/Vitão/.codex/plugins/cache/openai-curated-remote\\product-design\\0.1.56\\skills\\share\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "19327C50A52F3B9E2EBFCEF47D394D988BD6F4C64524C98F665D43BDF5F02C45"
+  },
+  {
+    "name": "gsd-spike",
+    "path": "C:/Users/Vitão/.codex/skills\\gsd-spike\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "A24B7AC9FB76C8069C2A20384302D1E3CADC2D9364B8676E26C6F9E5A48F36CA"
+  },
+  {
+    "name": "gsd-new-milestone",
+    "path": "C:/Users/Vitão/.codex/skills\\gsd-new-milestone\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "C43EEED99A6481043A4A01FAB75A6319B58815F522EE03F6E44FFC28006C915B"
+  },
+  {
+    "name": "gsd-ns-manage",
+    "path": "C:/Users/Vitão/.codex/skills\\gsd-ns-manage\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "21FDF42E7A3AE607BC79B75B96BD3D7AC4107245E26ED71834FD15BAF0C46615"
+  },
+  {
+    "name": "gsd-sketch",
+    "path": "C:/Users/Vitão/.codex/skills\\gsd-sketch\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "BBA2AE2F273C9AC6B49B8BE9E04F4231D7A52B2C0F26144CF50E2C015ADEAA27"
+  },
+  {
+    "name": "gsd-spec-phase",
+    "path": "C:/Users/Vitão/.codex/skills\\gsd-spec-phase\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "DECF1B677E51CBE58C089DCD85DAD69CD7CB85ACE40BC3CDD0DE5EFD777B0123"
+  },
+  {
+    "name": "hyperframes-cli",
+    "path": "C:/Users/Vitão/.codex/skills\\hyperframes-cli\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "8BBA949A98797FD01B4C88600486730083524A81377D0C0D44B07EE1CAE48321"
+  },
+  {
+    "name": "research",
+    "path": "C:/Users/Vitão/.codex/plugins/cache/openai-curated-remote\\product-design\\0.1.56\\skills\\research\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "BF824E72DD93941C8D591E4AF13BB7E3A09380CD6ED7DD8C1F61A295648FA023"
+  },
+  {
+    "name": "gsd-workstreams",
+    "path": "C:/Users/Vitão/.codex/skills\\gsd-workstreams\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "7CC33F6C04F83BBFB1A3AB66B07C7834623349D5568BECC8155A720A9FB7F9B3"
+  },
+  {
+    "name": "gsd-workspace",
+    "path": "C:/Users/Vitão/.codex/skills\\gsd-workspace\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "83585FD537A5E808B661820BAF786F6A6624F304BC73669388A812A5DB231627"
+  },
+  {
+    "name": "index",
+    "path": "C:/Users/Vitão/.codex/plugins/cache/openai-curated-remote\\product-design\\0.1.56\\skills\\index\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "8E9916D9E5DC3B6A394BEDCAA38CD9C8833A1F3B0C4538B75647CF9F62F779FC"
+  },
+  {
+    "name": "gsd-verify-work",
+    "path": "C:/Users/Vitão/.codex/skills\\gsd-verify-work\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "B9B2BEFFF28AB99DA62DAB939639DFA99AAEEFDB0D84B1913721BAE600D8553C"
+  },
+  {
+    "name": "hyperframes-audio",
+    "path": "C:/Users/Vitão/.codex/skills\\hyperframes-audio\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "DAF3250390426EF096A7D2F71082919418099DECBD1F31288640A43B43C7E293"
+  },
+  {
+    "name": "hyperframes",
+    "path": "C:/Users/Vitão/.codex/skills\\hyperframes\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "A277E9E46B3B5B8619639A353A4AF3F46F8AE4F2E622BA802D5AF730D135F410"
+  },
+  {
+    "name": "hyperframes-core",
+    "path": "C:/Users/Vitão/.codex/skills\\hyperframes-core\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "18AC7784765CC29AF5A4D88F2A63A15DEAF5395985009AF188B5E3718EDCFE3D"
+  },
+  {
+    "name": "image-to-code",
+    "path": "C:/Users/Vitão/.codex/plugins/cache/openai-curated-remote\\product-design\\0.1.56\\skills\\image-to-code\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "694B4102BC339E3038173F8063D83A19E08D2A2CFAB1F2E478D6412870A61FF0"
+  },
+  {
+    "name": "design-qa",
+    "path": "C:/Users/Vitão/.codex/plugins/cache/openai-curated-remote\\product-design\\0.1.56\\skills\\design-qa\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "19303684C7C84E279F3582D784493A6F09D207D92A29E9B15B7056020BCF306E"
+  },
+  {
+    "name": "ideate",
+    "path": "C:/Users/Vitão/.codex/plugins/cache/openai-curated-remote\\product-design\\0.1.56\\skills\\ideate\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "649E8782CA93D5AECE712964FAE5BE2B111CC3143577E1507B98DF7F9D8E6BDE"
+  },
+  {
+    "name": "audit",
+    "path": "C:/Users/Vitão/.codex/plugins/cache/openai-curated-remote\\product-design\\0.1.56\\skills\\audit\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "087F798C3FE02E91B4CCA18CC0F42C358A4DC2C02CCF37A348B476FB19B64AA3"
+  },
+  {
+    "name": "get-context",
+    "path": "C:/Users/Vitão/.codex/plugins/cache/openai-curated-remote\\product-design\\0.1.56\\skills\\get-context\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "151267C873003B7B03715C0842EF798369420464844218492F732EDD2F6F7FD1"
+  },
+  {
+    "name": "remotion-upgrade",
+    "path": "C:/Users/Vitão/.agents/skills\\remotion-upgrade\\SKILL.md",
+    "version": "4.0.527",
+    "state": "available",
+    "sha256": "F778AC6D111DAE345131DE618AA9A5778823B204A2622F32324EE3D426EC7F65"
+  },
+  {
+    "name": "hyperframes-animation",
+    "path": "C:/Users/Vitão/.codex/skills\\hyperframes-animation\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "B35F1F8EFF68E9FF480A5D5D343A1BF5A40EBB7D0D9BE20B0B980CFDB36047F3"
+  },
+  {
+    "name": "remotion-markup",
+    "path": "C:/Users/Vitão/.agents/skills\\remotion-markup\\SKILL.md",
+    "version": "4.0.527",
+    "state": "available",
+    "sha256": "CA654CF864B1FEC6C04527C03C3CF574636CF2178083A956626E00CE61E2527D"
+  },
+  {
+    "name": "remotion-studio",
+    "path": "C:/Users/Vitão/.agents/skills\\remotion-studio\\SKILL.md",
+    "version": "4.0.526",
+    "state": "available",
+    "sha256": "D4624B8DB4ECC36349BE6BBA96C577325E83701ACC316089F641E89916449679"
+  },
+  {
+    "name": "remotion-render",
+    "path": "C:/Users/Vitão/.agents/skills\\remotion-render\\SKILL.md",
+    "version": "4.0.527",
+    "state": "available",
+    "sha256": "0E22D25BA1BFABBB81C14530E4D542C711A1CD934DBA807154439CD665FEE466"
+  },
+  {
+    "name": "remotion-multimedia",
+    "path": "C:/Users/Vitão/.agents/skills\\remotion-multimedia\\SKILL.md",
+    "version": "4.0.527",
+    "state": "available",
+    "sha256": "657C401A2387AFFE600F8342B1D6D92B651B3DB92C7AD0CC130D9B0AA1D782E2"
+  },
+  {
+    "name": "remotion-saas",
+    "path": "C:/Users/Vitão/.agents/skills\\remotion-saas\\SKILL.md",
+    "version": "4.0.527",
+    "state": "available",
+    "sha256": "D5DC29922CF5B10B10F41E4F6005E17BF8B36964A3E2B4CD19C86878C6519D35"
+  },
+  {
+    "name": "ponytail-review\r",
+    "path": "C:/Users/Vitão/.codex/plugins/cache/ponytail\\ponytail\\5.3.2\\skills\\ponytail-review\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "AFFA0EEDCA467B58699FAFBEA28F6F85352AA3E7F23785964BF42F029A291504"
+  },
+  {
+    "name": "ponytail-help\r",
+    "path": "C:/Users/Vitão/.codex/plugins/cache/ponytail\\ponytail\\5.3.2\\skills\\ponytail-help\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "C4B353C9A13A9FD7008E319D1965816FAAED13DCB61FEB90AFC514E50031706B"
+  },
+  {
+    "name": "ponytail-gain\r",
+    "path": "C:/Users/Vitão/.codex/plugins/cache/ponytail\\ponytail\\5.3.2\\skills\\ponytail-gain\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "B87F5B982820479831608D3B3D4B942C95577820FEF088662348EB16B48792DC"
+  },
+  {
+    "name": "ponytail-debt\r",
+    "path": "C:/Users/Vitão/.codex/plugins/cache/ponytail\\ponytail\\5.3.2\\skills\\ponytail-debt\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "F0B59CB7E623F68568F2164864C757D41F0452D176C2F28B5B9B3C6B7EF3A799"
+  },
+  {
+    "name": "ponytail-audit\r",
+    "path": "C:/Users/Vitão/.codex/plugins/cache/ponytail\\ponytail\\5.3.2\\skills\\ponytail-audit\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "3AB632CE4695DE214DAFE4DB13D6F939E1C4BE328BD0754EA751DC28B70BE554"
+  },
+  {
+    "name": "ponytail\r",
+    "path": "C:/Users/Vitão/.codex/plugins/cache/ponytail\\ponytail\\5.3.2\\skills\\ponytail\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "F18008471528F0ADDE90A560D053F85935EED5CEE26C447B7177AD24472BCF32"
+  },
+  {
+    "name": "remotion-interactivity",
+    "path": "C:/Users/Vitão/.agents/skills\\remotion-interactivity\\SKILL.md",
+    "version": "4.0.527",
+    "state": "available",
+    "sha256": "13312FFD1031B0C9DCBCFC9AC94A8A6EDCE0DB1F3C2CCA658068313E5ED3D2D3"
+  },
+  {
+    "name": "remotion-marketing-video",
+    "path": "C:/Users/Vitão/.agents/skills\\remotion-marketing-video\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "4AB08B626E3B8BDBB254DA97619A7540B0DF924D3C58C1520624C9E589D578D6"
+  },
+  {
+    "name": "remotion-docs",
+    "path": "C:/Users/Vitão/.agents/skills\\remotion-docs\\SKILL.md",
+    "version": "4.0.527",
+    "state": "available",
+    "sha256": "E5BB04AF59AE53FD7EFA1C87F76B4DC3E36073AECC62946011860B22B20CB4E7"
+  },
+  {
+    "name": "remotion-maps",
+    "path": "C:/Users/Vitão/.agents/skills\\remotion-maps\\SKILL.md",
+    "version": "4.0.527",
+    "state": "available",
+    "sha256": "67BF4D3BE25E5FF0489A4C9330674534DB0B07A047D9C5EF612F76F38912FF91"
+  },
+  {
+    "name": "ponytail-review\r",
+    "path": "C:/Users/Vitão/.codex/plugins/cache/ponytail\\ponytail\\5.3.2\\.openclaw\\skills\\ponytail-review\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "88AE8381FD4DE4FE74E3127507171657032176CCAF69388352A67742A30276AD"
+  },
+  {
+    "name": "ponytail-help\r",
+    "path": "C:/Users/Vitão/.codex/plugins/cache/ponytail\\ponytail\\5.3.2\\.openclaw\\skills\\ponytail-help\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "8F28113B1948F22556648AE230F874ADE5FC6DD7E629150A191ED72C56607327"
+  },
+  {
+    "name": "ponytail-debt\r",
+    "path": "C:/Users/Vitão/.codex/plugins/cache/ponytail\\ponytail\\5.3.2\\.openclaw\\skills\\ponytail-debt\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "7D3745E1AFBC23953A6DFD727BC080BD85E829C107DA100A162E6FA907FF5C25"
+  },
+  {
+    "name": "ponytail-audit\r",
+    "path": "C:/Users/Vitão/.codex/plugins/cache/ponytail\\ponytail\\5.3.2\\.openclaw\\skills\\ponytail-audit\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "64FC7CEF31BC742A265A78EB469A2A76B484D00B0810A4321725350CA8774973"
+  },
+  {
+    "name": "ponytail-gain\r",
+    "path": "C:/Users/Vitão/.codex/plugins/cache/ponytail\\ponytail\\5.3.2\\.openclaw\\skills\\ponytail-gain\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "D741CB0544C73BE45F97AA9AEF3FB8AD085845597213C20FED45E18DB882729A"
+  },
+  {
+    "name": "ponytail\r",
+    "path": "C:/Users/Vitão/.codex/plugins/cache/ponytail\\ponytail\\5.3.2\\.openclaw\\skills\\ponytail\\SKILL.md",
+    "version": "",
+    "state": "available",
+    "sha256": "53275FEF34D9FC4060753A30619476A4D2B80C3AF86347E816EB5BDD6D2185C4"
+  }
+]

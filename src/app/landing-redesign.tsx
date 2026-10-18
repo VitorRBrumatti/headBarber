@@ -1,39 +1,425 @@
-"use client"
+"use client";
 
-import Image from "next/image"
-import Link from "next/link"
-import { useState } from "react"
-import LandingPricing from "./landing-pricing"
+import Image from "next/image";
+import Link from "next/link";
+import { useEffect, useRef, useState } from "react";
+import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import {
+  ArrowRight,
+  CalendarDays,
+  CreditCard,
+  Menu,
+  Package,
+  Repeat2,
+  Scissors,
+  UsersRound,
+  Wallet,
+  X,
+} from "lucide-react";
+import LandingPricing from "./landing-pricing";
+import s from "./landing.module.css";
 
-const journey = [
-  ["01 / RESERVA", "O cliente escolhe.", "Um link direto para marcar horário a qualquer momento."],
-  ["02 / AGENDA", "A equipe acompanha.", "Horários e profissionais organizados no dia."],
-  ["03 / ATENDIMENTO", "O contexto aparece.", "Serviços, preferências e histórico à mão."],
-  ["04 / GESTÃO", "Os números fecham.", "Financeiro e operação em uma leitura clara."],
-]
-
+const capabilities = [
+  [CalendarDays, "Agendamento online", "por link"],
+  [UsersRound, "Gestão de clientes", "e histórico"],
+  [Repeat2, "Assinaturas de clientes", "e recorrência"],
+  [Wallet, "Financeiro", "e comissões"],
+] as const;
+const features = [
+  [
+    "Agenda organizada",
+    "Visualize os agendamentos da sua equipe em um só lugar, evite conflitos e mantenha sua barbearia sempre no ritmo certo.",
+    "agenda",
+  ],
+  [
+    "Assinaturas e recorrência",
+    "Crie planos, gerencie seus assinantes e acompanhe os benefícios e a recorrência de cada cliente.",
+    "overview",
+  ],
+  [
+    "Financeiro sob controle",
+    "Acompanhe entradas, saídas, comissões e tenha uma visão clara da saúde financeira do seu negócio.",
+    "finance",
+  ],
+];
+const customization = [
+  [Scissors, "Serviços personalizados", "Defina preços, duração e adicionais."],
+  [
+    UsersRound,
+    "Gestão da equipe",
+    "Cada barbeiro com sua própria agenda e comissão.",
+  ],
+  [Package, "Produtos e vendas", "Controle seu estoque e registre vendas."],
+  [
+    CreditCard,
+    "Histórico de clientes",
+    "Acompanhe o histórico e as preferências de cada cliente.",
+  ],
+] as const;
+function Brand() {
+  return (
+    <Link href="/" className={s.brand} aria-label="HeadBarber, início">
+      <Image
+        src="/brand/headbarber_simbolo_duas_cores_transparente.png"
+        alt=""
+        width={40}
+        height={40}
+      />
+      <span>HeadBarber</span>
+    </Link>
+  );
+}
+function Action({
+  children = "Começar agora",
+  href = "/login",
+  secondary = false,
+}: {
+  children?: React.ReactNode;
+  href?: string;
+  secondary?: boolean;
+}) {
+  return (
+    <Link className={`${s.action} ${secondary ? s.secondary : ""}`} href={href}>
+      {children}
+      <ArrowRight aria-hidden="true" size={16} />
+    </Link>
+  );
+}
 export default function LandingRedesign() {
-  const [mobileOpen, setMobileOpen] = useState(false)
-  return <div className="hb-landing min-h-screen bg-[#F6F5F2] text-[#242321] [font-family:var(--font-inter),Arial,sans-serif]">
-    <a href="#conteudo" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:bg-white focus:p-3">Pular para o conteúdo</a>
-    <header className="sticky top-0 z-30 bg-[#232220] text-white">
-      <nav className="mx-auto flex h-[72px] max-w-[1320px] items-center justify-between gap-6 px-5 sm:px-8 lg:px-12" aria-label="Navegação principal">
-        <Link href="/" aria-label="HeadBarber, início" className="inline-flex shrink-0 items-center"><Image src="/brand/headbarber_logo_duas_cores_com_texto_transparente.png" alt="HeadBarber" width={1083} height={795} className="h-[55px] w-auto object-contain" priority /></Link>
-        <div className="hidden items-center gap-8 md:flex"><a href="#como-funciona" className="text-sm text-[#dedbd5] hover:text-white">Como funciona</a><a href="#precos" className="text-sm text-[#dedbd5] hover:text-white">Preços</a><Link href="/demo" className="text-sm text-[#dedbd5] hover:text-white">Demonstração</Link><Link href="/login" className="inline-flex min-h-11 items-center bg-[#C79A4A] px-5 text-sm font-semibold text-[#211b12] hover:bg-[#d7ae66]">Começar agora <span className="ml-3" aria-hidden="true">→</span></Link></div>
-        <button type="button" className="flex h-11 w-11 items-center justify-center border border-white/30 md:hidden" aria-label={mobileOpen ? "Fechar menu" : "Abrir menu"} aria-expanded={mobileOpen} aria-controls="landing-mobile-nav" onClick={() => setMobileOpen(open => !open)}><span aria-hidden="true" className="text-2xl">{mobileOpen ? "×" : "☰"}</span></button>
-      </nav>
-      {mobileOpen && <div id="landing-mobile-nav" className="grid gap-1 border-t border-white/15 px-5 pb-5 pt-3 text-sm md:hidden"><a href="#como-funciona" onClick={() => setMobileOpen(false)} className="py-3">Como funciona</a><a href="#precos" onClick={() => setMobileOpen(false)} className="py-3">Preços</a><Link href="/demo" onClick={() => setMobileOpen(false)} className="py-3">Demonstração</Link><Link href="/login" onClick={() => setMobileOpen(false)} className="mt-2 bg-[#C79A4A] px-5 py-3 text-center font-semibold text-[#211b12]">Começar agora</Link></div>}
-    </header>
-    <main id="conteudo">
-      <section className="grid bg-[#232220] text-white lg:min-h-[570px] lg:grid-cols-[48%_52%]">
-        <div className="mx-auto flex w-full max-w-[650px] flex-col justify-center px-5 py-14 sm:px-8 lg:ml-auto lg:px-12 lg:py-20"><p className="text-xs font-bold uppercase tracking-[.18em] text-[#d6a85b]">Gestão para barbearias</p><h1 className="mt-7 max-w-[620px] text-balance [font-family:var(--font-montserrat),Arial,sans-serif] text-[clamp(2.8rem,4.7vw,4.9rem)] font-bold leading-[1.05] tracking-[-.055em]">O próximo corte começa com a casa em ordem.</h1><p className="mt-6 max-w-[480px] text-pretty text-base leading-relaxed text-[#d5d1c9] sm:text-lg">Agendamento, atendimento e gestão no mesmo ritmo da sua barbearia.</p><div className="mt-9 flex flex-wrap items-center gap-x-6 gap-y-4"><Link href="/login" className="inline-flex min-h-12 items-center bg-[#C79A4A] px-6 text-sm font-semibold text-[#211b12] hover:bg-[#d7ae66]">Organizar minha barbearia <span aria-hidden="true" className="ml-3">→</span></Link><Link href="/demo" className="text-sm font-semibold text-[#e6be78] underline underline-offset-4 hover:text-white">Ver demonstração</Link></div></div>
-        <div className="relative min-h-[290px] lg:min-h-full"><Image src="/brand/barbershop-hero.png" alt="Barbeiro atendendo um cliente na cadeira" fill priority sizes="(max-width: 1024px) 100vw, 52vw" className="object-cover object-[65%_center]" /><div className="absolute inset-0 bg-[#201d18]/10" /><p className="absolute bottom-5 right-5 bg-[#211f1bd9] px-3 py-2 text-[10px] font-semibold uppercase tracking-[.12em] text-white">Para quem vive a rotina da barbearia</p></div>
-      </section>
-      <section id="como-funciona" className="scroll-mt-20 bg-white py-16 sm:py-20"><div className="mx-auto max-w-[1200px] px-5 sm:px-8"><p className="text-xs font-bold uppercase tracking-[.17em] text-[#986f2e]">Um dia, sem atrito</p><h2 className="mt-3 [font-family:var(--font-montserrat),Arial,sans-serif] text-[clamp(2rem,3vw,3rem)] font-semibold tracking-[-.045em]">Da reserva ao fechamento.</h2><div className="mt-9 grid border-y border-[#d9d4cb] sm:grid-cols-2 lg:grid-cols-4">{journey.map(([number, title, description]) => <Link href="/demo" key={number} className="group border-b border-[#d9d4cb] py-6 sm:border-r sm:px-5 lg:border-b-0 first:pl-0 last:border-r-0"><span className="text-[11px] font-bold uppercase tracking-[.14em] text-[#986f2e]">{number}</span><h3 className="mt-8 [font-family:var(--font-montserrat),Arial,sans-serif] text-lg font-semibold tracking-tight group-hover:text-[#986f2e]">{title}</h3><p className="mt-2 max-w-[230px] text-sm leading-relaxed text-[#625f59]">{description}</p></Link>)}</div></div></section>
-      <section id="recursos" className="bg-[#E9E6DF] py-16 sm:py-20"><div className="mx-auto grid max-w-[1200px] items-center gap-9 px-5 sm:px-8 lg:grid-cols-[.65fr_1.35fr] lg:gap-14"><div><p className="text-xs font-bold uppercase tracking-[.17em] text-[#986f2e]">Por dentro do produto</p><h2 className="mt-4 max-w-[350px] text-balance [font-family:var(--font-montserrat),Arial,sans-serif] text-[clamp(2rem,3vw,3rem)] font-semibold leading-[1.1] tracking-[-.045em]">Uma mesa de trabalho para o dia real.</h2><p className="mt-5 max-w-[350px] text-sm leading-relaxed text-[#625f59]">Veja os próximos atendimentos, a equipe e os números que importam, sem perder o foco no trabalho.</p><Link href="/demo" className="mt-6 inline-flex min-h-11 items-center font-semibold text-[#765623] underline underline-offset-4">Explorar o produto <span className="ml-2" aria-hidden="true">→</span></Link></div><div className="overflow-hidden border border-[#d4cec2] bg-white shadow-[0_16px_40px_#2423211a]"><Image src="/brand/product-overview-redesign.png" alt="Visão geral do HeadBarber com atendimentos do dia" width={1280} height={800} sizes="(max-width: 1024px) 100vw, 700px" className="h-auto w-full" /></div></div></section>
-      <LandingPricing />
-      <section aria-label="Parceiro oficial" className="bg-[#F6F5F2] py-14 sm:py-20"><div className="mx-auto flex max-w-[1200px] flex-col items-start justify-between gap-7 px-5 sm:px-8 md:flex-row md:items-center"><div><p className="text-xs font-bold uppercase tracking-[.17em] text-[#986f2e]">Parceiro oficial</p><h2 className="mt-3 [font-family:var(--font-montserrat),Arial,sans-serif] text-2xl font-semibold tracking-[-.04em] sm:text-3xl">Uma parceria que vem da barbearia.</h2><p className="mt-3 text-sm text-[#625f59]">A Hoffmann&apos;s Barber faz parte da história do HeadBarber.</p></div><Image src="/brand/partners/hoffmanns-barber.png" alt="Hoffmann's Barber" width={3817} height={2176} className="h-auto w-52 mix-blend-multiply" /></div></section>
-    </main>
-    <footer className="bg-[#20201f] py-9 text-[#dedbd5]"><div className="mx-auto flex max-w-[1200px] flex-col justify-between gap-5 px-5 text-sm sm:px-8 md:flex-row"><span>© {new Date().getFullYear()} HeadBarber.</span><div className="flex flex-wrap gap-5"><a href="#como-funciona">Como funciona</a><a href="#precos">Preços</a><Link href="/demo">Demonstração</Link><Link href="/login">Entrar</Link></div></div></footer>
-  </div>
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const landingRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    gsap.registerPlugin(ScrollTrigger);
+    const media = gsap.matchMedia();
+    media.add("(prefers-reduced-motion: no-preference)", () => {
+      const root = landingRef.current;
+      if (!root) return;
+      const compact = window.matchMedia("(max-width: 640px)").matches;
+      const select = gsap.utils.selector(root);
+      const distance = compact ? 18 : 38;
+
+      gsap.timeline({ defaults: { ease: "power3.out", duration: 0.85 } })
+        .from(select(`.${s.heroCopy} > *`), {
+          y: distance, opacity: 0, stagger: 0.09, clearProps: "transform,opacity",
+        })
+        .from(select(`.${s.heroScreen}`), {
+          y: distance, opacity: 0, rotation: compact ? 0 : 1.5,
+          clearProps: "transform,opacity",
+        }, 0.2);
+
+      for (const selector of [
+        `.${s.featureGrid}`, `.${s.phones}`, `.${s.customizeGrid}`, `.${s.pricingInner}`,
+      ]) {
+        const group = select(selector)[0] as HTMLElement | undefined;
+        if (!group) continue;
+        gsap.from(group.children, {
+          y: distance, opacity: 0, duration: 0.8, stagger: compact ? 0.07 : 0.14,
+          ease: "power3.out", clearProps: "transform,opacity",
+          scrollTrigger: { trigger: group, start: "top 88%", once: true },
+        });
+      }
+      for (const selector of [`.${s.partnerCopy}`, `.${s.operationInner} > div`, `.${s.bookingCopy}`, `.${s.finalCta} h2`]) {
+        const target = select(selector);
+        gsap.from(target, {
+          y: distance * 0.65, opacity: 0, duration: 0.8, ease: "power3.out",
+          clearProps: "transform,opacity",
+          scrollTrigger: { trigger: target[0], start: "top 90%", once: true },
+        });
+      }
+    }, landingRef);
+    return () => media.revert();
+  }, []);
+
+  return (
+    <div className={s.landing} ref={landingRef}>
+      <a href="#conteudo" className={s.skip}>
+        Pular para o conteúdo
+      </a>
+      <header className={s.header}>
+        <nav className={s.nav} aria-label="Navegação principal">
+          <Brand />
+          <div className={s.desktopNav}>
+            <a href="#recursos">Recursos</a>
+            <a href="#precos">Preços</a>
+            <Link href="/demo">Demonstração</Link>
+          </div>
+          <div className={s.desktopNav}>
+            <Link href="/login">Entrar</Link>
+            <Action />
+          </div>
+          <button
+            className={s.menuButton}
+            aria-label={mobileOpen ? "Fechar menu" : "Abrir menu"}
+            aria-expanded={mobileOpen}
+            aria-controls="landing-mobile-nav"
+            onClick={() => setMobileOpen(!mobileOpen)}
+          >
+            {mobileOpen ? <X /> : <Menu />}
+          </button>
+        </nav>
+        {mobileOpen && (
+          <nav
+            id="landing-mobile-nav"
+            className={s.mobileNav}
+            aria-label="Navegação mobile"
+          >
+            <a href="#recursos" onClick={() => setMobileOpen(false)}>
+              Recursos
+            </a>
+            <a href="#precos" onClick={() => setMobileOpen(false)}>
+              Preços
+            </a>
+            <Link href="/demo">Demonstração</Link>
+            <Link href="/login">Entrar / Começar agora</Link>
+          </nav>
+        )}
+      </header>
+      <main id="conteudo">
+        <section className={s.heroWorld} aria-labelledby="hero-title">
+          <Image
+            src="/brand/barbershop-hero.png"
+            alt=""
+            fill
+            preload
+            sizes="100vw"
+            className={s.heroPhoto}
+          />
+          <div className={s.hero}>
+            <div className={s.heroCopy}>
+              <p className={s.eyebrow}>Sistema de gestão para barbearias</p>
+              <h1 id="hero-title">
+                Menos tempo
+                <br />
+                na gestão.
+                <br />
+                <span>
+                  Mais tempo
+                  <br />
+                  na cadeira.
+                </span>
+              </h1>
+              <p className={s.heroDescription}>
+                Agenda, clientes, assinaturas e financeiro.
+                <br />
+                Tudo no mesmo lugar.
+              </p>
+              <div className={s.actions}>
+                <Action />
+                <Action href="/demo" secondary>
+                  Explorar demo
+                </Action>
+              </div>
+              <ul className={s.capabilities}>
+                {capabilities.map(([Icon, title, subtitle]) => (
+                  <li key={title}>
+                    <Icon aria-hidden="true" />
+                    <span>
+                      {title}
+                      <br />
+                      {subtitle}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div className={s.heroScreen}>
+              <Image
+                src="/brand/product/agenda.webp"
+                alt="Agenda real do HeadBarber na demonstração"
+                width={1440}
+                height={960}
+                preload
+                sizes="(max-width:1000px) 94vw,65vw"
+              />
+              <span className={s.captureLabel}>
+                HeadBarber · Agenda real do produto
+              </span>
+            </div>
+          </div>
+        </section>
+        <section className={s.partner} aria-label="Parceiro oficial">
+          <Image
+            src="/brand/partners/hoffmanns-facade-ai.webp"
+            alt="Fachada ilustrativa da Hoffmann’s Barber, gerada por IA"
+            fill
+            sizes="(max-width: 640px) 100vw, 55vw"
+            className={s.partnerFacade}
+          />
+          <div className={s.partnerInner}>
+            <div className={s.partnerBrand}>
+              <p className={s.partnerEyebrow}>Parceiro oficial</p>
+              <div className={s.partnerWordmark} aria-label="Hoffmann’s Barber">
+                <span>Hoffmann’s</span>
+                <span className={s.partnerBarber}>Barber</span>
+              </div>
+            </div>
+            <div className={s.partnerCopy}>
+              <h2 id="partner-title">
+                A tradição encontra<br />
+                <span>a tecnologia.</span>
+              </h2>
+              <p>
+                A Hoffmann’s Barber confia no HeadBarber para uma gestão mais
+                eficiente e uma experiência ainda melhor para seus clientes.
+              </p>
+            </div>
+          </div>
+        </section>
+        <section className={s.operation}>
+          <div className={s.operationInner}>
+            <div>
+              <p className={s.eyebrow}>Gestão sem complicação</p>
+              <h2>
+                Toda a operação,
+                <br />
+                sem ruído.
+              </h2>
+              <p>
+                Do agendamento ao financeiro, o HeadBarber organiza o que
+                importa para você focar no que faz de melhor: entregar uma
+                experiência incrível para cada cliente.
+              </p>
+            </div>
+            <Image
+              src="/brand/product/agenda.webp"
+              alt="Visão real da agenda HeadBarber"
+              width={1440}
+              height={960}
+              sizes="(max-width:768px) 90vw,50vw"
+            />
+          </div>
+        </section>
+        <section id="recursos" className={s.features}>
+          <div className={s.container}>
+            <p className={s.eyebrow}>Principais recursos</p>
+            <h2>
+              Tudo que sua barbearia precisa
+              <br className={s.desktopBreak} /> em um só lugar.
+            </h2>
+            <div className={s.featureGrid}>
+              {features.map(([title, description, image], index) => (
+                <article key={title}>
+                  <span className={s.number}>
+                    {String(index + 1).padStart(2, "0")}
+                  </span>
+                  <h3>{title}</h3>
+                  <p>{description}</p>
+                  <div className={s.featureCapture}>
+                    <Image
+                      src={`/brand/product/${image}.webp`}
+                      alt={image === "overview" ? "Visão geral real do HeadBarber" : `Tela real do HeadBarber: ${title}`}
+                      width={1440}
+                      height={960}
+                      sizes="(max-width:640px) 90vw,32vw"
+                    />
+                  </div>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+        <section id="como-funciona" className={s.booking}>
+          <div className={s.bookingInner}>
+            <div className={s.bookingCopy}>
+              <p className={s.eyebrow}>Agendamento online</p>
+              <h2>Do link ao horário marcado.</h2>
+              <p>
+                Seu cliente agenda em poucos cliques,
+                <br />
+                sem complicação.
+              </p>
+              <Action href="/demo">Ver como funciona</Action>
+            </div>
+            <div className={s.phones}>
+              {[
+                "Escolha o barbeiro",
+                "Selecione o serviço",
+                "Escolha o horário",
+              ].map((title, index) => (
+                <div key={title}>
+                  <span className={s.number}>0{index + 1}</span>
+                  <h3>{title}</h3>
+                  <div className={s.phone}>
+                    <Image
+                      src={`/brand/product/booking-${index + 1}.webp`}
+                      alt={`Tela real do agendamento: ${title}`}
+                      width={390}
+                      height={844}
+                      sizes="210px"
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+        <section className={s.customize}>
+          <div className={s.customizeInner}>
+            <div>
+              <p className={s.eyebrow}>Personalize do seu jeito</p>
+              <h2>
+                O controle fica
+                <br />
+                com você.
+              </h2>
+              <p>
+                Configure serviços, equipe, produtos e muito mais. O HeadBarber
+                se adapta à realidade da sua barbearia.
+              </p>
+              <Action />
+            </div>
+            <div className={s.customizeGrid}>
+              {customization.map(([Icon, title, description]) => (
+                <article key={title}>
+                  <Icon aria-hidden="true" size={32} strokeWidth={1.5} />
+                  <h3>{title}</h3>
+                  <p>{description}</p>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+        <LandingPricing />
+        <section className={s.finalCta}>
+          <div className={s.container}>
+            <p className={s.eyebrow}>Sua barbearia em outro nível</p>
+            <h2>
+              Sua barbearia merece
+              <br />
+              uma operação à altura.
+            </h2>
+            <p>
+              Organize, cresça e foque no que realmente importa:
+              <br />
+              seus clientes.
+            </p>
+            <Action />
+          </div>
+        </section>
+      </main>
+      <footer className={s.footer}>
+        <div className={s.footerTop}>
+          <Brand />
+          <p>Sistema de gestão para barbearias.</p>
+          <nav aria-label="Navegação do rodapé">
+            <a href="#recursos">Produto</a>
+            <a href="#precos">Preços</a>
+            <Link href="/demo">Demonstração</Link>
+          </nav>
+          <Link href="/login" className={s.action}>
+            Entrar
+          </Link>
+        </div>
+        <div className={s.footerBottom}>
+          <span>
+            © {new Date().getFullYear()} HeadBarber. Todos os direitos
+            reservados.
+          </span>
+          <span>Feito para barbearias que vão mais longe.</span>
+        </div>
+      </footer>
+    </div>
+  );
 }

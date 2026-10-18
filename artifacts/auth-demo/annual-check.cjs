@@ -1,0 +1,24 @@
+const { chromium } = require('@playwright/test');
+const assert = require('node:assert/strict');
+(async () => {
+  const browser = await chromium.launch();
+  const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
+  await page.goto('http://localhost:3002/');
+  const annual = page.locator('#precos article').last();
+  await page.locator('#precos').scrollIntoViewIfNeeded();
+  await page.waitForTimeout(1300);
+  const read = () => annual.evaluate(el => ({ float: getComputedStyle(el).translate, sweep: getComputedStyle(el, '::before').transform }));
+  const first = await read();
+  await page.waitForTimeout(800);
+  const second = await read();
+  assert.notEqual(first.float, second.float);
+  assert.notEqual(first.sweep, second.sweep);
+  assert.equal(await annual.evaluate(el => getComputedStyle(el).animationIterationCount), 'infinite');
+  await page.locator('#precos').screenshot({ path: 'artifacts/auth-demo/annual-continuous-motion.png' });
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  assert.equal(await annual.evaluate(el => getComputedStyle(el).animationName), 'none');
+  assert.equal(await annual.evaluate(el => getComputedStyle(el, '::before').animationName), 'none');
+  assert.equal(await page.locator('#precos article').first().evaluate(el => getComputedStyle(el).animationName), 'none');
+  console.log('Continuous card movement and light sweep verified; monthly static; reduced motion respected');
+  await browser.close();
+})();

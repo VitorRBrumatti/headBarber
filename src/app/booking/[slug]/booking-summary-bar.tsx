@@ -1,5 +1,7 @@
 import { ArrowLeft, ArrowRight, Check } from 'lucide-react'
 import type { BookingCoveragePreview } from './booking-types'
+import styles from './booking.module.css'
+import receiptStyles from './receipt.module.css'
 
 interface BookingSummaryBarProps {
   currentStep: number
@@ -36,14 +38,14 @@ export function BookingSummaryBar({
   const isFinalStep = currentStep === totalSteps
 
   return (
-    <div className="fixed inset-x-0 bottom-0 z-40 border-t border-[#DDD7CD] bg-white shadow-[0_-8px_24px_rgba(36,35,33,0.08)]">
+    <div className={`${styles.summaryFooter} fixed inset-x-0 bottom-0 z-40 border-t border-[#3C3D36] bg-[#191A19] shadow-[0_-8px_24px_rgba(36,35,33,0.08)] ${currentStep === 1 ? styles.firstFooter : ''} ${isFinalStep ? receiptStyles.reviewFooter : ''}`}>
       <div className="mx-auto flex max-w-5xl items-center gap-3 px-4 py-3 sm:px-6 sm:py-4">
         {currentStep > 1 && (
           <button
             type="button"
             onClick={onBack}
             disabled={isSubmitting}
-            className="grid h-11 w-11 shrink-0 place-items-center border border-[#D9D4CB] text-[#242321] transition-colors hover:bg-[#F6F5F2] disabled:opacity-40 sm:w-auto sm:px-4"
+            className="grid h-11 w-11 shrink-0 place-items-center border border-[#3C3D36] text-[#F6F2E9] transition-colors hover:bg-[#252620] disabled:opacity-40 sm:w-auto sm:px-4"
           >
             <ArrowLeft className="h-4 w-4" />
             <span className="sr-only sm:not-sr-only sm:ml-2 sm:font-inter sm:text-xs sm:font-semibold sm:uppercase sm:tracking-[0.08em]">
@@ -53,12 +55,12 @@ export function BookingSummaryBar({
         )}
 
         <div className="min-w-0 flex-1">
-          <p className="font-inter text-[10px] font-semibold uppercase tracking-[0.1em] text-[#625F59]">
+          <p className="font-inter text-[10px] font-semibold uppercase tracking-[0.1em] text-[#C1BCB2]">
             {productSubtotal > 0
               ? 'Total a pagar na barbearia'
               : 'Total do atendimento'}
           </p>
-          <p className="mt-0.5 truncate font-montserrat text-lg font-bold text-[#242321]">
+          <p className="mt-0.5 truncate font-montserrat text-lg font-bold text-[#F6F2E9]">
             {formatCurrency(total)}
           </p>
           {coveragePreview &&
@@ -72,7 +74,7 @@ export function BookingSummaryBar({
               </p>
             )}
           {productSubtotal > 0 && (
-              <p className="hidden font-inter text-[10px] text-[#625F59] sm:block">
+              <p className="hidden font-inter text-[10px] text-[#C1BCB2] sm:block">
               Atendimento {formatCurrency(serviceSubtotal)} · Produtos{' '}
               {formatCurrency(productSubtotal)}
             </p>
@@ -97,7 +99,7 @@ export function BookingSummaryBar({
             </>
           ) : (
             <>
-              Avançar
+              {currentStep === 1 ? 'Continuar' : 'Avançar'}
               <ArrowRight className="h-4 w-4" />
             </>
           )}

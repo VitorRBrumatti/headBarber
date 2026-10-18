@@ -16,7 +16,7 @@ async function chooseBarberAndService(
       name: new RegExp(fixture.barberNames[barberIndex]),
     })
     .click()
-  await page.getByRole('button', { name: /Avançar/ }).click()
+  await page.getByRole('button', { name: 'Continuar', exact: true }).click()
   await page
     .getByRole('button', { name: new RegExp(fixture.serviceName) })
     .click()
@@ -84,7 +84,7 @@ test('trocar o barbeiro limpa o adicional selecionado', async ({ page }) => {
   await page
     .getByRole('button', { name: new RegExp(fixture.barberNames[1]) })
     .click()
-  await page.getByRole('button', { name: /Avançar/ }).click()
+  await page.getByRole('button', { name: 'Continuar', exact: true }).click()
   await page
     .getByRole('button', { name: new RegExp(fixture.serviceName) })
     .click()

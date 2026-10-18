@@ -45,14 +45,15 @@ describe('booking visual contract', () => {
     expect(markup).toContain('Benefício disponível')
   })
 
-  it('renders an accessible linear progress indicator in the approved palette', () => {
+  it('renders an accessible segmented progress indicator in the approved palette', () => {
     const source = read('booking-progress.tsx')
     expect(source).toContain('role="progressbar"')
     expect(source).toContain('aria-valuemax={steps.length}')
     expect(source).toContain('aria-valuenow={currentStep}')
     expect(source).toContain("steps[currentStep - 1]?.name")
-    expect(source).toContain('#C79A4A')
-    expect(source).toContain('#D6A85B')
+    const css = read('booking.module.css')
+    expect(css).toContain('#edc36c')
+    expect(css).toContain('#ffe095')
   })
 
   it('disables sold-out products and exposes quantity controls', () => {

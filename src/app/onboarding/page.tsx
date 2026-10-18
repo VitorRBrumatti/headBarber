@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Sparkles, ArrowRight, Store, AlertTriangle } from 'lucide-react'
 import Link from 'next/link'
+import Image from 'next/image'
 
 export default function OnboardingPage() {
   const [name, setName] = useState('')
@@ -54,7 +55,7 @@ export default function OnboardingPage() {
       return
     }
 
-    router.push('/dashboard')
+    router.push('/onboarding/profile')
     router.refresh()
   }
 
@@ -66,9 +67,11 @@ export default function OnboardingPage() {
         <div className="flex flex-col items-center">
           <Link href="/" className="flex items-center gap-2.5 mb-6 hover:opacity-90 transition-opacity">
             <div className="w-9 h-9 bg-[#242321] rounded-lg flex items-center justify-center shadow-sm">
-              <img 
+              <Image
                 src="/brand/headbarber_simbolo_duas_cores_transparente.png"
                 alt="Logo HeadBarber" 
+                width={22}
+                height={22}
                 className="w-5.5 h-5.5 object-contain"
               />
             </div>
@@ -88,16 +91,17 @@ export default function OnboardingPage() {
               Vamos configurar sua barbearia
             </h1>
             <p className="text-[#77736A] text-sm leading-normal mb-6">
-              Esta é a última etapa. Escolha um nome para sua barbearia para criar seu ambiente de agendamentos e acessar o painel administrativo.
+              Escolha o nome da sua barbearia. Em seguida, você poderá adicionar foto, banner e endereço ao seu agendamento online.
             </p>
 
             <form onSubmit={handleSubmit} className="space-y-5">
               <div className="space-y-2 text-left">
-                <label className="text-xs font-semibold tracking-wider text-[#77736A] uppercase">
+                <label htmlFor="shop-name" className="text-xs font-semibold tracking-wider text-[#77736A] uppercase">
                   Nome da barbearia
                 </label>
                 <div className="relative">
                   <Input
+                    id="shop-name"
                     name="name"
                     type="text"
                     placeholder="Ex: Barbearia Imperial"
@@ -125,7 +129,7 @@ export default function OnboardingPage() {
               >
                 {loading ? 'Configurando...' : (
                   <>
-                    <span>Entrar no Dashboard</span>
+                    <span>Continuar</span>
                     <ArrowRight className="w-4 h-4" />
                   </>
                 )}

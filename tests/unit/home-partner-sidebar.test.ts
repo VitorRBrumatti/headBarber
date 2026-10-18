@@ -11,9 +11,9 @@ describe('home partner banner and sidebar navigation', () => {
 
     expect(landingPage).toContain('aria-label="Parceiro oficial"')
     expect(landingPage).toContain('Parceiro oficial')
-    expect(landingPage).toContain('/brand/partners/hoffmanns-barber.png')
-    expect(landingPage).toContain('width={3817}')
-    expect(landingPage).toContain('height={2176}')
+    expect(landingPage).toContain('/brand/partners/hoffmanns-facade-ai.webp')
+    expect(landingPage).toContain('a tecnologia.')
+    expect(landingPage).toContain('gerada por IA')
     expect(dashboard).not.toContain('aria-label="Parceiro oficial"')
     expect(dashboard).not.toContain('/brand/partners/hoffmanns-barber.png')
   })

@@ -12,7 +12,8 @@ describe('configurações visual contract', () => {
   it('exposes the approved page hierarchy and semantic tabs', () => {
     expect(source).toContain('Configurações</h1>')
     expect(source).toContain('Agenda e horários')
-    expect(source).toContain('>Bloqueios</button>')
+    expect(source).toContain('Bloqueios Excepcionais')
+    expect(source).toContain('Perfil público')
     expect(source).toContain('role="tablist"')
     expect(source).toContain('role="tab"')
     expect(source).toContain("aria-selected={activeTab === 'agenda'}")

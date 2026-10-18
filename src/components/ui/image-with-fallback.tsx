@@ -23,6 +23,9 @@ export function ImageWithFallback({
     // Tenant-managed URLs can use different image hosts.
     // eslint-disable-next-line @next/next/no-img-element
     <img
+      ref={(image) => {
+        if (image?.complete && image.naturalWidth === 0) setFailedSrc(src)
+      }}
       src={src}
       alt={alt}
       className={className}

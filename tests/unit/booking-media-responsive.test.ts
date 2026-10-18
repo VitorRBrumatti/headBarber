@@ -9,12 +9,14 @@ function bookingSource(filename: string) {
 }
 
 describe('public booking media and responsive progress', () => {
-  it('uses one bounded linear progress track on every viewport', () => {
+  it('uses one bounded segmented progress track on every viewport', () => {
     const progress = bookingSource('booking-progress.tsx')
 
     expect(progress).toContain('role="progressbar"')
     expect(progress).toContain('aria-valuemax={steps.length}')
-    expect(progress).toContain('style={{ width: `${progress}%` }}')
+    expect(progress).toContain('steps.map(step =>')
+    expect(progress).toContain('step.id <= currentStep')
+    expect(progress).toContain('aria-valuetext=')
     expect(progress).toContain('steps[currentStep - 1]?.name')
     expect(progress).not.toContain('grid-cols-7')
     expect(progress).not.toContain('w-screen')
@@ -23,8 +25,11 @@ describe('public booking media and responsive progress', () => {
   it('contains the sticky progress track and leaves breathing room below it', () => {
     const client = bookingSource('booking-client.tsx')
 
-    expect(client).toContain('mx-auto w-full max-w-3xl px-4 sm:px-6')
-    expect(client).toContain('sticky top-16')
+    const css = bookingSource('booking.module.css')
+    expect(client).toContain('hb-booking-flow mx-auto w-full max-w-3xl')
+    expect(client).toContain('className={styles.bookingHeader}')
+    expect(css).toContain('position: sticky; top: 0;')
+    expect(css).toContain('max-width: 290px')
     expect(client).toContain('pb-36 pt-10')
     expect(client).toContain('sm:pt-14')
     expect(client).not.toContain('w-screen')

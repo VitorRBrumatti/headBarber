@@ -1,0 +1,1 @@
+BookingClient code from export function through pre-receipt rendering is byte-identical to HEAD after CRLF normalization. No backend, API, auth, database or payment source files changed.

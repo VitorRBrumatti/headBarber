@@ -5,8 +5,11 @@ import { AlertTriangle, CalendarClock, CalendarDays, Check, ChevronDown, LoaderC
 import { Button } from '@/components/ui/button'
 import { updateBarbershopSettingsAction, createBarberBlock, getBarberBlocks, deleteBarberBlock } from './actions'
 import { toAgendaIsoDateTime } from './blocked-time-utils'
+import type { BookingProfile } from '@/lib/booking-profile'
+import { BookingProfileForm } from './booking-profile-form'
 
 interface SettingsClientProps {
+  bookingProfile?: BookingProfile | null
   initialSettings?: {
     whatsapp_reminder_hours?: number
     slot_interval_minutes?: number
@@ -33,8 +36,8 @@ function getErrorMessage(error: unknown) {
   return error instanceof Error ? error.message : 'Não foi possível concluir a operação.'
 }
 
-export function ConfiguracoesClient({ initialSettings, barbers }: SettingsClientProps) {
-  const [activeTab, setActiveTab] = useState<'agenda' | 'blocked'>('agenda')
+export function ConfiguracoesClient({ initialSettings, bookingProfile, barbers }: SettingsClientProps) {
+  const [activeTab, setActiveTab] = useState<'agenda' | 'blocked' | 'profile'>('agenda')
   const [whatsappReminderHours] = useState(initialSettings?.whatsapp_reminder_hours ?? 2)
   const [slotIntervalMinutes, setSlotIntervalMinutes] = useState(initialSettings?.slot_interval_minutes ?? 30)
   const [defaultStartTime, setDefaultStartTime] = useState((initialSettings?.default_start_time || '09:00:00').substring(0, 5))
@@ -136,10 +139,21 @@ export function ConfiguracoesClient({ initialSettings, barbers }: SettingsClient
     day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', timeZone: 'UTC',
   })
 
-  const selectTab = (tab: 'agenda' | 'blocked') => {
+  const selectTab = (tab: 'agenda' | 'blocked' | 'profile') => {
     setActiveTab(tab)
     setErrorMsg('')
     setSuccessMsg('')
+  }
+
+  const navigateTabs = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return
+    const buttons = Array.from(event.currentTarget.querySelectorAll<HTMLButtonElement>('[role="tab"]'))
+    const index = buttons.indexOf(document.activeElement as HTMLButtonElement)
+    if (index < 0) return
+    event.preventDefault()
+    const next = event.key === 'Home' ? 0 : event.key === 'End' ? buttons.length - 1 : (index + (event.key === 'ArrowRight' ? 1 : -1) + buttons.length) % buttons.length
+    buttons[next].focus()
+    buttons[next].click()
   }
 
   return (
@@ -150,9 +164,10 @@ export function ConfiguracoesClient({ initialSettings, barbers }: SettingsClient
           <p className="mt-1 max-w-2xl font-inter text-xs text-[#69655f]">Regras de agenda, horários e bloqueios</p>
         </header>
 
-        <div role="tablist" aria-label="Seções das configurações" className="mb-6 flex gap-6 border-b border-[#e2ded7]">
-          <button id="agenda-tab" type="button" role="tab" aria-controls="agenda-panel" aria-selected={activeTab === 'agenda'} onClick={() => selectTab('agenda')} className={`relative shrink-0 px-0.5 pb-3 font-inter text-sm font-semibold transition-colors ${activeTab === 'agenda' ? 'text-[#242321] after:absolute after:inset-x-0 after:-bottom-px after:h-[3px] after:rounded-full after:bg-[#C79A4A]' : 'text-[#625f59] hover:text-[#242321]'}`}>Agenda e horários</button>
-          <button id="blocked-tab" type="button" role="tab" aria-controls="blocked-panel" aria-selected={activeTab === 'blocked'} onClick={() => selectTab('blocked')} className={`relative shrink-0 px-0.5 pb-3 font-inter text-sm font-semibold transition-colors ${activeTab === 'blocked' ? 'text-[#242321] after:absolute after:inset-x-0 after:-bottom-px after:h-[3px] after:rounded-full after:bg-[#C79A4A]' : 'text-[#625f59] hover:text-[#242321]'}`}>Bloqueios</button>
+        <div role="tablist" aria-label="Seções das configurações" onKeyDown={navigateTabs} className="mb-6 flex gap-6 overflow-x-auto border-b border-[#e2ded7]">
+          <button id="agenda-tab" tabIndex={activeTab === 'agenda' ? 0 : -1} type="button" role="tab" aria-controls="agenda-panel" aria-selected={activeTab === 'agenda'} onClick={() => selectTab('agenda')} className={`relative shrink-0 px-0.5 pb-3 font-inter text-sm font-semibold transition-colors ${activeTab === 'agenda' ? 'text-[#242321] after:absolute after:inset-x-0 after:-bottom-px after:h-[3px] after:rounded-full after:bg-[#C79A4A]' : 'text-[#625f59] hover:text-[#242321]'}`}>Agenda e horários</button>
+          <button id="blocked-tab" tabIndex={activeTab === 'blocked' ? 0 : -1} type="button" role="tab" aria-controls="blocked-panel" aria-selected={activeTab === 'blocked'} onClick={() => selectTab('blocked')} className={`relative shrink-0 px-0.5 pb-3 font-inter text-sm font-semibold transition-colors ${activeTab === 'blocked' ? 'text-[#242321] after:absolute after:inset-x-0 after:-bottom-px after:h-[3px] after:rounded-full after:bg-[#C79A4A]' : 'text-[#625f59] hover:text-[#242321]'}`}>Bloqueios Excepcionais</button>
+          <button id="profile-tab" tabIndex={activeTab === 'profile' ? 0 : -1} type="button" role="tab" aria-controls="profile-panel" aria-selected={activeTab === 'profile'} onClick={() => selectTab('profile')} className={`relative shrink-0 px-0.5 pb-3 font-inter text-sm font-semibold transition-colors ${activeTab === 'profile' ? 'text-[#242321] after:absolute after:inset-x-0 after:-bottom-px after:h-[3px] after:rounded-full after:bg-[#C79A4A]' : 'text-[#625f59] hover:text-[#242321]'}`}>Perfil público</button>
         </div>
 
         {successMsg ? <div role="status" className="mb-6 flex max-w-2xl items-center gap-3 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 font-inter text-sm font-semibold text-emerald-800"><Check className="h-5 w-5 shrink-0" aria-hidden="true" /><span>{successMsg}</span></div> : null}
@@ -181,6 +196,8 @@ export function ConfiguracoesClient({ initialSettings, barbers }: SettingsClient
               <div className="flex justify-end pt-2"><Button type="submit" disabled={isSaving} className="h-11 gap-2 px-5 font-inter text-sm">{isSaving ? <LoaderCircle className="h-4 w-4 animate-spin" aria-hidden="true" /> : <Save className="h-4 w-4" aria-hidden="true" />}{isSaving ? 'Salvando...' : 'Salvar configurações'}</Button></div>
             </form>
           </div>
+        ) : activeTab === 'profile' ? (
+          <div id="profile-panel" role="tabpanel" aria-labelledby="profile-tab"><BookingProfileForm profile={bookingProfile ?? null} /></div>
         ) : (
           <div id="blocked-panel" role="tabpanel" aria-labelledby="blocked-tab">
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-12 lg:gap-8">
