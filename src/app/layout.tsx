@@ -27,9 +27,10 @@ const montserrat = Montserrat({
 });
 
 export const metadata: Metadata = {
-  title: "HeadBarber — Gestão Premium para Barbearias",
+  metadataBase: new URL("https://headbarber.com.br"),
+  title: "Sistema de Gestão para Barbearias | HeadBarber",
   description:
-    "Plataforma SaaS premium para gestão de barbearias. Agenda inteligente, gestão de equipe, financeiro e muito mais.",
+    "Organize agendamentos, barbeiros, clientes, serviços e financeiro em um só lugar. Conheça o HeadBarber e experimente a demonstração.",
 };
 
 export default function RootLayout({
