@@ -52,3 +52,6 @@ supabase/config.toml
 .playwright-cli/
 /artifacts/**/*.log
 /scratch/
+
+# Local audiovisual production: motion sources, renders, audio, models and tools
+/creative/
