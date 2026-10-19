@@ -1,0 +1,43 @@
+const { chromium } = require('@playwright/test')
+const assert = require('node:assert/strict')
+const fs = require('node:fs')
+const base = process.env.CAPTURE_URL || 'http://localhost:3000'
+;(async () => {
+  const browser = await chromium.launch()
+  const page = await browser.newPage()
+  const errors = []
+  page.on('pageerror', error => errors.push(error.message))
+  for (const width of [1440, 768, 390]) {
+    await page.setViewportSize({ width, height: 1000 })
+    await page.goto(base, { waitUntil: 'networkidle' })
+    await page.locator('img').evaluateAll(images => Promise.all(images.map(image => { image.loading = 'eager'; return image.decode().catch(() => {}) })))
+    await page.screenshot({ path: `artifacts/design-overhaul/after-landing-${width}.png`, fullPage: true })
+    assert.equal(await page.locator('h1').count(), 1)
+    assert.equal(await page.locator('img').evaluateAll(images => images.every(image => image.complete && image.naturalWidth > 0)), true)
+    assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true, `Landing overflow at ${width}`)
+    if (width === 390) {
+      await page.getByRole('button', { name: 'Abrir menu' }).click()
+      assert.equal(await page.getByRole('button', { name: 'Fechar menu' }).getAttribute('aria-expanded'), 'true')
+      await page.locator('#landing-mobile-nav').getByRole('link', { name: 'Recursos' }).click()
+      assert.equal(await page.locator('#landing-mobile-nav').count(), 0)
+    }
+    await page.goto(`${base}/booking/headbarber-demo`, { waitUntil: 'networkidle' })
+    await page.screenshot({ path: `artifacts/design-overhaul/after-booking-${width}.png`, fullPage: true })
+    assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true, `Booking overflow at ${width}`)
+    assert.equal(await page.getByRole('button', { name: /Avançar/i }).isDisabled(), true)
+    await page.getByRole('button', { name: /Lucas Rocha/ }).click()
+    await page.getByRole('button', { name: /Avançar/i }).click()
+    await page.getByRole('button', { name: /Corte tradicional/ }).waitFor()
+    assert.equal(await page.getByRole('progressbar').getAttribute('aria-valuenow'), '2')
+    await page.screenshot({ path: `artifacts/design-overhaul/after-booking-service-${width}.png`, fullPage: true })
+    await page.getByRole('button', { name: /Voltar/i }).click()
+    assert.equal(await page.getByRole('progressbar').getAttribute('aria-valuenow'), '1')
+  }
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  await page.goto(base, { waitUntil: 'networkidle' })
+  assert.equal(await page.locator('h1').evaluate(element => getComputedStyle(element.parentElement).animationName), 'none')
+  assert.deepEqual(errors, [])
+  fs.writeFileSync('artifacts/design-overhaul/stage1-browser-results.json', JSON.stringify({ widths: [1440,768,390], checks: ['no overflow', 'images loaded', 'one h1', 'mobile menu', 'required barber selection', 'forward/back navigation', 'reduced motion'], pageErrors: errors, submittedBookings: 0 }, null, 2))
+  await browser.close()
+  console.log('Stage 1 browser assertions passed at 1440/768/390; no bookings submitted.')
+})().catch(error => { console.error(error); process.exit(1) })

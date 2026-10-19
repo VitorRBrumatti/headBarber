@@ -38,32 +38,33 @@ export function Sheet({ open, onClose, title, description, children }: SheetProp
     <div className="fixed inset-0 z-50 flex">
       {/* Overlay */}
       <div
-        className="absolute inset-0 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200"
+        className="absolute inset-0 bg-black/50 motion-safe:animate-in motion-safe:fade-in motion-safe:duration-200"
         onClick={onClose}
       />
       {/* Panel */}
       <div
         className={cn(
-          'relative ml-auto h-full w-full max-w-md bg-white text-[#181c21] border-l border-[#eceef4] shadow-2xl',
-          'flex flex-col animate-in slide-in-from-right duration-300'
+          'relative ml-auto h-full w-full max-w-md border-l border-[#e2ded7] bg-white text-[#242321] shadow-lg',
+          'flex flex-col motion-safe:animate-in motion-safe:slide-in-from-right motion-safe:duration-200'
         )}
       >
         {/* Header */}
-        <div className="flex items-start justify-between border-b border-[#eceef4] p-6">
+        <div className="flex items-start justify-between border-b border-[#e2ded7] p-5">
           <div>
-            {title && <h2 className="text-base font-montserrat font-bold text-[#181c21]">{title}</h2>}
-            {description && <p className="mt-1 text-xs text-[#47464b] font-medium leading-normal">{description}</p>}
+            {title && <h2 className="text-base font-montserrat font-bold text-[#242321]">{title}</h2>}
+            {description && <p className="mt-1 text-xs text-[#625f59] font-medium leading-normal">{description}</p>}
           </div>
           <button
+            type="button"
             aria-label="Fechar"
             onClick={onClose}
-            className="rounded-md p-1.5 text-[#47464b] hover:bg-[#eceef4] hover:text-black transition-colors"
+            className="flex min-h-10 min-w-10 items-center justify-center rounded text-[#625f59] transition-colors hover:bg-[#f4f1ec] hover:text-black focus-visible:outline-2 focus-visible:outline-[#8a641f]"
           >
             <X className="h-4.5 w-4.5" />
           </button>
         </div>
         {/* Content */}
-        <div className="flex-1 overflow-y-auto p-6">
+        <div className="flex-1 overflow-y-auto p-5">
           {children}
         </div>
       </div>

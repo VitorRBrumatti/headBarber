@@ -22,7 +22,7 @@ test.describe('HeadBarber - Fluxo Alternativo (Fase 5 - Validações)', () => {
     await page.fill('input[name="name"]', uniqueBarberName)
     await commissionInput.fill('40')
     await page.click('button:has-text("Criar profissional")')
-    await expect(page.locator(`h3:has-text("${uniqueBarberName}")`)).toBeVisible()
+    await expect(page.getByRole('heading', { name: uniqueBarberName, exact: true })).toBeVisible()
 
     const uniqueProductName = `Shampoo E2E ${Date.now()}`
     await page.goto('/dashboard/produtos')
@@ -32,7 +32,7 @@ test.describe('HeadBarber - Fluxo Alternativo (Fase 5 - Validações)', () => {
     await page.fill('input[name="stock_quantity"]', '1')
     await page.click('button:has-text("Criar produto")')
 
-    const productCard = page.locator(`div.group:has(h3:has-text("${uniqueProductName}"))`).first()
+    const productCard = page.getByRole('heading', { name: uniqueProductName, exact: true }).locator('..')
     await expect(productCard).toBeVisible()
     await expect(productCard.getByText('1 un', { exact: true })).toBeVisible()
     await productCard.locator('button:has-text("Vender")').click()

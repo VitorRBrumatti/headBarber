@@ -126,21 +126,21 @@ export function SubscriptionsClient({
     return (
       <div className="p-6 md:p-8">
         <header>
-          <h1 className="font-montserrat text-3xl font-extrabold text-[#181c21]">
+          <h1 className="font-montserrat text-3xl font-extrabold text-[#242321]">
             Assinaturas de clientes
           </h1>
-          <p className="mt-2 text-sm text-[#47464b]">
+          <p className="mt-2 text-sm text-[#625f59]">
             Planos recorrentes administrados pela sua barbearia.
           </p>
         </header>
-        <section className="mt-8 rounded-2xl border border-[#c8c5cb]/50 bg-white px-6 py-16 text-center shadow-sm">
+        <section className="mt-8 rounded-2xl border border-[#c9c3b9]/50 bg-white px-6 py-16 text-center shadow-sm">
           <span className="material-symbols-outlined text-4xl text-[#7c5809]">
             card_membership
           </span>
-          <h2 className="mt-4 font-montserrat text-xl font-bold text-[#181c21]">
+          <h2 className="mt-4 font-montserrat text-xl font-bold text-[#242321]">
             Assinaturas ainda não ativadas para esta barbearia
           </h2>
-          <p className="mx-auto mt-2 max-w-xl text-sm leading-6 text-[#47464b]">
+          <p className="mx-auto mt-2 max-w-xl text-sm leading-6 text-[#625f59]">
             A estrutura está preparada, mas os controles permanecem bloqueados até a
             ativação segura da funcionalidade.
           </p>
@@ -314,14 +314,14 @@ export function SubscriptionsClient({
   ]
 
   return (
-    <div className="flex flex-1 flex-col space-y-6 p-6 md:p-8">
+    <div className="mx-auto flex w-full max-w-[1400px] flex-1 flex-col space-y-5 p-4 sm:p-6 lg:p-8">
       <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1 className="font-montserrat text-3xl font-extrabold text-[#181c21]">
+          <h1 className="font-montserrat text-[25px] font-bold leading-tight tracking-tight text-[#242321] sm:text-[28px]">
             Assinaturas de clientes
           </h1>
-          <p className="mt-2 text-sm text-[#47464b]">
-            Planos, adesões, mensalidades e benefícios em um só lugar.
+          <p className="mt-1 text-xs text-[#69655f]">
+            Planos, assinantes e cobranças
           </p>
         </div>
         <Button type="button" onClick={openNewPlan} disabled={isPending}>
@@ -331,17 +331,17 @@ export function SubscriptionsClient({
 
       <nav
         aria-label="Áreas de assinaturas"
-        className="flex gap-2 overflow-x-auto border-b border-[#c8c5cb]/60"
+        className="grid grid-cols-2 border-b border-[#e2ded7] sm:flex sm:gap-2"
       >
         {tabs.map((item) => (
           <button
             key={item.id}
             type="button"
             onClick={() => setTab(item.id)}
-            className={`whitespace-nowrap border-b-2 px-4 py-3 text-sm font-semibold ${
+            className={`whitespace-nowrap border-b-2 px-3 py-3 text-left text-sm font-semibold sm:px-4 ${
               tab === item.id
                 ? 'border-[#7c5809] text-[#7c5809]'
-                : 'border-transparent text-[#77767b]'
+                : 'border-transparent text-[#625f59]'
             }`}
           >
             {item.label}
@@ -356,40 +356,40 @@ export function SubscriptionsClient({
       ) : null}
 
       {tab === 'overview' ? (
-        <div className="space-y-6">
-          <section className="grid gap-4 md:grid-cols-3">
+        <div className="space-y-5">
+          <section aria-label="Resumo das assinaturas" className="grid gap-4 border-b border-[#e2ded7] pb-5 sm:grid-cols-3">
             {[
               ['Planos ativos', activePlans.length.toString()],
               ['Assinantes ativos', activeSubscribers.length.toString()],
               ['Mensalidades registradas', currency.format(monthlyRevenue)],
             ].map(([label, value]) => (
-              <article key={label} className="rounded-2xl border border-[#c8c5cb]/50 bg-white p-6 shadow-sm">
-                <p className="text-xs font-bold uppercase tracking-wider text-[#77767b]">{label}</p>
-                <p className="mt-3 text-2xl font-extrabold text-[#181c21]">{value}</p>
-              </article>
+              <div key={label} className="border-l border-[#e2ded7] pl-4 first:border-l-0 first:pl-0 max-sm:border-l-0 max-sm:border-b max-sm:pb-3">
+                <p className="text-xs font-medium text-[#625e58]">{label}</p>
+                <p className="mt-1 font-montserrat text-xl font-bold tabular-nums text-[#242321]">{value}</p>
+              </div>
             ))}
           </section>
-          <section className="grid gap-6 lg:grid-cols-2">
-            <article className="rounded-2xl border border-[#c8c5cb]/50 bg-white p-6">
-              <h2 className="font-montserrat font-bold">Planos</h2>
-              <div className="mt-4 space-y-3">
+          <section className="grid items-start gap-5 lg:grid-cols-2">
+            <article className="rounded-md border border-[#e2ded7] bg-white p-5">
+              <h2 className="font-montserrat text-sm font-bold">Planos</h2>
+              <div className="mt-3 divide-y divide-[#e9e5df]">
                 {plans.length ? plans.slice(0, 4).map((plan) => (
-                  <div key={plan.id} className="flex items-center justify-between rounded-xl bg-[#f8f9ff] p-4">
+                  <div key={plan.id} className="flex min-h-12 items-center justify-between gap-3 py-2 text-sm">
                     <span className="font-semibold">{plan.name}</span>
-                    <span>{currency.format(plan.monthlyPrice)}</span>
+                    <span className="tabular-nums">{currency.format(plan.monthlyPrice)}</span>
                   </div>
-                )) : <p className="text-sm text-[#77767b]">Nenhum plano cadastrado.</p>}
+                )) : <p className="text-sm text-[#625f59]">Nenhum plano cadastrado.</p>}
               </div>
             </article>
-            <article className="rounded-2xl border border-[#c8c5cb]/50 bg-white p-6">
-              <h2 className="font-montserrat font-bold">Assinantes recentes</h2>
-              <div className="mt-4 space-y-3">
+            <article className="rounded-md border border-[#e2ded7] bg-white p-5">
+              <h2 className="font-montserrat text-sm font-bold">Assinantes recentes</h2>
+              <div className="mt-3 divide-y divide-[#e9e5df]">
                 {subscribers.length ? subscribers.slice(0, 4).map((subscriber) => (
-                  <div key={subscriber.id} className="flex items-center justify-between rounded-xl bg-[#f8f9ff] p-4">
-                    <div><p className="font-semibold">{subscriber.clientName}</p><p className="text-xs text-[#77767b]">{subscriber.planName}</p></div>
-                    <span className="text-xs font-bold">{statusLabels[subscriber.status]}</span>
+                  <div key={subscriber.id} className="flex min-h-14 items-center justify-between gap-3 py-2 text-sm">
+                    <div><p className="font-semibold">{subscriber.clientName}</p><p className="text-xs text-[#625e58]">{subscriber.planName}</p></div>
+                    <span className="text-xs font-semibold">{statusLabels[subscriber.status]}</span>
                   </div>
-                )) : <p className="text-sm text-[#77767b]">Nenhum assinante cadastrado.</p>}
+                )) : <p className="text-sm text-[#625f59]">Nenhum assinante cadastrado.</p>}
               </div>
             </article>
           </section>
@@ -399,16 +399,16 @@ export function SubscriptionsClient({
       {tab === 'plans' ? (
         <section className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
           {plans.map((plan) => (
-            <article key={plan.id} className={`rounded-2xl border border-[#c8c5cb]/50 bg-white p-6 shadow-sm ${plan.isActive ? '' : 'opacity-65'}`}>
+            <article key={plan.id} className={`rounded-2xl border border-[#c9c3b9]/50 bg-white p-6 shadow-sm ${plan.isActive ? '' : 'opacity-65'}`}>
               <div className="flex items-start justify-between gap-3">
-                <div><h2 className="font-montserrat text-lg font-bold">{plan.name}</h2><p className="mt-1 text-xs text-[#77767b]">{plan.isActive ? 'Ativo' : 'Arquivado'}</p></div>
+                <div><h2 className="font-montserrat text-lg font-bold">{plan.name}</h2><p className="mt-1 text-xs text-[#625f59]">{plan.isActive ? 'Ativo' : 'Arquivado'}</p></div>
                 <strong>{currency.format(plan.monthlyPrice)}</strong>
               </div>
-              <p className="mt-4 min-h-10 text-sm text-[#47464b]">{plan.description || 'Sem descrição.'}</p>
+              <p className="mt-4 min-h-10 text-sm text-[#625f59]">{plan.description || 'Sem descrição.'}</p>
               <ul className="mt-4 space-y-2 text-sm">
                 {plan.items.map((item) => <li key={item.id}>• {item.targetName} — {item.monthlyLimit ?? 'ilimitado'}</li>)}
               </ul>
-              <div className="mt-6 flex gap-2 border-t border-[#e0e2e9] pt-4">
+              <div className="mt-6 flex gap-2 border-t border-[#dedad2] pt-4">
                 <Button type="button" size="sm" variant="outline" onClick={() => openPlan(plan)} disabled={isPending}>Editar</Button>
                 <Button
                   type="button"
@@ -436,7 +436,7 @@ export function SubscriptionsClient({
 
       {tab === 'subscribers' ? (
         <div className="space-y-6">
-          <form onSubmit={submitSubscriber} className="grid gap-4 rounded-2xl border border-[#c8c5cb]/50 bg-white p-6 md:grid-cols-4">
+          <form onSubmit={submitSubscriber} className="grid gap-4 rounded-2xl border border-[#c9c3b9]/50 bg-white p-6 md:grid-cols-4">
             <div><label className="text-xs font-bold" htmlFor="subscription-client">Cliente</label><Select id="subscription-client" required value={newSubscriber.clientId} onChange={(event) => setNewSubscriber((current) => ({ ...current, clientId: event.target.value }))}><option value="">Selecione</option>{clients.map((client) => <option key={client.id} value={client.id}>{client.name}</option>)}</Select></div>
             <div><label className="text-xs font-bold" htmlFor="subscription-plan">Plano</label><Select id="subscription-plan" required value={newSubscriber.planId} onChange={(event) => setNewSubscriber((current) => ({ ...current, planId: event.target.value }))}><option value="">Selecione</option>{activePlans.map((plan) => <option key={plan.id} value={plan.id}>{plan.name}</option>)}</Select></div>
             <div><label className="text-xs font-bold" htmlFor="subscription-start">Início</label><Input id="subscription-start" type="date" required value={newSubscriber.startedOn} onChange={(event) => setNewSubscriber((current) => ({ ...current, startedOn: event.target.value }))} /></div>
@@ -445,9 +445,9 @@ export function SubscriptionsClient({
 
           <section className="space-y-4">
             {subscribers.map((subscriber) => (
-              <article key={subscriber.id} className="rounded-2xl border border-[#c8c5cb]/50 bg-white p-5 shadow-sm">
+              <article key={subscriber.id} className="rounded-2xl border border-[#c9c3b9]/50 bg-white p-5 shadow-sm">
                 <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
-                  <div><h2 className="font-bold">{subscriber.clientName}</h2><p className="text-sm text-[#47464b]">{subscriber.planName} · {statusLabels[subscriber.status]}</p><p className="mt-1 text-xs text-[#77767b]">Próxima cobrança: {formatDate(subscriber.nextBillingDate)}</p>{subscriber.pendingPlanName ? <p className="mt-1 text-xs font-semibold text-[#7c5809]">Próximo plano: {subscriber.pendingPlanName}</p> : null}</div>
+                  <div><h2 className="font-bold">{subscriber.clientName}</h2><p className="text-sm text-[#625f59]">{subscriber.planName} · {statusLabels[subscriber.status]}</p><p className="mt-1 text-xs text-[#625f59]">Próxima cobrança: {formatDate(subscriber.nextBillingDate)}</p>{subscriber.pendingPlanName ? <p className="mt-1 text-xs font-semibold text-[#7c5809]">Próximo plano: {subscriber.pendingPlanName}</p> : null}</div>
                   <div className="flex flex-wrap items-center gap-2">
                     {subscriber.status !== 'cancelled' ? <><Select aria-label={`Próximo plano de ${subscriber.clientName}`} className="w-40" value={scheduledPlans[subscriber.id] ?? ''} onChange={(event) => setScheduledPlans((current) => ({ ...current, [subscriber.id]: event.target.value }))}><option value="">Trocar plano</option>{activePlans.filter((plan) => plan.id !== subscriber.planId).map((plan) => <option key={plan.id} value={plan.id}>{plan.name}</option>)}</Select><Button type="button" size="sm" variant="outline" disabled={isPending || !scheduledPlans[subscriber.id]} onClick={() => runAction(() => scheduleSubscriptionPlanAction({ subscriptionId: subscriber.id, planId: scheduledPlans[subscriber.id] }))}>Agendar troca</Button></> : null}
                     {subscriber.status === 'active' ? <Button type="button" size="sm" variant="outline" disabled={isPending} onClick={() => requestStatus(subscriber, 'paused')}>Pausar</Button> : null}
@@ -463,9 +463,9 @@ export function SubscriptionsClient({
       ) : null}
 
       {tab === 'billing' ? (
-        <section className="overflow-hidden rounded-2xl border border-[#c8c5cb]/50 bg-white shadow-sm">
-          <div className="overflow-x-auto"><table className="w-full text-left text-sm"><thead className="bg-[#f1f3fa] text-xs uppercase text-[#47464b]"><tr><th className="px-5 py-4">Cliente</th><th className="px-5 py-4">Plano</th><th className="px-5 py-4">Período</th><th className="px-5 py-4">Valor</th><th className="px-5 py-4">Pagamento</th></tr></thead><tbody className="divide-y divide-[#e0e2e9]">{cycles.map((cycle) => <tr key={cycle.id}><td className="px-5 py-4 font-semibold">{cycle.clientName}</td><td className="px-5 py-4">{cycle.planName}</td><td className="px-5 py-4">{formatDate(cycle.periodStart)} a {formatDate(cycle.periodEnd)}</td><td className="px-5 py-4">{currency.format(cycle.amount)}</td><td className="px-5 py-4">{cycle.paymentMethod ? paymentLabels[cycle.paymentMethod] : 'Pendente'}</td></tr>)}</tbody></table></div>
-          {cycles.length === 0 ? <p className="p-10 text-center text-sm text-[#77767b]">Nenhuma cobrança registrada.</p> : null}
+        <section className="overflow-hidden rounded-2xl border border-[#c9c3b9]/50 bg-white shadow-sm">
+          <div className="overflow-x-auto"><table className="w-full text-left text-sm"><thead className="bg-[#f1efeb] text-xs uppercase text-[#625f59]"><tr><th className="px-5 py-4">Cliente</th><th className="px-5 py-4">Plano</th><th className="px-5 py-4">Período</th><th className="px-5 py-4">Valor</th><th className="px-5 py-4">Pagamento</th></tr></thead><tbody className="divide-y divide-[#dedad2]">{cycles.map((cycle) => <tr key={cycle.id}><td className="px-5 py-4 font-semibold">{cycle.clientName}</td><td className="px-5 py-4">{cycle.planName}</td><td className="px-5 py-4">{formatDate(cycle.periodStart)} a {formatDate(cycle.periodEnd)}</td><td className="px-5 py-4">{currency.format(cycle.amount)}</td><td className="px-5 py-4">{cycle.paymentMethod ? paymentLabels[cycle.paymentMethod] : 'Pendente'}</td></tr>)}</tbody></table></div>
+          {cycles.length === 0 ? <p className="p-10 text-center text-sm text-[#625f59]">Nenhuma cobrança registrada.</p> : null}
         </section>
       ) : null}
 

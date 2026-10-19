@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
-import { CalendarDays, ChevronLeft, ChevronRight, Plus } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Plus } from 'lucide-react'
 import { Sheet } from '@/components/ui/sheet'
 import { AgendaGrid } from './agenda-grid'
 import { startAgendaAutoRefresh } from './agenda-auto-refresh'
@@ -42,7 +42,7 @@ const statusLabels: Record<AppointmentStatus, string> = {
 }
 
 const statusActionClassNames: Record<AppointmentStatus, string> = {
-  pending: 'border-[#d8dae0] bg-white text-[#47464b] hover:bg-[#f1f3fa]',
+  pending: 'border-[#d7d2c9] bg-white text-[#625f59] hover:bg-[#f1efeb]',
   confirmed: 'border-[#d7b77d] bg-[#fff7e8] text-[#795506] hover:bg-[#ffefcf]',
   completed:
     'border-emerald-700 bg-emerald-700 text-white hover:bg-emerald-800',
@@ -93,19 +93,19 @@ function AppointmentFinancialDetails({
             .toUpperCase()}
         </div>
         <div className="min-w-0">
-          <p className="truncate font-montserrat text-lg font-bold text-[#181c21]">
+          <p className="truncate font-montserrat text-lg font-bold text-[#242321]">
             {appointment.client.name}
           </p>
-          <p className="text-[#77767b]">{appointment.client.phone}</p>
+          <p className="text-[#625f59]">{appointment.client.phone}</p>
           {appointment.client.email && (
-            <p className="truncate text-xs text-[#9a989d]">
+            <p className="truncate text-xs text-[#827c73]">
               {appointment.client.email}
             </p>
           )}
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-x-6 gap-y-5 border-y border-[#eceef4] py-5">
+      <div className="grid grid-cols-2 gap-x-6 gap-y-5 border-y border-[#e8e4de] py-5">
         <DetailItem label="Serviço" value={appointment.serviceName} />
         <DetailItem label="Barbeiro" value={appointment.barberName} />
         <DetailItem
@@ -118,20 +118,20 @@ function AppointmentFinancialDetails({
         />
       </div>
 
-      <div className="rounded-xl border border-[#e0e2e9] bg-[#f8f9ff] p-4">
-        <p className="font-montserrat text-sm font-bold text-[#181c21]">
+      <div className="rounded-xl border border-[#dedad2] bg-[#f6f5f2] p-4">
+        <p className="font-montserrat text-sm font-bold text-[#242321]">
           Atendimento
         </p>
         <dl className="mt-4 space-y-2.5">
-          <div className="flex justify-between text-[#47464b]">
+          <div className="flex justify-between text-[#625f59]">
             <dt>Preço do serviço</dt>
             <dd>{money(appointment.servicePrice)}</dd>
           </div>
           <div>
-            <dt className="font-semibold text-[#47464b]">Adicionais</dt>
-            <dd className="mt-1.5 space-y-1 text-[#47464b]">
+            <dt className="font-semibold text-[#625f59]">Adicionais</dt>
+            <dd className="mt-1.5 space-y-1 text-[#625f59]">
               {appointment.addOns.length === 0 ? (
-                <span className="text-[#9a989d]">Nenhum</span>
+                <span className="text-[#827c73]">Nenhum</span>
               ) : (
                 appointment.addOns.map((item, index) => (
                   <span
@@ -147,7 +147,7 @@ function AppointmentFinancialDetails({
               )}
             </dd>
           </div>
-          <div className="flex justify-between border-t border-[#e0e2e9] pt-2.5 font-bold text-[#181c21]">
+          <div className="flex justify-between border-t border-[#dedad2] pt-2.5 font-bold text-[#242321]">
             <dt>Total do atendimento</dt>
             <dd>{money(appointment.attendanceTotal)}</dd>
           </div>
@@ -168,7 +168,7 @@ function AppointmentFinancialDetails({
             <dt>Coberto pela assinatura</dt>
             <dd>- {money(appointment.subscriptionCoveredTotal)}</dd>
           </div>
-          <div className="flex justify-between font-bold text-[#181c21]">
+          <div className="flex justify-between font-bold text-[#242321]">
             <dt>A pagar pelo atendimento</dt>
             <dd>{money(appointment.amountDue)}</dd>
           </div>
@@ -181,14 +181,14 @@ function AppointmentFinancialDetails({
         </dl>
       </div>
 
-      <div className="rounded-xl border border-[#e0e2e9] p-4">
-        <p className="font-montserrat text-sm font-bold text-[#181c21]">
+      <div className="rounded-xl border border-[#dedad2] p-4">
+        <p className="font-montserrat text-sm font-bold text-[#242321]">
           Produtos
         </p>
         {appointment.products.length === 0 ? (
-          <p className="mt-2 text-[#9a989d]">Nenhum produto reservado.</p>
+          <p className="mt-2 text-[#827c73]">Nenhum produto reservado.</p>
         ) : (
-          <div className="mt-3 space-y-2 text-[#47464b]">
+          <div className="mt-3 space-y-2 text-[#625f59]">
             {appointment.products.map((product, index) => (
               <div
                 className="flex justify-between gap-4"
@@ -202,22 +202,22 @@ function AppointmentFinancialDetails({
             ))}
           </div>
         )}
-        <div className="mt-3 flex justify-between border-t border-[#eceef4] pt-3 font-bold text-[#47464b]">
+        <div className="mt-3 flex justify-between border-t border-[#e8e4de] pt-3 font-bold text-[#625f59]">
           <span>Subtotal dos produtos</span>
           <span>{money(productSubtotal)}</span>
         </div>
-        <div className="mt-3 flex justify-between text-base font-extrabold text-[#181c21]">
+        <div className="mt-3 flex justify-between text-base font-extrabold text-[#242321]">
           <span>Total na barbearia</span>
           <span>{money(appointment.amountDue + productSubtotal)}</span>
         </div>
       </div>
 
       {appointment.notes && (
-        <div className="rounded-xl bg-[#f1f3fa] p-4">
-          <p className="text-[10px] font-bold uppercase tracking-[0.08em] text-[#77767b]">
+        <div className="rounded-xl bg-[#f1efeb] p-4">
+          <p className="text-[10px] font-bold uppercase tracking-[0.08em] text-[#625f59]">
             Observações
           </p>
-          <p className="mt-2 leading-6 text-[#47464b]">{appointment.notes}</p>
+          <p className="mt-2 leading-6 text-[#625f59]">{appointment.notes}</p>
         </div>
       )}
     </div>
@@ -227,10 +227,10 @@ function AppointmentFinancialDetails({
 function DetailItem({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <p className="text-[10px] font-bold uppercase tracking-[0.08em] text-[#9a989d]">
+      <p className="text-[10px] font-bold uppercase tracking-[0.08em] text-[#827c73]">
         {label}
       </p>
-      <p className="mt-1 font-semibold text-[#181c21]">{value}</p>
+      <p className="mt-1 font-semibold text-[#242321]">{value}</p>
     </div>
   )
 }
@@ -354,19 +354,12 @@ export function AgendaClient({
   ).length
 
   return (
-    <div className="w-full min-w-0 space-y-5 p-4 sm:p-6 lg:p-8">
-      <header className="flex flex-col gap-4 border-b border-[#e0e2e9] pb-5 xl:flex-row xl:items-end xl:justify-between">
+    <div className="mx-auto w-full max-w-[1510px] min-w-0 space-y-5 p-4 sm:p-6 lg:px-10 lg:py-8">
+      <header className="flex flex-col gap-4 border-b border-[#dedad2] pb-6 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <div className="flex items-center gap-2 text-[#C79A4A]">
-            <CalendarDays className="h-4 w-4" aria-hidden="true" />
-            <span className="text-xs font-bold uppercase tracking-[0.1em]">
-              Agenda
-            </span>
-          </div>
-          <h1 className="mt-2 font-montserrat text-2xl font-extrabold tracking-tight text-[#181c21] sm:text-3xl">
-            {displayDate}
-          </h1>
-          <p className="mt-1 text-sm text-[#77767b]">
+          <p className="text-xs font-semibold text-[#805820]">{displayDate}</p>
+          <h1 className="mt-2 font-montserrat text-[26px] font-bold leading-tight tracking-[-0.03em] text-[#242321] sm:text-[32px]">Agenda</h1>
+          <p className="mt-2 text-sm text-[#625f59]">
             {activeAppointments}{' '}
             {activeAppointments === 1
               ? 'reserva agendada'
@@ -374,11 +367,21 @@ export function AgendaClient({
           </p>
         </div>
 
-        <div className="grid w-full grid-cols-1 gap-2 sm:flex sm:w-auto sm:flex-wrap sm:items-center">
-          <div className="flex w-full items-center justify-between rounded-xl border border-[#d8dae0] bg-white p-1 shadow-sm sm:w-auto sm:justify-start">
+        <button
+          className="flex h-11 items-center justify-center gap-2 rounded-md bg-[#c99b4c] px-5 text-xs font-bold text-[#211a10] transition-colors hover:bg-[#d6aa5b] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#9a6c23] focus-visible:ring-offset-2"
+          onClick={openBlankCreate}
+          type="button"
+        >
+          <Plus className="h-4 w-4" aria-hidden="true" />
+          Nova reserva
+        </button>
+      </header>
+
+        <div className="flex w-full flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
+          <div className="flex w-full items-center justify-between rounded-[5px] border border-[#d9d3ca] bg-white p-1 sm:w-auto sm:justify-start">
             <button
               aria-label="Dia anterior"
-              className="flex h-9 items-center gap-1 rounded-lg px-2.5 text-xs font-semibold text-[#47464b] transition-colors hover:bg-[#f1f3fa] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C79A4A] active:scale-[0.98]"
+              className="flex h-9 items-center gap-1 rounded px-2.5 text-xs font-semibold text-[#625f59] transition-colors hover:bg-[#f4f1ec] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C79A4A]"
               onClick={() => navigateToDate(dateWithOffset(currentDate, -1))}
               type="button"
             >
@@ -386,7 +389,7 @@ export function AgendaClient({
               <span className="hidden sm:inline">Anterior</span>
             </button>
             <button
-              className="h-9 rounded-lg bg-[#f1f3fa] px-3 text-xs font-bold text-[#181c21] transition-colors hover:bg-[#e6e8ef] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C79A4A] active:scale-[0.98]"
+              className="h-9 rounded bg-[#f4f1ec] px-3 text-xs font-bold text-[#242321] transition-colors hover:bg-[#ebe6de] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C79A4A]"
               onClick={() => navigateToDate(localIsoDate(new Date()))}
               type="button"
             >
@@ -394,7 +397,7 @@ export function AgendaClient({
             </button>
             <button
               aria-label="Próximo dia"
-              className="flex h-9 items-center gap-1 rounded-lg px-2.5 text-xs font-semibold text-[#47464b] transition-colors hover:bg-[#f1f3fa] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C79A4A] active:scale-[0.98]"
+              className="flex h-9 items-center gap-1 rounded px-2.5 text-xs font-semibold text-[#625f59] transition-colors hover:bg-[#f4f1ec] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C79A4A]"
               onClick={() => navigateToDate(dateWithOffset(currentDate, 1))}
               type="button"
             >
@@ -407,23 +410,14 @@ export function AgendaClient({
             <span className="sr-only">Data da agenda</span>
             <input
               aria-label="Data da agenda"
-              className="h-11 w-full rounded-xl border border-[#d8dae0] bg-white px-3 text-xs font-semibold text-[#47464b] outline-none transition-colors focus:border-[#C79A4A] focus:ring-2 focus:ring-[#C79A4A]/15 sm:w-auto"
+              className="h-11 w-full rounded-[5px] border border-[#d9d3ca] bg-white px-3 text-xs font-semibold text-[#625f59] outline-none transition-colors focus:border-[#C79A4A] focus:ring-2 focus:ring-[#C79A4A]/15 sm:w-auto"
               onChange={(event) => navigateToDate(event.target.value)}
               type="date"
               value={currentDate}
             />
           </label>
 
-          <button
-            className="flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#1b1b1e] px-4 text-xs font-bold text-white transition-colors hover:bg-[#303034] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C79A4A] focus-visible:ring-offset-2 active:scale-[0.98] sm:w-auto"
-            onClick={openBlankCreate}
-            type="button"
-          >
-            <Plus className="h-4 w-4" aria-hidden="true" />
-            Nova reserva
-          </button>
         </div>
-      </header>
 
       {message && (
         <p
@@ -479,7 +473,7 @@ export function AgendaClient({
         {selectedAppointment && (
           <div className="space-y-6 pb-4">
             <AppointmentFinancialDetails appointment={selectedAppointment} />
-            <div className="flex flex-col gap-2 border-t border-[#eceef4] pt-5">
+            <div className="flex flex-col gap-2 border-t border-[#e8e4de] pt-5">
               {getAllowedAppointmentTransitions(selectedAppointment.status).map(
                 (status) => (
                   <button

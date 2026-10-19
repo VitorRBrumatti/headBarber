@@ -38,32 +38,32 @@ const statusPresentation: Record<
   confirmed: {
     label: 'Confirmada',
     className:
-      'border-[#C79A4A] bg-[#fff7e8] text-[#3c2a0b] hover:bg-[#ffefcf]',
-    badgeClassName: 'bg-[#f0bf6b] text-[#3c2a0b]',
+      'border-[#dfc59b] bg-[#fff8eb] text-[#3c2a0b] hover:bg-[#fff0d3]',
+    badgeClassName: 'text-[#795506]',
   },
   pending: {
     label: 'Pendente',
     className:
-      'border-[#c8c5cb] bg-[#f8f9ff] text-[#47464b] hover:bg-[#eceef4]',
-    badgeClassName: 'bg-[#e0e2e9] text-[#47464b]',
+      'border-[#dedad2] bg-[#f8f7f5] text-[#625f59] hover:bg-[#f0eee9]',
+    badgeClassName: 'text-[#625f59]',
   },
   completed: {
     label: 'Concluída',
     className:
-      'border-emerald-600 bg-emerald-50 text-emerald-950 hover:bg-emerald-100',
-    badgeClassName: 'bg-emerald-700 text-white',
+      'border-[#bad4c5] bg-[#eff8f2] text-[#254d38] hover:bg-[#e5f2e9]',
+    badgeClassName: 'text-[#254d38]',
   },
   cancelled: {
     label: 'Cancelada',
     className:
-      'border-dashed border-[#c8c5cb] bg-white text-[#77767b] opacity-75 line-through',
-    badgeClassName: 'bg-[#e0e2e9] text-[#77767b]',
+      'border-dashed border-[#dedad2] bg-[#f5f3f0] text-[#625f59] hover:bg-[#efede9]',
+    badgeClassName: 'text-[#625f59]',
   },
   no_show: {
     label: 'Não compareceu',
     className:
-      'border-red-600 bg-red-50 text-red-950 hover:bg-red-100',
-    badgeClassName: 'bg-red-700 text-white',
+      'border-[#e5c6c1] bg-[#fff3f1] text-[#7c3e36] hover:bg-[#fce7e3]',
+    badgeClassName: 'text-[#7c3e36]',
   },
 }
 
@@ -112,15 +112,15 @@ export function AgendaGrid({
 
   if (barbers.length === 0) {
     return (
-      <div className="rounded-2xl border border-[#e0e2e9] bg-white px-6 py-16 text-center">
+      <div className="rounded-2xl border border-[#dedad2] bg-white px-6 py-16 text-center">
         <CalendarOff
           className="mx-auto h-8 w-8 text-[#C79A4A]"
           aria-hidden="true"
         />
-        <h2 className="mt-4 font-montserrat text-lg font-bold text-[#181c21]">
+        <h2 className="mt-4 font-montserrat text-lg font-bold text-[#242321]">
           Nenhum profissional ativo
         </h2>
-        <p className="mt-2 text-sm text-[#77767b]">
+        <p className="mt-2 text-sm text-[#625f59]">
           Cadastre ou ative um barbeiro para começar a montar a agenda.
         </p>
       </div>
@@ -128,7 +128,7 @@ export function AgendaGrid({
   }
 
   return (
-    <div className="w-full max-w-full overflow-x-auto rounded-xl border border-[#e0e2e9] bg-white shadow-[0_12px_36px_-28px_rgba(24,28,33,0.42)]">
+    <div className="w-full max-w-full overflow-x-auto rounded-[10px] border border-[#dedad2] bg-white">
       <div
         className="grid"
         style={{
@@ -137,17 +137,17 @@ export function AgendaGrid({
           minWidth,
         }}
       >
-        <div className="sticky left-0 top-0 z-30 flex items-center justify-center border-b border-r border-[#e0e2e9] bg-[#f8f9ff]">
-          <Clock3 className="h-4 w-4 text-[#77767b]" aria-hidden="true" />
+        <div className="sticky left-0 top-0 z-30 flex items-center justify-center border-b border-r border-[#dedad2] bg-[#f0eee9]">
+          <Clock3 className="h-4 w-4 text-[#625f59]" aria-hidden="true" />
         </div>
 
         {barbers.map((barber, barberIndex) => (
           <div
-            className="sticky top-0 z-20 flex items-center justify-center gap-2.5 border-b border-r border-[#e0e2e9] bg-[#f8f9ff] px-3"
+            className="sticky top-0 z-20 flex items-center justify-center gap-2.5 border-b border-r border-[#dedad2] bg-[#f0eee9] px-3"
             key={barber.id}
             style={{ gridColumn: barberIndex + 2, gridRow: 1 }}
           >
-            <span className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full border border-[#e0e2e9] bg-white font-montserrat text-[11px] font-bold text-[#47464b]">
+            <span className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full border border-[#dedad2] bg-white font-montserrat text-[11px] font-bold text-[#625f59]">
               {barber.avatarUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
@@ -159,7 +159,7 @@ export function AgendaGrid({
                 barber.name.slice(0, 1).toUpperCase()
               )}
             </span>
-            <span className="truncate font-montserrat text-sm font-bold text-[#181c21]">
+            <span className="truncate font-montserrat text-sm font-bold text-[#242321]">
               {barber.name}
             </span>
           </div>
@@ -167,7 +167,7 @@ export function AgendaGrid({
 
         {slots.map((time, slotIndex) => (
           <div
-            className="sticky left-0 z-10 flex items-start justify-center border-b border-r border-[#eceef4] bg-white pt-2.5 font-mono text-[11px] font-semibold text-[#47464b]"
+            className="sticky left-0 z-10 flex items-start justify-center border-b border-r border-[#e8e4de] bg-white pt-2.5 font-mono text-[11px] font-semibold text-[#625f59]"
             key={time}
             style={{ gridColumn: 1, gridRow: slotIndex + 2 }}
           >
@@ -215,7 +215,7 @@ export function AgendaGrid({
 
               return (
                 <div
-                  className="border-b border-r border-[#eceef4] p-1"
+                  className="border-b border-r border-[#e8e4de] p-1"
                   key={appointment.id}
                   style={{
                     gridColumn: barberIndex + 2,
@@ -225,26 +225,26 @@ export function AgendaGrid({
                   <button
                     aria-label={`Ver reserva de ${appointment.client.name} às ${timeFromIso(appointment.startAt)}`}
                     className={cn(
-                      'flex h-full w-full min-w-0 flex-col justify-start overflow-hidden rounded-lg border-l-[3px] px-3 py-2 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C79A4A] focus-visible:ring-offset-1 active:scale-[0.99]',
+                      'flex h-full w-full min-w-0 flex-col justify-start overflow-hidden rounded-md border px-3 py-2 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#9a6c23] focus-visible:ring-offset-1',
                       presentation.className,
                     )}
                     onClick={() => onSelectAppointment(appointment)}
                     type="button"
                   >
                     <span className="flex min-w-0 items-center justify-between gap-2">
-                      <span className="truncate text-xs font-bold leading-4">
+                      <span className="truncate text-[13px] font-bold leading-4">
                         {appointment.client.name}
                       </span>
                       <span
                         className={cn(
-                          'shrink-0 rounded px-1.5 py-0.5 text-[8px] font-bold uppercase leading-3 tracking-[0.06em] no-underline',
+                          'shrink-0 rounded px-1.5 py-0.5 text-[11px] font-semibold leading-4 no-underline',
                           presentation.badgeClassName,
                         )}
                       >
                         {presentation.label}
                       </span>
                     </span>
-                    <span className="mt-1 flex min-w-0 items-center justify-between gap-3 text-[10px] font-semibold leading-3 no-underline">
+                    <span className="mt-1 flex min-w-0 items-center justify-between gap-3 text-[11px] font-medium leading-4 no-underline">
                       <span className="min-w-0 truncate opacity-75">
                         {appointment.serviceName} ·{' '}
                         {timeFromIso(appointment.startAt)}–
@@ -293,8 +293,8 @@ export function AgendaGrid({
             return (
               <div
                 className={cn(
-                  'border-b border-r border-[#eceef4] p-1',
-                  cellState !== 'available' && 'pattern-diagonal bg-[#f8f9ff]',
+                  'border-b border-r border-[#e8e4de] p-1',
+                  cellState !== 'available' && 'pattern-diagonal bg-[#f6f5f2]',
                 )}
                 key={`${barber.id}-${time}`}
                 style={{
@@ -345,7 +345,7 @@ function UnavailableCell({
   const Icon = presentation.icon
 
   return (
-    <div className="flex h-full items-center justify-center gap-1.5 text-[9px] font-semibold uppercase tracking-[0.08em] text-[#9a989d]">
+    <div className="flex h-full items-center justify-center gap-1.5 text-[9px] font-semibold uppercase tracking-[0.08em] text-[#827c73]">
       <Icon className="h-3.5 w-3.5" aria-hidden="true" />
       <span>{presentation.label}</span>
     </div>

@@ -48,3 +48,10 @@ next-env.d.ts
 supabase/config.toml
 
 /supabase/.branches/
+# Playwright CLI output (may contain credentials)
+.playwright-cli/
+/artifacts/**/*.log
+/scratch/
+
+# Local audiovisual production: motion sources, renders, audio, models and tools
+/creative/

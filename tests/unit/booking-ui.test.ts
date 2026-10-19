@@ -45,18 +45,22 @@ describe('booking visual contract', () => {
     expect(markup).toContain('Benefício disponível')
   })
 
-  it('renders seven accessible steps in the approved palette', () => {
+  it('renders an accessible segmented progress indicator in the approved palette', () => {
     const source = read('booking-progress.tsx')
-    expect(source).toContain("aria-current={isActive ? 'step' : undefined}")
-    expect(source).toContain('Etapa {currentStep} de {steps.length}')
-    expect(source).toContain('#C79A4A')
-    expect(source).toContain('#1A1A1D')
+    expect(source).toContain('role="progressbar"')
+    expect(source).toContain('aria-valuemax={steps.length}')
+    expect(source).toContain('aria-valuenow={currentStep}')
+    expect(source).toContain("steps[currentStep - 1]?.name")
+    const css = read('booking.module.css')
+    expect(css).toContain('#edc36c')
+    expect(css).toContain('#ffe095')
   })
 
   it('disables sold-out products and exposes quantity controls', () => {
     const source = read('booking-product-step.tsx')
     expect(source).toContain('Esgotado')
-    expect(source).toContain('Pagamento e retirada na barbearia')
+    expect(source).toContain('hb-soldout-badge')
+    expect(source).toContain('Imagem indisponível')
     expect(source).toContain(
       'aria-label={`Diminuir quantidade de ${product.name}`}',
     )

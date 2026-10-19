@@ -19,8 +19,8 @@ export function PlanBenefitRow({
   onLimitChange,
 }: PlanBenefitRowProps) {
   return (
-    <div className="grid grid-cols-[minmax(0,1fr)_100px] items-center gap-3 rounded-xl border border-[#e0e2e9] p-3">
-      <label className="flex min-w-0 items-center gap-1 text-sm font-medium text-[#181c21]">
+    <div className="grid grid-cols-[minmax(0,1fr)_100px] items-center gap-3 rounded-xl border border-[#dedad2] p-3">
+      <label className="flex min-w-0 items-center gap-1 text-sm font-medium text-[#242321]">
         <Switch checked={selected} onCheckedChange={onSelectedChange} />
         <span className="truncate">{name}</span>
       </label>

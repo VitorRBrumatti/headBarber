@@ -134,8 +134,8 @@ export function ClientesClient({
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-end gap-4 mb-2 text-left">
         <div>
-          <h1 className="font-montserrat text-2xl md:text-3xl font-extrabold text-[#181c21] mb-1.5">Clientes</h1>
-          <p className="text-sm md:text-base text-[#47464b]">
+          <h1 className="font-montserrat text-2xl md:text-3xl font-extrabold text-[#242321] mb-1.5">Clientes</h1>
+          <p className="text-sm md:text-base text-[#625f59]">
             Gerencie contatos, preferências e histórico da sua clientela.
           </p>
         </div>
@@ -152,7 +152,7 @@ export function ClientesClient({
       <div className="flex flex-col gap-4">
         <div className="flex flex-col sm:flex-row gap-4">
           <div className="relative flex-1 max-w-xl text-left">
-            <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-[#77767b]">search</span>
+            <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-[#625f59]">search</span>
             <input
               type="text"
               value={searchQuery}
@@ -160,7 +160,7 @@ export function ClientesClient({
                 setSearchQuery(e.target.value)
                 setCurrentPage(1)
               }}
-              className="w-full pl-12 pr-4 py-3 bg-white border border-[#c8c5cb]/80 rounded-lg text-sm text-[#181c21] placeholder:text-[#858387] focus:outline-none focus:ring-1 focus:ring-[#C79A4A] focus:border-[#C79A4A] transition-shadow shadow-sm"
+              className="w-full pl-12 pr-4 py-3 bg-white border border-[#c9c3b9]/80 rounded-lg text-sm text-[#242321] placeholder:text-[#8b8379] focus:outline-none focus:ring-1 focus:ring-[#C79A4A] focus:border-[#C79A4A] transition-shadow shadow-sm"
               placeholder="Buscar por nome, telefone ou e-mail..."
             />
           </div>
@@ -169,7 +169,7 @@ export function ClientesClient({
             className={`flex items-center gap-2 px-4 py-3 border rounded-lg text-sm font-medium shadow-sm transition-colors cursor-pointer self-start sm:self-auto ${
               showFilters
                 ? 'border-[#C79A4A] bg-[#C79A4A]/10 text-[#7c5809]'
-                : 'border-[#c8c5cb] bg-white text-[#47464b] hover:bg-[#f1f3fa]'
+                : 'border-[#c9c3b9] bg-white text-[#625f59] hover:bg-[#f1efeb]'
             }`}
           >
             <span className="material-symbols-outlined text-[18px]">filter_list</span>
@@ -182,13 +182,13 @@ export function ClientesClient({
 
         {/* Expandable Filter Panel */}
         {showFilters && (
-          <div className="p-4 bg-white border border-[#c8c5cb]/60 rounded-xl shadow-sm text-left grid grid-cols-1 sm:grid-cols-2 gap-4 animate-fade-in-down">
+          <div className="p-4 bg-white border border-[#c9c3b9]/60 rounded-xl shadow-sm text-left grid grid-cols-1 sm:grid-cols-2 gap-4 animate-fade-in-down">
             <div className="space-y-1.5">
-              <label className="text-xs font-bold text-[#47464b] uppercase tracking-wider">Ordenação</label>
+              <label className="text-xs font-bold text-[#625f59] uppercase tracking-wider">Ordenação</label>
               <select
                 value={sortOption}
                 onChange={(e) => setSortOption(e.target.value)}
-                className="w-full rounded-md border border-[#c8c5cb]/80 bg-white px-3 py-2 text-sm text-[#181c21] focus:ring-1 focus:ring-[#C79A4A] focus:border-[#C79A4A] outline-none"
+                className="w-full rounded-md border border-[#c9c3b9]/80 bg-white px-3 py-2 text-sm text-[#242321] focus:ring-1 focus:ring-[#C79A4A] focus:border-[#C79A4A] outline-none"
               >
                 <option value="recent">Recentes Primeiro</option>
                 <option value="oldest">Mais Antigos Primeiro</option>
@@ -208,8 +208,8 @@ export function ClientesClient({
                   }}
                   className="sr-only peer"
                 />
-                <div className="w-10 h-5 bg-[#e0e2e9] rounded-full peer peer-checked:bg-[#7c5809] after:content-[''] after:absolute after:top-[4px] after:left-[2px] after:bg-white after:border-[#c8c5cb] after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-5 relative" />
-                <span className="ml-3 text-sm font-semibold text-[#47464b]">Apenas com observações</span>
+                <div className="w-10 h-5 bg-[#dedad2] rounded-full peer peer-checked:bg-[#7c5809] after:content-[''] after:absolute after:top-[4px] after:left-[2px] after:bg-white after:border-[#c9c3b9] after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-5 relative" />
+                <span className="ml-3 text-sm font-semibold text-[#625f59]">Apenas com observações</span>
               </label>
             </div>
           </div>
@@ -226,14 +226,14 @@ export function ClientesClient({
 
       {/* Main List Area */}
       {clients.length === 0 ? (
-        <div className="flex-1 flex flex-col items-center justify-center py-20 px-4 bg-white rounded-2xl border border-[#c8c5cb]/30 shadow-sm text-center">
-          <div className="w-24 h-24 bg-[#f1f3fa] rounded-full flex items-center justify-center mb-6 border-8 border-[#f8f9ff]">
-            <span className="material-symbols-outlined text-4xl text-[#47464b]">groups</span>
+        <div className="flex-1 flex flex-col items-center justify-center py-20 px-4 bg-white rounded-2xl border border-[#c9c3b9]/30 shadow-sm text-center">
+          <div className="w-24 h-24 bg-[#f1efeb] rounded-full flex items-center justify-center mb-6 border-8 border-[#f6f5f2]">
+            <span className="material-symbols-outlined text-4xl text-[#625f59]">groups</span>
           </div>
-          <h2 className="font-montserrat text-xl md:text-2xl font-bold text-[#181c21] mb-2">
+          <h2 className="font-montserrat text-xl md:text-2xl font-bold text-[#242321] mb-2">
             Nenhum cliente cadastrado
           </h2>
-          <p className="text-sm md:text-base text-[#47464b] max-w-md mb-8">
+          <p className="text-sm md:text-base text-[#625f59] max-w-md mb-8">
             Cadastre os clientes da sua barbearia para gerenciar suas preferências e histórico de atendimento.
           </p>
           <button
@@ -245,14 +245,14 @@ export function ClientesClient({
           </button>
         </div>
       ) : filteredAndSortedClients.length === 0 ? (
-        <div className="flex-1 flex flex-col items-center justify-center py-16 px-4 bg-white rounded-2xl border border-[#c8c5cb]/30 shadow-sm text-center">
-          <div className="w-16 h-16 bg-[#f1f3fa] rounded-full flex items-center justify-center mb-4">
-            <span className="material-symbols-outlined text-2xl text-[#47464b]">search_off</span>
+        <div className="flex-1 flex flex-col items-center justify-center py-16 px-4 bg-white rounded-2xl border border-[#c9c3b9]/30 shadow-sm text-center">
+          <div className="w-16 h-16 bg-[#f1efeb] rounded-full flex items-center justify-center mb-4">
+            <span className="material-symbols-outlined text-2xl text-[#625f59]">search_off</span>
           </div>
-          <h2 className="font-montserrat text-lg font-bold text-[#181c21] mb-1">
+          <h2 className="font-montserrat text-lg font-bold text-[#242321] mb-1">
             Nenhum resultado encontrado
           </h2>
-          <p className="text-sm text-[#47464b] max-w-sm mb-6">
+          <p className="text-sm text-[#625f59] max-w-sm mb-6">
             Nenhum cliente atende aos critérios de busca ou filtros selecionados. Tente ajustar suas opções.
           </p>
           <button
@@ -261,25 +261,25 @@ export function ClientesClient({
               setFilterHasNotes(false)
               setSortOption('recent')
             }}
-            className="px-5 py-2.5 border border-[#c8c5cb] hover:bg-[#f1f3fa] text-xs font-bold rounded-lg text-[#181c21] transition-colors cursor-pointer"
+            className="px-5 py-2.5 border border-[#c9c3b9] hover:bg-[#f1efeb] text-xs font-bold rounded-lg text-[#242321] transition-colors cursor-pointer"
           >
             Limpar Filtros
           </button>
         </div>
       ) : (
-        <div className="bg-white border border-[#c8c5cb]/60 rounded-xl shadow-[0_4px_12px_rgba(26,26,29,0.04)] overflow-hidden">
+        <div className="bg-white border border-[#c9c3b9]/60 rounded-xl shadow-[0_4px_12px_rgba(26,26,29,0.04)] overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="bg-[#f1f3fa] border-b border-[#c8c5cb]/60">
-                  <th className="py-4 px-6 font-montserrat text-xs font-bold text-[#47464b] tracking-wider">CLIENTE</th>
-                  <th className="py-4 px-6 font-montserrat text-xs font-bold text-[#47464b] tracking-wider">CONTATO</th>
-                  <th className="py-4 px-6 font-montserrat text-xs font-bold text-[#47464b] tracking-wider">OBSERVAÇÕES</th>
-                  <th className="py-4 px-6 font-montserrat text-xs font-bold text-[#47464b] tracking-wider hidden md:table-cell">CADASTRO</th>
-                  <th className="py-4 px-6 font-montserrat text-xs font-bold text-[#47464b] tracking-wider text-right">AÇÕES</th>
+                <tr className="bg-[#f1efeb] border-b border-[#c9c3b9]/60">
+                  <th className="py-4 px-6 font-montserrat text-xs font-bold text-[#625f59] tracking-wider">CLIENTE</th>
+                  <th className="py-4 px-6 font-montserrat text-xs font-bold text-[#625f59] tracking-wider">CONTATO</th>
+                  <th className="py-4 px-6 font-montserrat text-xs font-bold text-[#625f59] tracking-wider">OBSERVAÇÕES</th>
+                  <th className="py-4 px-6 font-montserrat text-xs font-bold text-[#625f59] tracking-wider hidden md:table-cell">CADASTRO</th>
+                  <th className="py-4 px-6 font-montserrat text-xs font-bold text-[#625f59] tracking-wider text-right">AÇÕES</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#c8c5cb]/30">
+              <tbody className="divide-y divide-[#c9c3b9]/30">
                 {paginatedClients.map((client) => {
                   const { label: subscriptionLabel, isSubscriber } =
                     getClientSubscriptionLabel(
@@ -289,7 +289,7 @@ export function ClientesClient({
                   return (
                     <tr
                       key={client.id}
-                      className="hover:bg-[#eceef4]/40 transition-colors group cursor-pointer"
+                      className="hover:bg-[#e8e4de]/40 transition-colors group cursor-pointer"
                       onClick={() => handleEdit(client)}
                     >
                       <td className="py-4 px-6">
@@ -297,12 +297,12 @@ export function ClientesClient({
                           <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm shrink-0 ${
                             isSubscriber
                               ? 'bg-[#1b1b1e] text-[#C79A4A]' 
-                              : 'bg-[#d8dae0] text-[#181c21]'
+                              : 'bg-[#d7d2c9] text-[#242321]'
                           }`}>
                             {getInitials(client.name)}
                           </div>
                           <div className="text-left">
-                            <p className="font-semibold text-sm text-[#181c21] group-hover:text-[#7c5809] transition-colors leading-tight">
+                            <p className="font-semibold text-sm text-[#242321] group-hover:text-[#7c5809] transition-colors leading-tight">
                               {client.name}
                             </p>
                             <span
@@ -310,7 +310,7 @@ export function ClientesClient({
                               className={`mt-1 block max-w-40 truncate rounded px-2 py-0.5 text-[10px] font-bold ${
                                 isSubscriber
                                   ? 'bg-[#1b1b1e] text-[#C79A4A]'
-                                  : 'bg-[#f1f3fa] text-[#47464b]'
+                                  : 'bg-[#f1efeb] text-[#625f59]'
                               }`}
                               onClick={(event) => event.stopPropagation()}
                               tabIndex={0}
@@ -324,41 +324,41 @@ export function ClientesClient({
                       <td className="py-4 px-6" onClick={(e) => e.stopPropagation()}>
                         <div className="flex flex-col gap-1 text-sm text-left">
                           {client.phone ? (
-                            <span className="font-semibold text-[#181c21]">{client.phone}</span>
+                            <span className="font-semibold text-[#242321]">{client.phone}</span>
                           ) : (
-                            <span className="text-[#858387]">—</span>
+                            <span className="text-[#8b8379]">—</span>
                           )}
                           {client.email ? (
-                            <span className="text-xs text-[#47464b]">{client.email}</span>
+                            <span className="text-xs text-[#625f59]">{client.email}</span>
                           ) : (
-                            <span className="text-xs text-[#858387]">—</span>
+                            <span className="text-xs text-[#8b8379]">—</span>
                           )}
                         </div>
                       </td>
                       <td className="py-4 px-6 text-left">
                         {client.notes ? (
-                          <p className="text-sm text-[#47464b] truncate max-w-[240px]" title={client.notes}>
+                          <p className="text-sm text-[#625f59] truncate max-w-[240px]" title={client.notes}>
                             {client.notes}
                           </p>
                         ) : (
-                          <span className="text-xs text-[#858387]">—</span>
+                          <span className="text-xs text-[#8b8379]">—</span>
                         )}
                       </td>
                       <td className="py-4 px-6 hidden md:table-cell text-left">
-                        <span className="text-sm text-[#47464b]">{formatDate(client.created_at)}</span>
+                        <span className="text-sm text-[#625f59]">{formatDate(client.created_at)}</span>
                       </td>
                       <td className="py-4 px-6 text-right" onClick={(e) => e.stopPropagation()}>
                         <div className="flex items-center justify-end gap-1.5 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
                           <button
                             onClick={() => handleEdit(client)}
-                            className="p-1.5 text-[#77767b] hover:text-[#7c5809] hover:bg-[#eceef4] transition-colors rounded-md cursor-pointer"
+                            className="p-1.5 text-[#625f59] hover:text-[#7c5809] hover:bg-[#e8e4de] transition-colors rounded-md cursor-pointer"
                             title="Editar"
                           >
                             <span className="material-symbols-outlined text-[20px]">edit</span>
                           </button>
                           <button
                             onClick={() => handleDeleteClick(client.id)}
-                            className="p-1.5 text-[#77767b] hover:text-[#ba1a1a] hover:bg-[#ffdad6]/40 transition-colors rounded-md cursor-pointer"
+                            className="p-1.5 text-[#625f59] hover:text-[#ba1a1a] hover:bg-[#ffdad6]/40 transition-colors rounded-md cursor-pointer"
                             title="Excluir"
                           >
                             <span className="material-symbols-outlined text-[20px]">delete</span>
@@ -373,8 +373,8 @@ export function ClientesClient({
           </div>
 
           {/* Pagination Footer */}
-          <div className="border-t border-[#c8c5cb]/60 bg-white px-6 py-4 flex items-center justify-between text-left">
-            <span className="text-sm text-[#47464b]">
+          <div className="border-t border-[#c9c3b9]/60 bg-white px-6 py-4 flex items-center justify-between text-left">
+            <span className="text-sm text-[#625f59]">
               Mostrando {totalClients === 0 ? 0 : (activePage - 1) * ITEMS_PER_PAGE + 1} a {Math.min(activePage * ITEMS_PER_PAGE, totalClients)} de {totalClients} clientes
             </span>
             {totalPages > 1 && (
@@ -382,14 +382,14 @@ export function ClientesClient({
                 <button
                   onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
                   disabled={activePage === 1}
-                  className="p-2 rounded border border-[#c8c5cb]/80 text-[#77767b] hover:bg-[#f1f3fa] disabled:opacity-40 disabled:hover:bg-transparent transition-colors cursor-pointer"
+                  className="p-2 rounded border border-[#c9c3b9]/80 text-[#625f59] hover:bg-[#f1efeb] disabled:opacity-40 disabled:hover:bg-transparent transition-colors cursor-pointer"
                 >
                   <span className="material-symbols-outlined text-sm">chevron_left</span>
                 </button>
                 <button
                   onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
                   disabled={activePage === totalPages}
-                  className="p-2 rounded border border-[#c8c5cb]/80 text-[#181c21] hover:bg-[#f1f3fa] disabled:opacity-40 disabled:hover:bg-transparent transition-colors cursor-pointer"
+                  className="p-2 rounded border border-[#c9c3b9]/80 text-[#242321] hover:bg-[#f1efeb] disabled:opacity-40 disabled:hover:bg-transparent transition-colors cursor-pointer"
                 >
                   <span className="material-symbols-outlined text-sm">chevron_right</span>
                 </button>

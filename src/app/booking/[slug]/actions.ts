@@ -14,11 +14,18 @@ import type { SelectedBookingAddOn } from './booking-add-ons'
 
 export async function getBookingPageData(slug: string) {
   const supabase = await createClient()
-  const { data: barbershop, error: barbershopError } = await supabase
+  let { data: barbershop, error: barbershopError } = await supabase
     .from('barbershops')
-    .select('id, name, slug')
+    .select('id, name, slug, booking_avatar_url, booking_banner_url, booking_address')
     .eq('slug', slug)
     .single()
+
+  // Keep public booking available while the optional profile migration is rolled out.
+  if (barbershopError?.code === '42703' || barbershopError?.code === 'PGRST204') {
+    const legacy = await supabase.from('barbershops').select('id, name, slug').eq('slug', slug).single()
+    barbershop = legacy.data ? { ...legacy.data, booking_avatar_url: null, booking_banner_url: null, booking_address: null } : null
+    barbershopError = legacy.error
+  }
 
   if (barbershopError || !barbershop) {
     throw new Error('Barbearia não encontrada')

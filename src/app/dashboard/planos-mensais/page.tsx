@@ -31,12 +31,12 @@ export default async function SubscriptionPage() {
       />
 
       <div className="mt-8 grid gap-6 lg:grid-cols-[1.4fr_1fr]">
-        <section className="rounded-xl border border-[#c8c5cb]/50 bg-white p-6 shadow-[0_12px_40px_rgba(26,26,29,0.04)] md:p-8">
+        <section className="rounded-xl border border-[#c9c3b9]/50 bg-white p-6 shadow-[0_12px_40px_rgba(26,26,29,0.04)] md:p-8">
           <div className="flex flex-col justify-between gap-6 sm:flex-row sm:items-start">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-widest text-[#77767b]">Plano atual</p>
+              <p className="text-xs font-semibold uppercase tracking-widest text-[#625f59]">Plano atual</p>
               <h2 className="mt-2 font-montserrat text-2xl font-semibold text-[#1A1A1D]">Plano Profissional</h2>
-              <p className="mt-2 text-sm text-[#47464b]">
+              <p className="mt-2 text-sm text-[#625f59]">
                 Cobrança {subscription?.plan_interval === 'year' ? 'anual' : 'mensal'} com acesso completo.
               </p>
             </div>
@@ -46,10 +46,10 @@ export default async function SubscriptionPage() {
             </span>
           </div>
 
-          <div className="mt-8 flex items-start gap-3 border-t border-[#c8c5cb]/40 pt-6">
+          <div className="mt-8 flex items-start gap-3 border-t border-[#c9c3b9]/40 pt-6">
             <CalendarClock className="mt-0.5 h-5 w-5 text-[#C79A4A]" />
             <div>
-              <p className="text-xs font-semibold uppercase tracking-wider text-[#77767b]">
+              <p className="text-xs font-semibold uppercase tracking-wider text-[#625f59]">
                 {subscription?.cancel_at_period_end ? 'Acesso disponível até' : 'Próxima renovação'}
               </p>
               <p className="mt-1 text-sm font-semibold text-[#1A1A1D]">{renewalDate}</p>

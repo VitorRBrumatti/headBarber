@@ -46,40 +46,33 @@ export function BookingLinkWidget({ slug }: BookingLinkWidgetProps) {
   }
 
   return (
-    <div className="bg-[#e6e8ef] rounded-2xl p-6 border border-[#c8c5cb]/20">
-      <div className="flex items-center gap-3 mb-6">
-        <div className="w-12 h-12 bg-[#C79A4A]/20 rounded-xl flex items-center justify-center text-[#C79A4A]">
-          <span className="material-symbols-outlined font-fill-1 text-2xl">link</span>
-        </div>
-        <div>
-          <h4 className="text-[#181c21] font-bold text-sm leading-tight">Link de agendamento</h4>
-          <p className="text-[10px] text-[#47464b] font-semibold mt-0.5">Agendamento Online</p>
-        </div>
-      </div>
+    <div className="rounded-md border border-[#e2ded7] bg-white px-5 py-4">
+      <h2 className="text-sm font-bold text-[#242321]">Agendamento online</h2>
+      <p className="mt-1 text-xs text-[#69655f]">Link para seus clientes reservarem um horário.</p>
 
-      <div className="bg-white p-4 rounded-xl border border-[#c8c5cb]/30 flex items-center justify-between gap-3 group mb-4">
-        <span className="truncate text-xs font-semibold text-[#47464b]">
+      <div className="mt-4 flex min-w-0 items-center justify-between gap-2 rounded-[5px] border border-[#e2ded7] bg-[#f8f7f5] pl-3">
+        <span className="truncate font-mono text-[11px] text-[#403c37]">
           {getBookingUrl().replace(/^https?:\/\//, '')}
         </span>
-        <button 
+        <button
+          type="button"
           onClick={handleCopy}
-          className="p-2 text-[#47464b] hover:text-[#C79A4A] transition-all cursor-pointer flex items-center justify-center"
+          aria-label={copied ? 'Link copiado' : 'Copiar link de agendamento'}
+          className="flex min-h-10 shrink-0 items-center gap-1.5 rounded-r-[5px] px-3 text-xs font-semibold text-[#72511f] hover:bg-[#f0ebe3]"
         >
-          <span className="material-symbols-outlined text-lg">
+          <span className="material-symbols-outlined text-base" aria-hidden="true">
             {copied ? 'check' : 'content_copy'}
           </span>
+          {copied ? 'Copiado' : 'Copiar'}
         </button>
       </div>
 
-      <p className="text-[11px] text-[#47464b] mb-6 text-center italic font-medium leading-normal">
-        &quot;Compartilhe no seu Instagram para aumentar as reservas&quot;
-      </p>
-
-      <button 
+      <button
+        type="button"
         onClick={handleShare}
-        className="w-full py-3.5 bg-black hover:bg-neutral-900 text-white rounded-xl font-bold transition-all flex items-center justify-center gap-2 text-xs uppercase tracking-wider cursor-pointer"
+        className="mt-3 flex min-h-10 w-full items-center justify-center gap-2 rounded-[5px] border border-[#d3cec5] text-xs font-semibold text-[#403c37] hover:bg-[#f4f1ec]"
       >
-        <span className="material-symbols-outlined text-base">share</span>
+        <span className="material-symbols-outlined text-base" aria-hidden="true">share</span>
         Divulgar agora
       </button>
     </div>

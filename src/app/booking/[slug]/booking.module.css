@@ -1,0 +1,307 @@
+.appearance {
+  background: #0c0d0d;
+  color: #f6f2e9;
+  font-family: var(--font-inter), Arial, sans-serif;
+  color-scheme: dark;
+}
+.appearance ::selection {
+  background: #c79a4a;
+  color: #16130e;
+}
+.appearance button:focus-visible,
+.appearance a:focus-visible,
+.appearance input:focus-visible,
+.appearance textarea:focus-visible {
+  outline: 2px solid #d6b475;
+  outline-offset: 4px;
+}
+.appearance button[aria-pressed] {
+  border: 1px solid #3c3d36;
+  border-radius: 12px;
+  margin-block: 12px;
+  padding: 18px;
+  background: #191a19;
+  min-height: 84px;
+  transition:
+    background-color 160ms ease-out,
+    border-color 160ms ease-out;
+}
+.appearance button[aria-pressed='true'] {
+  border-color: #d6b475;
+  background: #30291d;
+}
+.appearance button[aria-pressed] img {
+  border-radius: 8px;
+  width: 72px;
+  height: 72px;
+}
+.appearance button[aria-pressed] img + span {
+  min-width: 0;
+}
+.appearance input,
+.appearance textarea {
+  border-radius: 8px;
+  caret-color: #d6b475;
+}
+.appearance
+  :global(.hb-booking-flow)
+  > section
+  > div:has(> button[aria-pressed]) {
+  border: 0;
+}
+.appearance :global(.hb-booking-flow) h1 {
+  color: #f6f2e9;
+}
+.appearance :global(.hb-booking-flow) [class*='text-white/'] {
+  color: #c1bcb2;
+}
+.appearance :global(.hb-booking-flow) :global(.text-white) {
+  color: #f6f2e9;
+}
+.appearance button:disabled {
+  cursor: not-allowed;
+}
+.appearance
+  :global(.hb-booking-flow)
+  button[aria-pressed]
+  :global(.text-white) {
+  color: #17130d;
+}
+@media (max-width: 640px) {
+  .appearance button[aria-pressed] {
+    padding: 14px;
+    gap: 12px;
+  }
+  .appearance button[aria-pressed] img {
+    width: 60px;
+    height: 60px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .appearance *,
+  .appearance *::before,
+  .appearance *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}
+.shopProfile {
+  margin: 0 -16px 28px;
+}
+.shopBanner {
+  height: clamp(185px, 32vw, 300px);
+  overflow: hidden;
+  background: #191a19;
+}
+.bannerImage,
+.bannerFallback {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.defaultBanner { object-fit: contain; background: #fafafa; }
+.shopIdentity {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px 20px 0;
+  text-align: center;
+}
+.shopIdentity.withBanner {
+  padding-top: 0;
+  margin-top: -65px;
+}
+.shopAvatar {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 130px;
+  height: 130px;
+  overflow: hidden;
+  border: 2px solid #d6b475;
+  border-radius: 50%;
+  background: #0c0d0d;
+  color: #d6b475;
+  font-size: 36px;
+}
+.avatarImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.shopIdentity h1 {
+  margin-top: 18px;
+  font-size: clamp(26px, 4vw, 36px);
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.03em;
+  overflow-wrap: anywhere;
+}
+.shopLocation {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 24px 16px 0;
+  padding: 10px;
+  border: 1px solid #292b29;
+  border-radius: 12px;
+  background: #191a19;
+  color: #d6b475;
+}
+.shopLocation > svg {
+  flex-shrink: 0;
+}
+.address {
+  flex: 1;
+  min-width: 0;
+  color: #c1bcb2;
+  font-size: 13px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+.mapsAction {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  border: 1px solid #c79a4a;
+  border-radius: 24px;
+  padding: 10px 12px;
+  white-space: nowrap;
+}
+.barberHeading {
+  margin-bottom: 20px;
+}
+.barberHeading h2 {
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+}
+.barberHeading p {
+  margin-top: 6px;
+  color: #c1bcb2;
+  font-size: 14px;
+}
+.calendarStrip {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  padding: 4px 4px 16px;
+  margin: -4px;
+  scrollbar-color: #a88750 #191a19;
+  scrollbar-width: thin;
+  scroll-snap-type: x proximity;
+}
+.appearance button.calendarDay {
+  flex-shrink: 0;
+  min-height: 104px;
+  min-width: 84px;
+  margin: 0;
+  padding: 16px 14px;
+  border-radius: 12px;
+  gap: 4px;
+  scroll-snap-align: start;
+}
+.appearance button.timeSlot {
+  min-height: 48px;
+  margin: 0;
+  padding: 12px;
+  border-radius: 8px;
+  font-variant-numeric: tabular-nums;
+}
+.appearance button.calendarDay[aria-pressed='true'],
+.appearance button.timeSlot[aria-pressed='true'] {
+  background: #d6b475;
+  border-color: #d6b475;
+  color: #17130d;
+}
+@media (hover: hover) {
+  .shopLocation:hover {
+    border-color: #d6b475;
+  }
+  .appearance button.calendarDay:hover,
+  .appearance button.timeSlot:hover {
+    border-color: #d6b475;
+  }
+}
+@media (min-width: 640px) {
+  .shopProfile {
+    margin: 0 -24px 32px;
+  }
+  .shopLocation {
+    margin-inline: 24px;
+  }
+  .shopBanner {
+    border-radius: 0 0 16px 16px;
+  }
+  .barberHeading {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 8px 20px;
+  }
+}
+@media (max-width: 480px) {
+  .shopLocation {
+    flex-wrap: wrap;
+  }
+  .address {
+    flex-basis: calc(100% - 34px);
+  }
+  .mapsAction {
+    margin-left: 33px;
+  }
+}
+.appearance button.barberChoice {
+  padding: 10px;
+  min-height: 92px;
+  gap: 16px;
+}
+.appearance button.barberChoice img,
+.barberPhoto {
+  width: 100px;
+  height: 84px;
+  border-radius: 8px;
+}
+.appearance button.calendarDay[aria-pressed='true'],
+.appearance button.timeSlot[aria-pressed='true'] {
+  transition: none;
+}
+
+.bookingHeader { position: sticky; top: 0; z-index: 40; background: #0c0d0df5; color: #f8f6f0; }
+.headerInner { position: relative; max-width: 768px; margin: auto; }
+.headerBack { position: absolute; left: 16px; top: 21px; display: grid; place-items: center; width: 40px; height: 40px; border: 1px solid #363936; border-radius: 50%; color: #eac36c; background: #171917; }
+.headerBack svg { width: 24px; height: 24px; }
+.progress { padding: 18px 64px 16px; text-align: center; }
+.stepCount { font-size: 14px; color: #edc36c; line-height: 1.3; }
+.stepTitle { margin-top: 5px; font-size: 20px; font-weight: 650; line-height: 1.3; }
+.stepSegments { display: flex; gap: 5px; max-width: 290px; margin: 12px auto 0; }
+.stepSegments > span { height: 6px; flex: 1; border-radius: 8px; background: #363837; }
+.stepSegments > .segmentActive { background: linear-gradient(180deg, #ffe095, #d8a94a); }
+.firstStep { padding-top: 0 !important; }
+.appearance button.barberChoice { border: 1px solid #303430; border-radius: 12px; background: #0f1110; margin-block: 10px; padding: 4px; gap: 12px; }
+.appearance button.barberChoice[aria-pressed=true] { border: 2px solid #e6bf69; background: linear-gradient(110deg, #31291c, #111311); padding: 3px; }
+.barberChoice > span:nth-last-child(2) > span:first-child { font-size: 17px; }
+.barberChoice > span:nth-last-child(2) > span:last-child { font-size: 12px; line-height: 1.5; }
+.barberRadio { flex-shrink: 0; width: 26px; height: 26px; border: 2px solid #737874; border-radius: 50%; margin-right: 9px; }
+.barberRadioSelected { border-color: #edc66f; background: #edc66f; box-shadow: inset 0 0 0 4px #171b16; }
+.firstFooter { background: #0c0d0d !important; border: 0 !important; box-shadow: none !important; }
+.summaryFooter button { border-radius: 12px; min-height: 54px; }
+.summaryFooter > div > button:last-child { border: 1px solid #efce88; background: linear-gradient(180deg, #ffda83, #ce9743); color: #211b12; font-size: 16px; text-transform: none; letter-spacing: 0; }
+.summaryFooter > div > button:first-child:not(:last-child) { border-color: #796342; color: #edce8e; }
+.firstFooter > div { max-width: 768px; padding-top: 12px; padding-bottom: 18px; }
+.firstFooter > div > div { display: none; }
+.firstFooter button { width: 100%; min-height: 54px; border: 1px solid #efce88; border-radius: 12px; background: linear-gradient(180deg, #ffda83, #ce9743); font-size: 18px; font-weight: 650; text-transform: none; letter-spacing: 0; }
+.firstFooter button svg { width: 22px; height: 22px; margin-left: 8px; }
+@media (max-width: 480px) {
+  .shopLocation { gap: 8px; margin-top: 20px; flex-wrap: nowrap; }
+  .address { font-size: 11px; flex-basis: auto; }
+  .mapsAction { margin-left: 0; padding: 8px 10px; font-size: 10px; }
+  .shopLocation > svg { width: 22px; }
+  .barberHeading h2 { font-size: 20px; }
+  .barberHeading p { font-size: 12px; }
+}

@@ -2,6 +2,33 @@
 
 import { revalidatePath } from 'next/cache'
 import { getBarbershopId } from '@/utils/get-barbershop'
+import { parseBookingProfile } from '@/lib/booking-profile'
+
+export async function getBarbershopBookingProfile() {
+  const { supabase, barbershopId } = await getBarbershopId()
+  const { data, error } = await supabase.from('barbershops')
+    .select('booking_avatar_url, booking_banner_url, booking_address')
+    .eq('id', barbershopId).single()
+  if (error?.code === '42703' || error?.code === 'PGRST204') return null
+  if (error) throw new Error('Não foi possível carregar o perfil público. Tente novamente.')
+  return data
+}
+
+export async function updateBarbershopBookingProfileAction(form: FormData) {
+  const { supabase, barbershopId } = await getBarbershopId()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('Não autenticado')
+  const { data: profile, error: profileError } = await supabase.from('profiles')
+    .select('role, demo_mode').eq('id', user.id).eq('barbershop_id', barbershopId).single()
+  if (profileError || profile?.role !== 'owner') throw new Error('Apenas o dono pode editar o perfil público.')
+  if (profile.demo_mode) throw new Error('O perfil da demonstração não pode ser alterado.')
+  const values = parseBookingProfile(form)
+  const { data, error } = await supabase.from('barbershops').update(values)
+    .eq('id', barbershopId).select('slug').single()
+  if (error || !data) throw new Error('Não foi possível salvar o perfil público. Tente novamente.')
+  revalidatePath('/dashboard/configuracoes')
+  revalidatePath(`/booking/${data.slug}`)
+}
 
 /**
  * Fetches the current barbershop settings, auto-initializing with standard defaults if missing.

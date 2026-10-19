@@ -1,0 +1,18 @@
+{
+  "widths": [
+    1440,
+    768,
+    390
+  ],
+  "checks": [
+    "no overflow",
+    "images loaded",
+    "one h1",
+    "mobile menu",
+    "required barber selection",
+    "forward/back navigation",
+    "reduced motion"
+  ],
+  "pageErrors": [],
+  "submittedBookings": 0
+}

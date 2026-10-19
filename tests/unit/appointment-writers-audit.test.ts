@@ -1,27 +1,47 @@
-import { execFileSync } from 'node:child_process'
-import { readFileSync } from 'node:fs'
-import { join } from 'node:path'
+import { readdirSync, readFileSync } from 'node:fs'
+import { join, relative } from 'node:path'
 import { describe, expect, it } from 'vitest'
 
-const repositoryMatches = execFileSync(
-  'rg',
-  [
-    '-n',
-    '-i',
-    "from\\('appointments'\\)|insert into public\\.appointments|update public\\.appointments",
-    'src',
-    'supabase/migrations',
-  ],
-  { encoding: 'utf8' },
-)
+function listFiles(directory: string): string[] {
+  return readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
+    const fullPath = join(directory, entry.name)
 
-const appointmentSourceFiles = execFileSync(
-  'rg',
-  ['-l', "from\\('appointments'\\)", 'src'],
-  { encoding: 'utf8' },
-)
-  .trim()
-  .split(/\r?\n/)
+    if (entry.isDirectory()) {
+      return listFiles(fullPath)
+    }
+
+    return entry.isFile() ? [fullPath] : []
+  })
+}
+
+const root = process.cwd()
+
+const repositoryFiles = [
+  ...listFiles(join(root, 'src')),
+  ...listFiles(join(root, 'supabase', 'migrations')),
+]
+
+const repositoryPattern =
+  /from\('appointments'\)|insert into public\.appointments|update public\.appointments/i
+
+const repositoryMatches = repositoryFiles
+  .flatMap((fullPath) => {
+    const source = readFileSync(fullPath, 'utf8')
+    const file = relative(root, fullPath).replaceAll('\\', '/')
+
+    return source.split(/\r?\n/).flatMap((line, index) =>
+      repositoryPattern.test(line)
+        ? [`${file}:${index + 1}:${line}`]
+        : [],
+    )
+  })
+  .join('\n')
+
+const appointmentSourceFiles = listFiles(join(root, 'src'))
+  .filter((fullPath) =>
+    readFileSync(fullPath, 'utf8').includes("from('appointments')"),
+  )
+  .map((fullPath) => relative(root, fullPath).replaceAll('\\', '/'))
 
 const applicationUpdateInventory = appointmentSourceFiles
   .flatMap((file) => {

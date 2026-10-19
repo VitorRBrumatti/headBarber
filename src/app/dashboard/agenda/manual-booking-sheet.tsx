@@ -32,7 +32,7 @@ const money = (value: number) =>
   }).format(value)
 
 const controlClassName =
-  'mt-1.5 w-full rounded-xl border border-[#d8dae0] bg-white px-3.5 py-3 text-sm text-[#181c21] outline-none transition-colors focus:border-[#C79A4A] focus:ring-2 focus:ring-[#C79A4A]/15 disabled:cursor-not-allowed disabled:bg-[#f1f3fa] disabled:text-[#9a989d]'
+  'mt-1.5 w-full rounded-xl border border-[#d7d2c9] bg-white px-3.5 py-3 text-sm text-[#242321] outline-none transition-colors focus:border-[#C79A4A] focus:ring-2 focus:ring-[#C79A4A]/15 disabled:cursor-not-allowed disabled:bg-[#f1efeb] disabled:text-[#827c73]'
 
 export function ManualBookingSheet({
   barbers,
@@ -210,13 +210,13 @@ export function ManualBookingSheet({
       title="Nova reserva manual"
     >
       <form className="space-y-5 pb-4" onSubmit={handleSubmit}>
-        <div className="flex items-center gap-3 rounded-xl border border-[#eceef4] bg-[#f8f9ff] px-4 py-3 text-sm text-[#47464b]">
+        <div className="flex items-center gap-3 rounded-xl border border-[#e8e4de] bg-[#f6f5f2] px-4 py-3 text-sm text-[#625f59]">
           <CalendarDays className="h-4 w-4 text-[#C79A4A]" aria-hidden="true" />
           <span className="font-semibold">{dateLabel}</span>
         </div>
 
         <div className="grid grid-cols-2 gap-3">
-          <label className="text-xs font-semibold text-[#47464b]">
+          <label className="text-xs font-semibold text-[#625f59]">
             Profissional
             <select
               className={controlClassName}
@@ -237,7 +237,7 @@ export function ManualBookingSheet({
             </select>
           </label>
 
-          <label className="text-xs font-semibold text-[#47464b]">
+          <label className="text-xs font-semibold text-[#625f59]">
             Horário
             <select
               className={controlClassName}
@@ -259,7 +259,7 @@ export function ManualBookingSheet({
           </label>
         </div>
 
-        <label className="block text-xs font-semibold text-[#47464b]">
+        <label className="block text-xs font-semibold text-[#625f59]">
           Serviço
           <select
             className={controlClassName}
@@ -295,16 +295,16 @@ export function ManualBookingSheet({
           </div>
         )}
 
-        <div className="border-t border-[#eceef4] pt-5">
+        <div className="border-t border-[#e8e4de] pt-5">
           <div className="mb-4 flex items-center gap-2">
             <UserRound className="h-4 w-4 text-[#C79A4A]" aria-hidden="true" />
-            <h3 className="font-montserrat text-sm font-bold text-[#181c21]">
+            <h3 className="font-montserrat text-sm font-bold text-[#242321]">
               Dados do cliente
             </h3>
           </div>
 
           <div className="space-y-4">
-            <label className="block text-xs font-semibold text-[#47464b]">
+            <label className="block text-xs font-semibold text-[#625f59]">
               Nome do cliente
               <input
                 className={controlClassName}
@@ -314,7 +314,7 @@ export function ManualBookingSheet({
                 value={clientName}
               />
             </label>
-            <label className="block text-xs font-semibold text-[#47464b]">
+            <label className="block text-xs font-semibold text-[#625f59]">
               Telefone
               <input
                 className={controlClassName}
@@ -325,8 +325,8 @@ export function ManualBookingSheet({
                 value={clientPhone}
               />
             </label>
-            <label className="block text-xs font-semibold text-[#47464b]">
-              E-mail <span className="font-normal text-[#9a989d]">(opcional)</span>
+            <label className="block text-xs font-semibold text-[#625f59]">
+              E-mail <span className="font-normal text-[#827c73]">(opcional)</span>
               <input
                 className={controlClassName}
                 onChange={(event) => setClientEmail(event.target.value)}
@@ -335,9 +335,9 @@ export function ManualBookingSheet({
                 value={clientEmail}
               />
             </label>
-            <label className="block text-xs font-semibold text-[#47464b]">
+            <label className="block text-xs font-semibold text-[#625f59]">
               Observações{' '}
-              <span className="font-normal text-[#9a989d]">(opcional)</span>
+              <span className="font-normal text-[#827c73]">(opcional)</span>
               <textarea
                 className={controlClassName}
                 onChange={(event) => setNotes(event.target.value)}

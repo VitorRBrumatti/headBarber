@@ -9,88 +9,89 @@ interface SidebarProps {
   isDemo?: boolean
 }
 
-const sidebarItems = [
-  { name: 'Dashboard', href: '/dashboard', icon: 'dashboard' },
-  { name: 'Agenda', href: '/dashboard/agenda', icon: 'calendar_today' },
-  { name: 'Financeiro', href: '/dashboard/financeiro', icon: 'payments' },
-  { name: 'Assinaturas de clientes', href: '/dashboard/financeiro/assinaturas', icon: 'loyalty' },
-  { name: 'Reservas', href: '/dashboard/reservas', icon: 'book_online' },
-  { name: 'Barbeiros', href: '/dashboard/barbeiros', icon: 'content_cut' },
-  { name: 'Serviços', href: '/dashboard/servicos', icon: 'dry_cleaning' },
-  { name: 'Adicionais', href: '/dashboard/adicionais', icon: 'add_circle' },
-  { name: 'Produtos', href: '/dashboard/produtos', icon: 'inventory_2' },
-  { name: 'Clientes', href: '/dashboard/clientes', icon: 'groups' },
-  { name: 'Assinatura HeadBarber', href: '/dashboard/planos-mensais', icon: 'card_membership' },
-  { name: 'Configurações', href: '/dashboard/configuracoes', icon: 'settings' },
+const groups = [
+  {
+    label: 'Operação',
+    items: [
+      { name: 'Visão geral', href: '/dashboard', icon: 'space_dashboard' },
+      { name: 'Agenda', href: '/dashboard/agenda', icon: 'calendar_today' },
+      { name: 'Reservas', href: '/dashboard/reservas', icon: 'book_online' },
+      { name: 'Clientes', href: '/dashboard/clientes', icon: 'groups' },
+    ],
+  },
+  {
+    label: 'Catálogo e equipe',
+    items: [
+      { name: 'Serviços', href: '/dashboard/servicos', icon: 'content_cut' },
+      { name: 'Adicionais', href: '/dashboard/adicionais', icon: 'add_circle' },
+      { name: 'Produtos', href: '/dashboard/produtos', icon: 'inventory_2' },
+      { name: 'Barbeiros', href: '/dashboard/barbeiros', icon: 'badge' },
+    ],
+  },
+  {
+    label: 'Gestão',
+    items: [
+      { name: 'Financeiro', href: '/dashboard/financeiro', icon: 'payments' },
+      { name: 'Assinaturas de clientes', href: '/dashboard/financeiro/assinaturas', icon: 'loyalty' },
+      { name: 'Assinatura HeadBarber', href: '/dashboard/planos-mensais', icon: 'card_membership' },
+      { name: 'Configurações', href: '/dashboard/configuracoes', icon: 'settings' },
+    ],
+  },
 ]
 
 const demoHrefs = new Set([
-  '/dashboard',
-  '/dashboard/agenda',
-  '/dashboard/financeiro',
-  '/dashboard/barbeiros',
-  '/dashboard/servicos',
-  '/dashboard/clientes',
+  '/dashboard', '/dashboard/agenda', '/dashboard/financeiro',
+  '/dashboard/barbeiros', '/dashboard/servicos', '/dashboard/clientes',
 ])
 
 export function Sidebar({ onLinkClick, isDemo = false }: SidebarProps) {
   const pathname = usePathname()
-  const visibleItems = isDemo
-    ? sidebarItems.filter((item) => demoHrefs.has(item.href))
-    : sidebarItems
-
-  const isActive = (href: string) => {
-    if (href === '/dashboard') return pathname === '/dashboard'
-    return pathname.startsWith(href)
-  }
 
   return (
-    <div className="flex flex-col h-full bg-[#1b1b1e] py-8 px-4 text-white">
-      {/* Logo Section (No text below, just logo image as requested) */}
-      <div className="mb-10 px-4 flex items-center justify-center">
-        <Link href="/dashboard" className="block hover:opacity-90 transition-opacity">
-          <Image
-            alt="HeadBarber"
-            className="mx-auto h-auto w-full max-w-[150px] object-contain"
-            src="/brand/headbarber_logo_branca_com_texto_transparente.png"
-            width={150}
-            height={113}
-          />
-        </Link>
-      </div>
+    <div className="hb-sidebar flex h-full flex-col">
+      <Link href="/dashboard" onClick={onLinkClick} className="hb-sidebar-brand" aria-label="HeadBarber — visão geral">
+        <Image
+          alt="HeadBarber"
+          src="/brand/headbarber_logo_branca_com_texto_transparente.png"
+          width={136}
+          height={102}
+          className="h-auto w-[112px] object-contain"
+        />
+      </Link>
 
-      {/* Navigation Menu */}
-      <nav className="flex-1 space-y-1 overflow-y-auto pr-2 custom-scrollbar">
-        {visibleItems.map((item) => {
-          const active = isActive(item.href)
+      <nav className="hb-sidebar-nav flex-1 overflow-y-auto" aria-label="Navegação principal">
+        {groups.map((group) => {
+          const items = isDemo ? group.items.filter((item) => demoHrefs.has(item.href)) : group.items
+          if (!items.length) return null
+
           return (
-            <Link
-              key={item.name}
-              href={item.href}
-              onClick={onLinkClick}
-              className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors duration-200 ease-in-out group relative ${
-                active
-                  ? 'text-white font-semibold bg-white/5'
-                  : 'text-[#858387] hover:bg-white/10 hover:text-white'
-              }`}
-            >
-              <span className={`material-symbols-outlined ${active ? 'text-[#C79A4A]' : 'text-[#858387] group-hover:text-white'}`}>
-                {item.icon}
-              </span>
-              <span className="font-body-md text-sm">{item.name}</span>
-              {active && <div className="sidebar-active-indicator" />}
-            </Link>
+            <div className="hb-nav-group" key={group.label}>
+              <p className="hb-nav-label">{group.label}</p>
+              {items.map((item) => {
+                const active = pathname === item.href
+
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    onClick={onLinkClick}
+                    aria-current={active ? 'page' : undefined}
+                    className={`hb-nav-item ${active ? 'hb-nav-item-active' : ''}`}
+                  >
+                    <span className="material-symbols-outlined" aria-hidden="true">{item.icon}</span>
+                    <span>{item.name}</span>
+                  </Link>
+                )
+              })}
+            </div>
           )
         })}
       </nav>
 
-      {/* CTA Action */}
-      <div className="mt-6">
-        <Link href="/dashboard/agenda" onClick={onLinkClick}>
-          <button className="w-full py-4 px-4 bg-[#C79A4A] text-black font-bold rounded-xl flex items-center justify-center gap-2 hover:brightness-110 transition-all duration-300 shadow-lg shadow-[#C79A4A]/10 cursor-pointer">
-            <span className="material-symbols-outlined text-lg">add</span>
-            Nova Reserva
-          </button>
+      <div className="hb-sidebar-action">
+        <Link href="/dashboard/agenda" onClick={onLinkClick} className="hb-new-booking">
+          <span className="material-symbols-outlined" aria-hidden="true">add</span>
+          Nova reserva
         </Link>
       </div>
     </div>

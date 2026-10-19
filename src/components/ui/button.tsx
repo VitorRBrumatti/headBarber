@@ -13,17 +13,17 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       <button
         ref={ref}
         className={cn(
-          "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
+          "inline-flex items-center justify-center whitespace-nowrap rounded-[5px] text-sm font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#9a6c23] disabled:pointer-events-none disabled:opacity-50",
           {
-            "bg-[#C79A4A] text-black font-bold hover:brightness-105 transition-all shadow-md shadow-[#C79A4A]/10": variant === "default",
+            "bg-[#C79A4A] text-[#171614] hover:bg-[#d6aa5b]": variant === "default",
             "bg-[#ba1a1a] text-white font-bold hover:opacity-90 transition-all": variant === "destructive",
-            "border border-[#c8c5cb] bg-transparent text-[#181c21] hover:bg-[#eceef4] transition-all": variant === "outline",
+            "border border-[#c8c1b7] bg-white text-[#242321] hover:bg-[#f4f1ec]": variant === "outline",
             "bg-[#1b1b1e] text-white font-semibold hover:bg-neutral-900 transition-all": variant === "secondary",
-            "text-[#181c21] hover:bg-[#eceef4] transition-colors": variant === "ghost",
+            "text-[#242321] hover:bg-[#e8e4de] transition-colors": variant === "ghost",
             "text-[#C79A4A] underline-offset-4 hover:underline": variant === "link",
             "h-10 px-4 py-2": size === "default",
-            "h-9 rounded-md px-3": size === "sm",
-            "h-11 rounded-md px-8": size === "lg",
+            "h-9 px-3": size === "sm",
+            "h-11 px-6": size === "lg",
             "h-10 w-10": size === "icon",
           },
           className

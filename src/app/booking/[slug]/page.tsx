@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation'
 import { getBookingPageData } from './actions'
 import { BookingClient } from './booking-client'
+import styles from './booking.module.css'
 
 interface BookingPageProps {
   params: Promise<{
@@ -24,7 +25,7 @@ export default async function BookingPage({ params }: BookingPageProps) {
   if (!data) notFound()
 
   return (
-    <div className="min-h-screen bg-[#1A1A1D] text-white">
+    <div className={styles.appearance}>
       <BookingClient
         barbershop={data.barbershop}
         barbers={data.barbers}

@@ -27,12 +27,12 @@ export function ServiceAssignmentsEditor({
   }
 
   return (
-    <fieldset className="space-y-3">
+    <fieldset className="space-y-1">
       <legend className="text-sm font-semibold">Configuração por profissional</legend>
       {assignments.map((assignment) => (
         <div
           key={assignment.barberId}
-          className="rounded-xl border border-[#e0e2e9] bg-[#f8f9ff] p-4"
+          className="border-b border-[#e2ded7] py-4 last:border-b-0"
         >
           <div className="flex items-center justify-between gap-4">
             <span className="font-montserrat text-sm font-bold text-[#181c21]">
@@ -40,6 +40,7 @@ export function ServiceAssignmentsEditor({
             </span>
             <label className="flex items-center gap-1 text-xs font-semibold text-[#47464b]">
               <Switch
+                aria-label={`${assignment.barberName}: disponível para agendamento`}
                 checked={assignment.isAvailable}
                 onCheckedChange={(isAvailable) =>
                   update(assignment.barberId, {
@@ -54,6 +55,7 @@ export function ServiceAssignmentsEditor({
             <label className="space-y-1.5 text-xs font-medium">
               <span>Preço (R$)</span>
               <Input
+                aria-label={`Preço de ${assignment.barberName} (R$)`}
                 type="number"
                 min="0"
                 step="0.01"
@@ -71,6 +73,7 @@ export function ServiceAssignmentsEditor({
             <label className="space-y-1.5 text-xs font-medium">
               <span>Duração (min)</span>
               <Input
+                aria-label={`Duração de ${assignment.barberName} (min)`}
                 type="number"
                 min="5"
                 max="720"

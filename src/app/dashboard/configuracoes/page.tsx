@@ -1,9 +1,9 @@
-import { getBarbershopSettings } from './actions'
+import { getBarbershopSettings, getBarbershopBookingProfile } from './actions'
 import { ConfiguracoesClient } from './configuracoes-client'
 import { createClient } from '@/utils/supabase/server'
 
 export default async function ConfiguracoesPage() {
-  const settings = await getBarbershopSettings()
+  const [settings, bookingProfile] = await Promise.all([getBarbershopSettings(), getBarbershopBookingProfile()])
 
   // Fetch active barbers for exceptional calendar blocking dropdown
   const supabase = await createClient()
@@ -32,7 +32,7 @@ export default async function ConfiguracoesPage() {
 
   return (
     <div className="space-y-6">
-      <ConfiguracoesClient initialSettings={settings} barbers={barbers} />
+      <ConfiguracoesClient initialSettings={settings} bookingProfile={bookingProfile} barbers={barbers} />
     </div>
   )
 }
