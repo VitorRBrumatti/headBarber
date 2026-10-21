@@ -358,7 +358,7 @@
   z-index: -1;
   background:
     linear-gradient(90deg, rgba(8, 9, 8, 0.96), rgba(8, 9, 8, 0.35)),
-    url("/brand/barbershop-hero.png") center 60% / cover;
+    url("/brand/barbershop-hero.webp") center 60% / cover;
 }
 .operationInner {
   display: grid;
