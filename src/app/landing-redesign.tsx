@@ -182,8 +182,9 @@ export default function LandingRedesign() {
             src="/brand/barbershop-hero.png"
             alt=""
             fill
-            preload
-            sizes="100vw"
+            loading="eager"
+            fetchPriority="high"
+            sizes="58vw"
             className={s.heroPhoto}
           />
           <div className={s.hero}>
