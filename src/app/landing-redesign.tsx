@@ -289,19 +289,13 @@ export default function LandingRedesign() {
                   className={s.action}
                   onClick={() => trackTrialClick("hero")}
                 >
-                  Testar 14 dias grátis
+                  Testar 7 dias grátis
                   <ArrowRight aria-hidden="true" size={16} />
                 </Link>
-                <a
-                  href={WHATSAPP_URL}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={`${s.action} ${s.secondary}`}
-                  onClick={() => trackWhatsAppClick("hero")}
-                >
-                  <WhatsAppIcon size={17} />
-                  Falar no WhatsApp
-                </a>
+                <Link href="/demo" className={`${s.action} ${s.secondary}`}>
+                  Ver demonstração
+                  <ArrowRight aria-hidden="true" size={16} />
+                </Link>
               </div>
               <p className={s.heroMicrocopy}>
                 Sem cartão de crédito · A gente configura seus serviços pra você
@@ -547,7 +541,7 @@ export default function LandingRedesign() {
         <section className={s.finalCta} aria-labelledby="final-cta-title">
           <div className={s.finalCtaInner}>
             <h2 id="final-cta-title">
-              Teste na sua barbearia por 14 dias sem compromisso.
+              Teste na sua barbearia por 7 dias sem compromisso.
             </h2>
             <div className={s.finalCtaActions}>
               <Link

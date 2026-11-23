@@ -57,7 +57,7 @@ export default function LandingPricing({
             Um plano completo. Sem pegadinha e sem cobrar por barbeiro.
           </h2>
           <p className={s.pricingLead}>
-            Comece com 14 dias grátis para testar na rotina da barbearia. Depois,
+            Comece com 7 dias grátis para testar na rotina da barbearia. Depois,
             escolha pagar por mês ou garantir desconto no plano anual.
           </p>
         </div>
@@ -101,7 +101,7 @@ export default function LandingPricing({
                   className={`${s.action} ${!isAnnual ? s.secondary : ""}`}
                   onClick={() => trackTrialClick("pricing")}
                 >
-                  Testar 14 dias grátis
+                  Testar 7 dias grátis
                   <ArrowRight size={15} aria-hidden="true" />
                 </Link>
 
