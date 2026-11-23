@@ -7,6 +7,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { gsap } from 'gsap'
 import { ArrowRight, CalendarDays, ChartNoAxesColumnIncreasing, UsersRound, Crown, Mail, LockKeyhole, UserRound, Link2 } from 'lucide-react'
+import { trackSignupCompleted } from '@/lib/analytics'
 import styles from './auth.module.css'
 
 type AuthMode = 'login' | 'register'
@@ -139,6 +140,7 @@ export default function LoginPage() {
       return
     }
 
+    trackSignupCompleted('email')
     setMessage('Conta criada com sucesso! Enviamos um link de confirmação para o seu e-mail.')
     setLoading(false)
 

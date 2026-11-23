@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import LandingRedesign from "./landing-redesign";
 
-const title = "Sistema de Gestão para Barbearias | HeadBarber";
+const title = "HeadBarber | Agendamento e gestão para barbearias";
 const description =
-  "Organize agendamentos, barbeiros, clientes, serviços e financeiro em um só lugar. Conheça o HeadBarber e experimente a demonstração.";
+  "Seu cliente agenda em 20 segundos pelo link na bio, sem baixar app. Controle agenda, comissões, assinaturas e caixa direto do celular.";
 
 export const metadata: Metadata = {
   title,

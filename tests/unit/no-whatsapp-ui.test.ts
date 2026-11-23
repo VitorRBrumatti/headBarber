@@ -50,18 +50,23 @@ function renderSurfaces(): Array<[string, string]> {
 }
 
 describe('customer-facing messaging surfaces', () => {
-  it('does not advertise WhatsApp messages or automatic notifications', () => {
+  it('does not advertise WhatsApp messages or automatic notifications inside app surfaces', () => {
     const surfaces = renderSurfaces()
 
     for (const [name, markup] of surfaces) {
-      expect(markup, name).not.toMatch(/whatsapp/i)
       expect(markup, name).not.toContain('notificações automáticas')
+      expect(markup, name).not.toMatch(/whatsapp autom[áa]tico/i)
+      if (name !== 'landing') {
+        expect(markup, name).not.toMatch(/whatsapp/i)
+      }
     }
   })
 
-  it('shows client subscriptions in place of the WhatsApp landing benefit', () => {
+  it('shows subscriptions and direct WhatsApp contact on the landing page', () => {
     const landingMarkup = renderSurfaces().find(([name]) => name === 'landing')?.[1]
 
-    expect(landingMarkup).toContain('Assinaturas de clientes')
+    expect(landingMarkup).toContain('Clube de Assinaturas')
+    expect(landingMarkup).toContain('https://wa.me/5544999954481')
+    expect(landingMarkup).toContain('Dúvidas frequentes')
   })
 })
