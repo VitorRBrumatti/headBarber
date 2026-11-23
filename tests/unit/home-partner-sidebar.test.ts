@@ -5,15 +5,13 @@ import { resolve } from 'node:path'
 const source = (path: string) => readFileSync(resolve(process.cwd(), path), 'utf8')
 
 describe('home partner banner and sidebar navigation', () => {
-  it('shows the official partner banner on the landing page only', () => {
+  it('removes the AI-generated partner facade from the landing page and dashboard', () => {
     const landingPage = source('src/app/landing-redesign.tsx')
     const dashboard = source('src/app/dashboard/page.tsx')
 
-    expect(landingPage).toContain('aria-label="Parceiro oficial"')
-    expect(landingPage).toContain('Parceiro oficial')
-    expect(landingPage).toContain('/brand/partners/hoffmanns-facade-ai.webp')
-    expect(landingPage).toContain('a tecnologia.')
-    expect(landingPage).toContain('gerada por IA')
+    expect(landingPage).not.toContain('/brand/partners/hoffmanns-facade-ai.webp')
+    expect(landingPage).not.toContain('gerada por IA')
+    expect(landingPage).not.toContain('a tecnologia.')
     expect(dashboard).not.toContain('aria-label="Parceiro oficial"')
     expect(dashboard).not.toContain('/brand/partners/hoffmanns-barber.png')
   })

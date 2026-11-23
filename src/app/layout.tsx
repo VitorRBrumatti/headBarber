@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono, Inter, Montserrat } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import { PostHogProvider } from "@/components/analytics/PostHogProvider";
+import { TrackingScripts } from "@/components/analytics/TrackingScripts";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -44,7 +46,8 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} ${inter.variable} ${montserrat.variable} h-full antialiased dark`}
     >
       <body className="min-h-full flex flex-col">
-        {children}
+        <PostHogProvider>{children}</PostHogProvider>
+        <TrackingScripts />
         <Analytics />
         <SpeedInsights />
       </body>

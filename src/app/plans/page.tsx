@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation'
 import { Check, Crown, LogOut, ShieldCheck, Sparkles } from 'lucide-react'
 import { createClient } from '@/utils/supabase/server'
 import { createCheckoutSession } from './actions'
+import { CheckoutSubmitButton } from './checkout-button'
 import { isBillingEnvironmentConfigured } from '@/lib/stripe'
 import { formatPlanAmount, hasProductAccess, PLAN_DETAILS, type BillingPlan } from '@/lib/plans'
 
@@ -131,15 +132,16 @@ export default async function PlansPage({
 
                 <form action={createCheckoutSession}>
                   <input type="hidden" name="plan" value={plan} />
-                  <button
-                    type="submit"
+                  <CheckoutSubmitButton
+                    plan={plan}
+                    value={details.amount / 100}
                     disabled={!billingReady}
                     className={annual
                       ? 'w-full cursor-pointer rounded-lg bg-[#C79A4A] px-5 py-4 text-xs font-bold uppercase tracking-widest text-[#1A1A1D] transition-all hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50'
                       : 'w-full cursor-pointer rounded-lg border border-[#1A1A1D] bg-transparent px-5 py-4 text-xs font-bold uppercase tracking-widest text-[#1A1A1D] transition-colors hover:bg-[#1A1A1D] hover:text-white disabled:cursor-not-allowed disabled:opacity-50'}
                   >
                     Escolher plano {plan === 'annual' ? 'anual' : 'mensal'}
-                  </button>
+                  </CheckoutSubmitButton>
                 </form>
               </article>
             )
